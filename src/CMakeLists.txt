@@ -1,0 +1,12 @@
+add_subdirectory(core)
+add_subdirectory(net)
+add_subdirectory(thread)
+add_subdirectory(matter)
+add_subdirectory(fault)
+add_subdirectory(metrics)
+add_subdirectory(broker)
+add_subdirectory(node)
+
+if(ENABLE_HW_BRIDGE)
+    add_subdirectory(hw)
+endif()
