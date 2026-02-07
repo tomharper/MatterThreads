@@ -1,0 +1,197 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 630" width="900" height="630" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="104%">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#00000020"/>
+    </filter>
+    <marker id="arrowRight" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#7F8C8D"/>
+    </marker>
+    <marker id="arrowLeft" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+      <polygon points="8 0, 0 3, 8 6" fill="#7F8C8D"/>
+    </marker>
+    <linearGradient id="connectorGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#5BB55B"/>
+      <stop offset="50%" stop-color="#7F8C8D"/>
+      <stop offset="100%" stop-color="#9B59B6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="630" fill="#F7F9FC" rx="8"/>
+
+  <!-- Title -->
+  <text x="450" y="34" text-anchor="middle" font-size="18" font-weight="bold" fill="#2C3E50">Real Van &#x2194; MatterThreads Simulation Mapping</text>
+  <text x="450" y="52" text-anchor="middle" font-size="11" fill="#7F8C8D">How physical delivery van components map to simulation constructs</text>
+
+  <!-- ════════════════ Column Headers ════════════════ -->
+  <!-- Left column header: REAL VAN -->
+  <rect x="40" y="70" width="340" height="40" rx="10" fill="#5BB55B" filter="url(#shadow)"/>
+  <text x="210" y="95" text-anchor="middle" font-size="14" font-weight="bold" fill="#FFFFFF">REAL VAN</text>
+  <!-- Van icon hint -->
+  <rect x="55" y="80" width="24" height="16" rx="3" fill="#FFFFFF" opacity="0.3"/>
+  <circle cx="63" cy="99" r="4" fill="#FFFFFF" opacity="0.3"/>
+  <circle cx="73" cy="99" r="4" fill="#FFFFFF" opacity="0.3"/>
+
+  <!-- Center: Mapping column -->
+  <text x="450" y="95" text-anchor="middle" font-size="12" font-weight="bold" fill="#7F8C8D">MAPPING</text>
+
+  <!-- Right column header: SIMULATION -->
+  <rect x="520" y="70" width="340" height="40" rx="10" fill="#9B59B6" filter="url(#shadow)"/>
+  <text x="690" y="95" text-anchor="middle" font-size="14" font-weight="bold" fill="#FFFFFF">SIMULATION</text>
+  <!-- Code icon hint -->
+  <text x="820" y="96" font-size="11" fill="#FFFFFF" opacity="0.4">&lt;/&gt;</text>
+
+  <!-- ════════════════ Row Template ════════════════ -->
+  <!-- Row backgrounds alternate -->
+
+  <!-- ROW 1: Border Router (cab) <-> Node 0 -->
+  <rect x="30" y="120" width="840" height="44" rx="6" fill="#FFFFFF"/>
+  <rect x="40" y="124" width="340" height="36" rx="8" fill="#E8F5E9" stroke="#5BB55B" stroke-width="1"/>
+  <circle cx="62" cy="142" r="10" fill="#5BB55B"/>
+  <text x="62" y="146" text-anchor="middle" font-size="9" font-weight="bold" fill="#FFFFFF">BR</text>
+  <text x="82" y="140" font-size="11" font-weight="bold" fill="#2C3E50">Border Router</text>
+  <text x="82" y="154" font-size="9" fill="#7F8C8D">Installed in cab, USB-powered</text>
+
+  <!-- Connector -->
+  <line x1="385" y1="142" x2="425" y2="142" stroke="#7F8C8D" stroke-width="1.5" marker-end="url(#arrowRight)"/>
+  <line x1="475" y1="142" x2="515" y2="142" stroke="#7F8C8D" stroke-width="1.5" marker-end="url(#arrowRight)"/>
+  <text x="450" y="146" text-anchor="middle" font-size="13" font-weight="bold" fill="#7F8C8D">&#x2194;</text>
+
+  <rect x="520" y="124" width="340" height="36" rx="8" fill="#F3E5F5" stroke="#9B59B6" stroke-width="1"/>
+  <circle cx="542" cy="142" r="10" fill="#9B59B6"/>
+  <text x="542" y="146" text-anchor="middle" font-size="8" font-weight="bold" fill="#FFFFFF">N0</text>
+  <text x="562" y="140" font-size="11" font-weight="bold" fill="#2C3E50">Node 0 (Leader, FTD)</text>
+  <text x="562" y="154" font-size="9" fill="#7F8C8D">Full Thread Device, network leader</text>
+
+  <!-- ROW 2: Relay Router (wall) <-> Node 1 -->
+  <rect x="30" y="170" width="840" height="44" rx="6" fill="#F7F9FC"/>
+  <rect x="40" y="174" width="340" height="36" rx="8" fill="#E8F5E9" stroke="#5BB55B" stroke-width="1"/>
+  <circle cx="62" cy="192" r="10" fill="#5BB55B"/>
+  <text x="62" y="196" text-anchor="middle" font-size="9" font-weight="bold" fill="#FFFFFF">RR</text>
+  <text x="82" y="190" font-size="11" font-weight="bold" fill="#2C3E50">Relay Router</text>
+  <text x="82" y="204" font-size="9" fill="#7F8C8D">Mounted on partition wall, 12V</text>
+
+  <line x1="385" y1="192" x2="425" y2="192" stroke="#7F8C8D" stroke-width="1.5" marker-end="url(#arrowRight)"/>
+  <line x1="475" y1="192" x2="515" y2="192" stroke="#7F8C8D" stroke-width="1.5" marker-end="url(#arrowRight)"/>
+  <text x="450" y="196" text-anchor="middle" font-size="13" font-weight="bold" fill="#7F8C8D">&#x2194;</text>
+
+  <rect x="520" y="174" width="340" height="36" rx="8" fill="#F3E5F5" stroke="#9B59B6" stroke-width="1"/>
+  <circle cx="542" cy="192" r="10" fill="#9B59B6"/>
+  <text x="542" y="196" text-anchor="middle" font-size="8" font-weight="bold" fill="#FFFFFF">N1</text>
+  <text x="562" y="190" font-size="11" font-weight="bold" fill="#2C3E50">Node 1 (Router, FTD)</text>
+  <text x="562" y="204" font-size="9" fill="#7F8C8D">Full Thread Device, router role</text>
+
+  <!-- ROW 3: Cargo Sensors (rear) <-> Node 2 -->
+  <rect x="30" y="220" width="840" height="44" rx="6" fill="#FFFFFF"/>
+  <rect x="40" y="224" width="340" height="36" rx="8" fill="#E8F5E9" stroke="#5BB55B" stroke-width="1"/>
+  <circle cx="62" cy="242" r="10" fill="#5BB55B"/>
+  <text x="62" y="246" text-anchor="middle" font-size="8" font-weight="bold" fill="#FFFFFF">CS</text>
+  <text x="82" y="240" font-size="11" font-weight="bold" fill="#2C3E50">Cargo Sensors</text>
+  <text x="82" y="254" font-size="9" fill="#7F8C8D">In rear cargo area, battery-powered</text>
+
+  <line x1="385" y1="242" x2="425" y2="242" stroke="#7F8C8D" stroke-width="1.5" marker-end="url(#arrowRight)"/>
+  <line x1="475" y1="242" x2="515" y2="242" stroke="#7F8C8D" stroke-width="1.5" marker-end="url(#arrowRight)"/>
+  <text x="450" y="246" text-anchor="middle" font-size="13" font-weight="bold" fill="#7F8C8D">&#x2194;</text>
+
+  <rect x="520" y="224" width="340" height="36" rx="8" fill="#F3E5F5" stroke="#9B59B6" stroke-width="1"/>
+  <circle cx="542" cy="242" r="10" fill="#9B59B6"/>
+  <text x="542" y="246" text-anchor="middle" font-size="8" font-weight="bold" fill="#FFFFFF">N2</text>
+  <text x="562" y="240" font-size="11" font-weight="bold" fill="#2C3E50">Node 2 (End Device, SED/MED)</text>
+  <text x="562" y="254" font-size="9" fill="#7F8C8D">Sleepy End Device, sensor role</text>
+
+  <!-- ════════════════ Separator ════════════════ -->
+  <line x1="60" y1="276" x2="840" y2="276" stroke="#7F8C8D" stroke-width="0.5" stroke-dasharray="6,4"/>
+  <text x="450" y="292" text-anchor="middle" font-size="10" font-weight="bold" fill="#7F8C8D">ENVIRONMENTAL CONDITIONS &amp; FAULT INJECTION</text>
+
+  <!-- ROW 4: Metal partition wall <-> linearChain() topology -->
+  <rect x="30" y="302" width="840" height="44" rx="6" fill="#FFFFFF"/>
+  <rect x="40" y="306" width="340" height="36" rx="8" fill="#E8F5E9" stroke="#5BB55B" stroke-width="1"/>
+  <text x="55" y="324" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Metal partition wall</tspan></text>
+  <text x="55" y="338" font-size="9" fill="#7F8C8D">Blocks direct cab-to-cargo RF path</text>
+
+  <line x1="385" y1="324" x2="425" y2="324" stroke="#E8A838" stroke-width="1.5" marker-end="url(#arrowRight)"/>
+  <line x1="475" y1="324" x2="515" y2="324" stroke="#E8A838" stroke-width="1.5" marker-end="url(#arrowRight)"/>
+  <text x="450" y="328" text-anchor="middle" font-size="13" font-weight="bold" fill="#E8A838">&#x2194;</text>
+
+  <rect x="520" y="306" width="340" height="36" rx="8" fill="#F3E5F5" stroke="#9B59B6" stroke-width="1"/>
+  <text x="535" y="324" font-size="11" fill="#2C3E50"><tspan font-weight="bold">linearChain() topology</tspan></text>
+  <text x="535" y="338" font-size="9" fill="#7F8C8D">Node 0&#x2194;2 link down (must route via 1)</text>
+
+  <!-- ROW 5: Engine cranking EMI <-> link degradation -->
+  <rect x="30" y="352" width="840" height="44" rx="6" fill="#F7F9FC"/>
+  <rect x="40" y="356" width="340" height="36" rx="8" fill="#E8F5E9" stroke="#5BB55B" stroke-width="1"/>
+  <text x="55" y="374" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Engine cranking EMI</tspan></text>
+  <text x="55" y="388" font-size="9" fill="#7F8C8D">Electromagnetic interference during start</text>
+
+  <line x1="385" y1="374" x2="425" y2="374" stroke="#E8A838" stroke-width="1.5" marker-end="url(#arrowRight)"/>
+  <line x1="475" y1="374" x2="515" y2="374" stroke="#E8A838" stroke-width="1.5" marker-end="url(#arrowRight)"/>
+  <text x="450" y="378" text-anchor="middle" font-size="13" font-weight="bold" fill="#E8A838">&#x2194;</text>
+
+  <rect x="520" y="356" width="340" height="36" rx="8" fill="#F3E5F5" stroke="#9B59B6" stroke-width="1"/>
+  <text x="535" y="374" font-size="11" fill="#2C3E50"><tspan font-weight="bold">link 0 1 30 / latency 0 1 20</tspan></text>
+  <text x="535" y="388" font-size="9" fill="#7F8C8D">30% packet loss, 20ms added latency</text>
+
+  <!-- ROW 6: Relay power cycle <-> crash 1 / restart 1 -->
+  <rect x="30" y="402" width="840" height="44" rx="6" fill="#FFFFFF"/>
+  <rect x="40" y="406" width="340" height="36" rx="8" fill="#E8F5E9" stroke="#5BB55B" stroke-width="1"/>
+  <text x="55" y="424" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Relay power cycle</tspan></text>
+  <text x="55" y="438" font-size="9" fill="#7F8C8D">Voltage dip reboots relay router</text>
+
+  <line x1="385" y1="424" x2="425" y2="424" stroke="#E74C3C" stroke-width="1.5" marker-end="url(#arrowRight)"/>
+  <line x1="475" y1="424" x2="515" y2="424" stroke="#E74C3C" stroke-width="1.5" marker-end="url(#arrowRight)"/>
+  <text x="450" y="428" text-anchor="middle" font-size="13" font-weight="bold" fill="#E74C3C">&#x2194;</text>
+
+  <rect x="520" y="406" width="340" height="36" rx="8" fill="#F3E5F5" stroke="#9B59B6" stroke-width="1"/>
+  <text x="535" y="424" font-size="11" fill="#2C3E50"><tspan font-weight="bold">crash 1 / restart 1</tspan></text>
+  <text x="535" y="438" font-size="9" fill="#7F8C8D">Kill and restart Node 1 process</text>
+
+  <!-- ROW 7: Sensor battery death <-> crash 2 -->
+  <rect x="30" y="452" width="840" height="44" rx="6" fill="#F7F9FC"/>
+  <rect x="40" y="456" width="340" height="36" rx="8" fill="#E8F5E9" stroke="#5BB55B" stroke-width="1"/>
+  <text x="55" y="474" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Sensor battery death</tspan></text>
+  <text x="55" y="488" font-size="9" fill="#7F8C8D">CR2032 depleted, sensor offline</text>
+
+  <line x1="385" y1="474" x2="425" y2="474" stroke="#E74C3C" stroke-width="1.5" marker-end="url(#arrowRight)"/>
+  <line x1="475" y1="474" x2="515" y2="474" stroke="#E74C3C" stroke-width="1.5" marker-end="url(#arrowRight)"/>
+  <text x="450" y="478" text-anchor="middle" font-size="13" font-weight="bold" fill="#E74C3C">&#x2194;</text>
+
+  <rect x="520" y="456" width="340" height="36" rx="8" fill="#F3E5F5" stroke="#9B59B6" stroke-width="1"/>
+  <text x="535" y="474" font-size="11" fill="#2C3E50"><tspan font-weight="bold">crash 2</tspan> (no restart)</text>
+  <text x="535" y="488" font-size="9" fill="#7F8C8D">Kill Node 2 permanently</text>
+
+  <!-- ROW 8: Tunnel (no cellular) <-> backhaul down -->
+  <rect x="30" y="502" width="840" height="44" rx="6" fill="#FFFFFF"/>
+  <rect x="40" y="506" width="340" height="36" rx="8" fill="#E8F5E9" stroke="#5BB55B" stroke-width="1"/>
+  <text x="55" y="524" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Tunnel (no cellular)</tspan></text>
+  <text x="55" y="538" font-size="9" fill="#7F8C8D">Van enters tunnel, loses cellular</text>
+
+  <line x1="385" y1="524" x2="425" y2="524" stroke="#4A90D9" stroke-width="1.5" marker-end="url(#arrowRight)"/>
+  <line x1="475" y1="524" x2="515" y2="524" stroke="#4A90D9" stroke-width="1.5" marker-end="url(#arrowRight)"/>
+  <text x="450" y="528" text-anchor="middle" font-size="13" font-weight="bold" fill="#4A90D9">&#x2194;</text>
+
+  <rect x="520" y="506" width="340" height="36" rx="8" fill="#F3E5F5" stroke="#9B59B6" stroke-width="1"/>
+  <text x="535" y="524" font-size="11" fill="#2C3E50"><tspan font-weight="bold">backhaul down</tspan> (cellular sim)</text>
+  <text x="535" y="538" font-size="9" fill="#7F8C8D">Disable simulated cellular backhaul</text>
+
+  <!-- ════════════════ Separator 2 ════════════════ -->
+  <line x1="60" y1="554" x2="840" y2="554" stroke="#7F8C8D" stroke-width="0.5" stroke-dasharray="6,4"/>
+  <text x="450" y="568" text-anchor="middle" font-size="10" font-weight="bold" fill="#7F8C8D">MATTER APPLICATION-LAYER EVENTS</text>
+
+  <!-- ROW 9: Cold chain temp breach <-> write command -->
+  <rect x="30" y="574" width="408" height="22" rx="6" fill="#E8F5E9" stroke="#5BB55B" stroke-width="0.5"/>
+  <text x="45" y="589" font-size="10" fill="#2C3E50"><tspan font-weight="bold">Cold chain temp breach</tspan></text>
+
+  <text x="450" y="589" text-anchor="middle" font-size="12" font-weight="bold" fill="#9B59B6">&#x2194;</text>
+
+  <rect x="470" y="574" width="408" height="22" rx="6" fill="#F3E5F5" stroke="#9B59B6" stroke-width="0.5"/>
+  <text x="485" y="589" font-size="10" fill="#2C3E50"><tspan font-weight="bold">write 0 2 1/1026/0 1200</tspan> <tspan font-size="9" fill="#7F8C8D">(set temp to 12.00&#x00B0;C)</tspan></text>
+
+  <!-- ROW 10: Door opened in transit <-> write command -->
+  <rect x="30" y="600" width="408" height="22" rx="6" fill="#E8F5E9" stroke="#5BB55B" stroke-width="0.5"/>
+  <text x="45" y="615" font-size="10" fill="#2C3E50"><tspan font-weight="bold">Door opened in transit</tspan></text>
+
+  <text x="450" y="615" text-anchor="middle" font-size="12" font-weight="bold" fill="#9B59B6">&#x2194;</text>
+
+  <rect x="470" y="600" width="408" height="22" rx="6" fill="#F3E5F5" stroke="#9B59B6" stroke-width="0.5"/>
+  <text x="485" y="615" font-size="10" fill="#2C3E50"><tspan font-weight="bold">write 0 2 1/69/0 true</tspan> <tspan font-size="9" fill="#7F8C8D">(contact sensor open)</tspan></text>
+</svg>

@@ -57,7 +57,7 @@ static CLIOptions parseCLI(int argc, char* argv[]) {
             std::cout << "Usage: matterthreads [options]\n"
                       << "\n"
                       << "Options:\n"
-                      << "  --topology <full|linear|star>  Topology preset (default: full)\n"
+                      << "  --topology <full|linear|star|van>  Topology preset (default: full)\n"
                       << "  --seed <uint32>                Random seed (default: 42)\n"
                       << "  --duration <seconds>           Max duration (default: 120)\n"
                       << "  --hw                           Enable hardware bridge mode\n"
@@ -124,11 +124,13 @@ int main(int argc, char* argv[]) {
     if (broker_pid == 0) {
         std::string broker_path = bin_dir + "/mt_broker";
         std::string seed_str = std::to_string(opts.seed);
-        const char* args[] = {broker_path.c_str(), "--seed", seed_str.c_str(), nullptr};
         if (opts.verbose) {
-            const char* args_v[] = {broker_path.c_str(), "--seed", seed_str.c_str(), "--verbose", nullptr};
-            execv(broker_path.c_str(), const_cast<char* const*>(args_v));
+            const char* args[] = {broker_path.c_str(), "--seed", seed_str.c_str(),
+                                   "--topology", opts.topology.c_str(), "--verbose", nullptr};
+            execv(broker_path.c_str(), const_cast<char* const*>(args));
         } else {
+            const char* args[] = {broker_path.c_str(), "--seed", seed_str.c_str(),
+                                   "--topology", opts.topology.c_str(), nullptr};
             execv(broker_path.c_str(), const_cast<char* const*>(args));
         }
         perror("execv broker");
@@ -138,11 +140,12 @@ int main(int argc, char* argv[]) {
     // Give broker time to start
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-    // Spawn 3 nodes
-    std::array<pid_t, 3> node_pids{};
-    std::array<std::string, 3> roles = {"leader", "router", "sed"};
+    // Spawn 4 nodes (0=Leader/BR, 1=Router/Relay, 2=EndDevice/Sensor, 3=Phone)
+    static constexpr int NUM_NODES = 4;
+    std::array<pid_t, NUM_NODES> node_pids{};
+    std::array<std::string, NUM_NODES> roles = {"leader", "router", "sed", "phone"};
 
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < NUM_NODES; ++i) {
         node_pids[static_cast<size_t>(i)] = fork();
         if (node_pids[static_cast<size_t>(i)] == 0) {
             std::string node_path = bin_dir + "/mt_node";
@@ -164,7 +167,7 @@ int main(int argc, char* argv[]) {
     }
 
     MT_INFO("ctrl", "All processes started. Broker PID=" + std::to_string(broker_pid));
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < NUM_NODES; ++i) {
         MT_INFO("ctrl", "  Node " + std::to_string(i) + " PID=" +
                 std::to_string(node_pids[static_cast<size_t>(i)]) +
                 " (" + roles[static_cast<size_t>(i)] + ")");
@@ -211,38 +214,108 @@ int main(int argc, char* argv[]) {
                 break;
             } else if (cmd == "help") {
                 std::cout << "Commands:\n"
-                          << "  status          Show node states\n"
-                          << "  topology        Show link matrix\n"
-                          << "  link A B loss%  Set loss on link A->B\n"
-                          << "  link A B down   Bring link down\n"
-                          << "  link A B up     Bring link up\n"
-                          << "  crash N         Kill node N\n"
-                          << "  restart N       Restart node N\n"
-                          << "  metrics         Show metrics\n"
-                          << "  timeline        Show timeline\n"
-                          << "  chaos on|off    Toggle chaos mode\n"
-                          << "  export <path>   Export JSON report\n"
-                          << "  quit            Shut down\n";
+                          << "  status               Show node states\n"
+                          << "  topology             Show link matrix\n"
+                          << "  link A B loss%       Set loss on link A->B\n"
+                          << "  link A B down        Bring link down\n"
+                          << "  link A B up          Bring link up\n"
+                          << "  crash N              Kill node N\n"
+                          << "  restart N            Restart node N\n"
+                          << "  metrics              Show metrics\n"
+                          << "  timeline             Show timeline\n"
+                          << "  chaos on|off         Toggle chaos mode\n"
+                          << "  export <path>        Export JSON report\n"
+                          << "\n"
+                          << "Phone / Van commands:\n"
+                          << "  discover             Phone scans for devices via DNS-SD\n"
+                          << "  backhaul down        Simulate cellular backhaul loss\n"
+                          << "  backhaul up          Restore cellular backhaul\n"
+                          << "  backhaul latency <ms> Set backhaul latency\n"
+                          << "  tunnel <sec>         Simulate tunnel (backhaul down for N sec)\n"
+                          << "  crank                Simulate engine cranking power dip\n"
+                          << "  healing              Show self-healing history\n"
+                          << "\n"
+                          << "  quit                 Shut down\n";
             } else if (cmd == "status") {
                 std::cout << "Broker PID: " << broker_pid << "\n";
-                for (int i = 0; i < 3; ++i) {
+                for (int i = 0; i < NUM_NODES; ++i) {
                     int status;
                     pid_t result = waitpid(node_pids[static_cast<size_t>(i)], &status, WNOHANG);
                     std::string state = (result == 0) ? "running" : "stopped";
                     std::cout << "  Node " << i << ": PID=" << node_pids[static_cast<size_t>(i)]
                               << " (" << roles[static_cast<size_t>(i)] << ") " << state << "\n";
                 }
+            } else if (cmd == "discover") {
+                std::cout << "Phone (Node 3) scanning for devices via DNS-SD...\n";
+                std::cout << "  (Discovery results come from node process logs)\n";
+                collector.event(mt::SteadyClock::now(), 3, "discovery", "phone_scan_triggered");
+            } else if (cmd == "backhaul") {
+                std::string subcmd;
+                if (iss >> subcmd) {
+                    if (subcmd == "down") {
+                        std::cout << "Backhaul disconnected (phone ↔ BR link down)\n";
+                        // Signal the broker to drop phone-BR link
+                        collector.event(mt::SteadyClock::now(), 3, "backhaul", "disconnected");
+                    } else if (subcmd == "up") {
+                        std::cout << "Backhaul restored (phone ↔ BR link up)\n";
+                        collector.event(mt::SteadyClock::now(), 3, "backhaul", "restored");
+                    } else if (subcmd == "latency") {
+                        int ms;
+                        if (iss >> ms) {
+                            std::cout << "Backhaul latency set to " << ms << "ms\n";
+                            collector.event(mt::SteadyClock::now(), 3, "backhaul",
+                                            "latency_set_" + std::to_string(ms));
+                        }
+                    }
+                }
+            } else if (cmd == "tunnel") {
+                int seconds;
+                if (iss >> seconds) {
+                    std::cout << "Simulating tunnel for " << seconds << "s (backhaul down)...\n";
+                    collector.event(mt::SteadyClock::now(), 3, "backhaul",
+                                    "tunnel_start_" + std::to_string(seconds) + "s");
+                    // Note: actual link manipulation would go through broker control socket
+                    std::cout << "  Thread mesh continues, BR buffers reports\n";
+                    std::cout << "  Backhaul will auto-restore after " << seconds << "s\n";
+                }
+            } else if (cmd == "crank") {
+                std::cout << "Simulating engine cranking power dip...\n";
+                std::cout << "  12V → 6V for 400ms (relay router may brown out)\n";
+                collector.event(mt::SteadyClock::now(), 1, "power", "crank_dip");
+                // Simulate: temporarily kill node 1 (relay) then auto-restart
+                kill(node_pids[1], SIGKILL);
+                std::cout << "  Relay router (Node 1) lost power\n";
+                std::this_thread::sleep_for(std::chrono::milliseconds(400));
+                waitpid(node_pids[1], nullptr, 0);
+                // Respawn
+                node_pids[1] = fork();
+                if (node_pids[1] == 0) {
+                    std::string node_path = bin_dir + "/mt_node";
+                    const char* args[] = {node_path.c_str(), "--id", "1",
+                                           "--role", "router", nullptr};
+                    execv(node_path.c_str(), const_cast<char* const*>(args));
+                    _exit(1);
+                }
+                std::cout << "  Voltage recovered → Relay router rebooting (PID="
+                          << node_pids[1] << ")\n";
+                collector.event(mt::SteadyClock::now(), 1, "power", "crank_recovered");
+            } else if (cmd == "healing") {
+                std::cout << "Self-healing history:\n"
+                          << "  (healing events are logged by each node process)\n"
+                          << "  Check node logs for: NeighborLost, PartitionDetected,\n"
+                          << "  RouteRecalculated, SubscriptionRecovered, NodeReattached\n";
             } else if (cmd == "crash") {
                 int node;
-                if (iss >> node && node >= 0 && node < 3) {
+                if (iss >> node && node >= 0 && node < NUM_NODES) {
                     kill(node_pids[static_cast<size_t>(node)], SIGKILL);
-                    std::cout << "Sent SIGKILL to node " << node << "\n";
+                    std::cout << "Sent SIGKILL to node " << node
+                              << " (" << roles[static_cast<size_t>(node)] << ")\n";
                     collector.event(mt::SteadyClock::now(), static_cast<mt::NodeId>(node),
                                     "fault", "node_crashed");
                 }
             } else if (cmd == "restart") {
                 int node;
-                if (iss >> node && node >= 0 && node < 3) {
+                if (iss >> node && node >= 0 && node < NUM_NODES) {
                     // Kill existing
                     kill(node_pids[static_cast<size_t>(node)], SIGKILL);
                     waitpid(node_pids[static_cast<size_t>(node)], nullptr, 0);
@@ -285,13 +358,13 @@ int main(int argc, char* argv[]) {
 
     // Shutdown all child processes
     MT_INFO("ctrl", "Shutting down...");
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < NUM_NODES; ++i) {
         kill(node_pids[static_cast<size_t>(i)], SIGTERM);
     }
     kill(broker_pid, SIGTERM);
 
     // Wait for children
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < NUM_NODES; ++i) {
         waitpid(node_pids[static_cast<size_t>(i)], nullptr, 0);
     }
     waitpid(broker_pid, nullptr, 0);

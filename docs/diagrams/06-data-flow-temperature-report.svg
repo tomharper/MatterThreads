@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" width="900" height="600" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <filter id="shadow6" x="-2%" y="-2%" width="104%" height="104%">
+      <feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.1"/>
+    </filter>
+    <marker id="arrowRight6" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#2C3E50"/>
+    </marker>
+    <marker id="arrowRightOrange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#E8A838"/>
+    </marker>
+    <marker id="arrowRightBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#4A90D9"/>
+    </marker>
+    <marker id="arrowRightPurple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#9B59B6"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="600" fill="#F7F9FC" rx="8"/>
+
+  <!-- Title -->
+  <text x="450" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#2C3E50">Data Flow: Temperature Subscription Report</text>
+
+  <!-- Swim lane headers -->
+  <!-- Lane 1: Temp Sensor -->
+  <rect x="30" y="42" width="190" height="36" rx="8" fill="#E8A838" filter="url(#shadow6)"/>
+  <text x="125" y="65" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Temp Sensor (EP:2)</text>
+
+  <!-- Lane 2: Relay Router -->
+  <rect x="245" y="42" width="190" height="36" rx="8" fill="#5BB55B" filter="url(#shadow6)"/>
+  <text x="340" y="65" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Relay Router</text>
+
+  <!-- Lane 3: Border Router -->
+  <rect x="460" y="42" width="190" height="36" rx="8" fill="#5BB55B" filter="url(#shadow6)"/>
+  <text x="555" y="65" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Border Router</text>
+
+  <!-- Lane 4: Cloud -->
+  <rect x="675" y="42" width="190" height="36" rx="8" fill="#4A90D9" filter="url(#shadow6)"/>
+  <text x="770" y="65" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Cloud</text>
+
+  <!-- Swim lane vertical lines -->
+  <line x1="125" y1="78" x2="125" y2="580" stroke="#E8A838" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.4"/>
+  <line x1="340" y1="78" x2="340" y2="580" stroke="#5BB55B" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.4"/>
+  <line x1="555" y1="78" x2="555" y2="580" stroke="#5BB55B" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.4"/>
+  <line x1="770" y1="78" x2="770" y2="580" stroke="#4A90D9" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.4"/>
+
+  <!-- Step 1: Read sensor -->
+  <rect x="45" y="95" width="160" height="48" rx="8" fill="#FFF8E1" stroke="#E8A838" stroke-width="1.5"/>
+  <text x="56" y="112" font-size="10" font-weight="bold" fill="#E8A838">1</text>
+  <text x="70" y="112" font-size="10" fill="#2C3E50">Read SHT40 sensor</text>
+  <text x="70" y="128" font-size="11" font-weight="bold" fill="#2C3E50">temp = 4.2 C</text>
+
+  <!-- Step 2: Arrow Temp -> Relay -->
+  <line x1="205" y1="170" x2="318" y2="170" stroke="#E8A838" stroke-width="2" marker-end="url(#arrowRightOrange)"/>
+  <rect x="110" y="152" width="275" height="58" rx="6" fill="#FFF8E1" stroke="#E8A838" stroke-width="1" opacity="0.9"/>
+  <text x="120" y="168" font-size="10" font-weight="bold" fill="#E8A838">2</text>
+  <text x="134" y="168" font-size="9.5" fill="#2C3E50">802.15.4 data frame</text>
+  <text x="120" y="182" font-size="9" fill="#6C7A89" font-family="'Courier New', monospace">src: RLOC 0x0401, dst: RLOC 0x0000</text>
+  <text x="120" y="196" font-size="9" fill="#9B59B6" font-family="'Courier New', monospace">Matter IM ReportData sub:1 attr:2/0x0402/0 val:420</text>
+
+  <!-- Step 3: Arrow Relay -> BR -->
+  <line x1="362" y1="238" x2="533" y2="238" stroke="#E8A838" stroke-width="2" marker-end="url(#arrowRightOrange)"/>
+  <rect x="340" y="222" width="230" height="36" rx="6" fill="#E8F5E9" stroke="#5BB55B" stroke-width="1"/>
+  <text x="350" y="238" font-size="10" font-weight="bold" fill="#5BB55B">3</text>
+  <text x="364" y="238" font-size="9.5" fill="#2C3E50">802.15.4 forward (relayed)</text>
+  <text x="364" y="250" font-size="9" fill="#6C7A89">New MAC src/dst addresses</text>
+
+  <!-- Step 4: BR processes -->
+  <rect x="478" y="275" width="155" height="36" rx="8" fill="#F3E5F5" stroke="#9B59B6" stroke-width="1.5"/>
+  <text x="490" y="291" font-size="10" font-weight="bold" fill="#9B59B6">4</text>
+  <text x="504" y="291" font-size="9.5" fill="#2C3E50">Process Matter</text>
+  <text x="504" y="303" font-size="9.5" fill="#2C3E50">subscription report</text>
+
+  <!-- Step 5: Arrow BR -> Cloud -->
+  <line x1="577" y1="336" x2="748" y2="336" stroke="#4A90D9" stroke-width="2" marker-end="url(#arrowRightBlue)"/>
+  <rect x="555" y="320" width="230" height="42" rx="6" fill="white" stroke="#4A90D9" stroke-width="1"/>
+  <text x="565" y="336" font-size="10" font-weight="bold" fill="#4A90D9">5</text>
+  <text x="579" y="336" font-size="9.5" fill="#2C3E50">LTE-M upload</text>
+  <text x="579" y="350" font-size="9" fill="#6C7A89">Matter over TCP (or buffered if no signal)</text>
+
+  <!-- Step 6: Cloud stores -->
+  <rect x="695" y="378" width="150" height="36" rx="8" fill="white" stroke="#4A90D9" stroke-width="1.5"/>
+  <text x="706" y="394" font-size="10" font-weight="bold" fill="#4A90D9">6</text>
+  <text x="720" y="394" font-size="9.5" fill="#2C3E50">Store in</text>
+  <text x="720" y="408" font-size="9.5" fill="#2C3E50">time-series DB</text>
+
+  <!-- Step 7: Cloud checks -->
+  <rect x="685" y="430" width="170" height="50" rx="8" fill="white" stroke="#4A90D9" stroke-width="1.5"/>
+  <text x="696" y="448" font-size="10" font-weight="bold" fill="#4A90D9">7</text>
+  <text x="710" y="448" font-size="9.5" fill="#2C3E50">Range check:</text>
+  <text x="710" y="463" font-size="10" fill="#2C3E50">4.2 C in [2 C, 8 C]?</text>
+  <text x="832" y="463" font-size="12" font-weight="bold" fill="#5BB55B">OK</text>
+
+  <!-- Protocol annotations on the left -->
+  <rect x="12" y="156" width="85" height="20" rx="4" fill="#E8A838" opacity="0.15" stroke="#E8A838" stroke-width="0.5"/>
+  <text x="55" y="170" text-anchor="middle" font-size="8.5" fill="#E8A838" font-weight="bold">802.15.4</text>
+
+  <rect x="12" y="226" width="85" height="20" rx="4" fill="#E8A838" opacity="0.15" stroke="#E8A838" stroke-width="0.5"/>
+  <text x="55" y="240" text-anchor="middle" font-size="8.5" fill="#E8A838" font-weight="bold">802.15.4</text>
+
+  <rect x="12" y="324" width="85" height="20" rx="4" fill="#4A90D9" opacity="0.15" stroke="#4A90D9" stroke-width="0.5"/>
+  <text x="55" y="338" text-anchor="middle" font-size="8.5" fill="#4A90D9" font-weight="bold">LTE-M / TCP</text>
+
+  <!-- Bottom legend -->
+  <rect x="30" y="502" width="840" height="44" rx="8" fill="white" stroke="#D5DBE3" stroke-width="1"/>
+  <text x="50" y="520" font-size="10" font-weight="bold" fill="#2C3E50">Legend:</text>
+
+  <line x1="110" y1="518" x2="145" y2="518" stroke="#E8A838" stroke-width="2"/>
+  <text x="150" y="522" font-size="9.5" fill="#2C3E50">Thread mesh (802.15.4)</text>
+
+  <line x1="300" y1="518" x2="335" y2="518" stroke="#4A90D9" stroke-width="2"/>
+  <text x="340" y="522" font-size="9.5" fill="#2C3E50">Cellular uplink (LTE-M)</text>
+
+  <rect x="490" y="510" width="14" height="14" rx="3" fill="#F3E5F5" stroke="#9B59B6" stroke-width="1"/>
+  <text x="510" y="522" font-size="9.5" fill="#2C3E50">Matter protocol processing</text>
+
+  <rect x="670" y="510" width="14" height="14" rx="3" fill="#FFF8E1" stroke="#E8A838" stroke-width="1"/>
+  <text x="690" y="522" font-size="9.5" fill="#2C3E50">Sensor / device activity</text>
+
+  <text x="50" y="538" font-size="9" fill="#6C7A89">Attr path: EP 2 / Cluster 0x0402 (Temperature Measurement) / Attribute 0 (MeasuredValue) -- value 420 = 4.20 C (hundredths)</text>
+</svg>

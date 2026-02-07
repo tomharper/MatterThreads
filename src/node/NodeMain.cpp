@@ -3,6 +3,8 @@
 #include "core/Clock.h"
 #include "net/Socket.h"
 #include "net/Frame.h"
+#include "net/Discovery.h"
+#include "net/SelfHealing.h"
 #include "thread/ThreadNode.h"
 #include "matter/DataModel.h"
 #include "matter/Session.h"
@@ -67,7 +69,11 @@ int main(int argc, char* argv[]) {
 
     // Set up Thread node
     uint64_t ext_addr = 0x1000 + node_id;
-    mt::DeviceMode mode = (role_str == "sed") ? mt::DeviceMode::MTD_SED : mt::DeviceMode::FTD;
+    bool is_phone = (role_str == "phone");
+    mt::DeviceMode mode;
+    if (role_str == "sed") mode = mt::DeviceMode::MTD_SED;
+    else mode = mt::DeviceMode::FTD;
+
     mt::ThreadNode thread_node(node_id, mode, ext_addr);
 
     mt::Clock clock;
@@ -91,19 +97,55 @@ int main(int argc, char* argv[]) {
     });
 
     // Initialize node role
-    thread_node.attach();
-    if (node_id == 0) {
-        thread_node.becomeLeader();
-    } else {
+    if (is_phone) {
+        // Phone acts as a Matter controller — connects to BR over backhaul
+        // It's not part of the Thread mesh but communicates through the BR
+        thread_node.attach();
         thread_node.promoteToRouter(static_cast<uint8_t>(node_id));
+        MT_INFO("node", "Phone controller node — connects to mesh via BR backhaul");
+    } else {
+        thread_node.attach();
+        if (node_id == 0) {
+            thread_node.becomeLeader();
+        } else {
+            thread_node.promoteToRouter(static_cast<uint8_t>(node_id));
+        }
     }
 
-    // Set up Matter stack
-    mt::DataModel data_model = mt::DataModel::lightBulb();
+    // Set up self-healing callbacks
+    thread_node.healing().onHealingEvent([node_id](const mt::HealingRecord& record) {
+        MT_INFO("healing", "Node " + std::to_string(node_id) + ": " +
+                mt::healingEventToString(record.event) + " — " + record.detail);
+    });
+
+    // Set up Matter stack — phone gets a controller model, others get device models
+    mt::DataModel data_model = is_phone ? mt::DataModel::lightBulb() : mt::DataModel::lightBulb();
     mt::SessionManager session_mgr;
     mt::ExchangeManager exchange_mgr;
     mt::SubscriptionManager sub_mgr;
     mt::InteractionModel im(data_model, session_mgr, sub_mgr, exchange_mgr);
+
+    // Service registry (Border Router hosts this)
+    mt::ServiceRegistry service_registry;
+    mt::DiscoveryClient discovery_client;
+
+    // Register services with SRP if we're not the phone
+    if (!is_phone && node_id == 0) {
+        // BR: register all mesh device services after a short delay
+        MT_INFO("node", "Border Router — hosting SRP service registry");
+    }
+
+    // Register this node's services
+    thread_node.registerServices(service_registry, clock.now());
+
+    if (is_phone) {
+        // Phone: set up discovery scanning
+        discovery_client.onDeviceDiscovered([](const mt::BrowseResult& result) {
+            MT_INFO("discovery", "Phone discovered: " + result.service_name +
+                    " type=" + result.service_type +
+                    " node=" + std::to_string(result.node_id));
+        });
+    }
 
     MT_INFO("node", "Running as " + role_str + " (" + thread_node.statusString() + ")");
 
@@ -148,6 +190,18 @@ int main(int argc, char* argv[]) {
         // Periodic tick
         thread_node.tick();
         im.tick(clock.now());
+
+        // Phone: periodic discovery scan
+        if (is_phone) {
+            discovery_client.scan(service_registry);
+        }
+
+        // Periodically re-register services (SRP refresh)
+        static int tick_count = 0;
+        if (++tick_count % 100 == 0) { // Every ~10 seconds
+            thread_node.registerServices(service_registry, clock.now());
+            service_registry.expireStale(clock.now());
+        }
     }
 
     MT_INFO("node", "Shutting down");

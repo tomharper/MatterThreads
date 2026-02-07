@@ -2,11 +2,11 @@
 
 ## Overview
 
-MatterThreads is a C++20 testing framework for debugging Matter over Thread issues between phones (controllers) and smart home devices (accessories). It simulates a 3-node Thread mesh network with deterministic fault injection, enabling reproducible debugging of real-world issues.
+MatterThreads is a C++20 testing framework for debugging Matter over Thread issues in delivery van fleets. It simulates a 4-node Thread mesh network (Border Router, Relay Router, End Device, Phone) with deterministic fault injection, DNS-SD discovery simulation, SRP lease management, and self-healing mesh validation.
 
 ## Process Architecture
 
-5 OS processes running on localhost:
+6 OS processes running on localhost:
 
 ```
                     +---------------------+
@@ -14,21 +14,21 @@ MatterThreads is a C++20 testing framework for debugging Matter over Thread issu
                     |   (user interface)   |
                     +----------+----------+
                                | control (Unix domain sockets)
-                +--------------+--------------+
-                v              v              v
-         +----------+   +----------+   +-----------+
-         | mt_node 0 |   | mt_node 1|   | mt_node 2 |
-         | (Leader/  |   | (Router) |   | (End      |
-         |  Border   |   |          |   |  Device)  |
-         |  Router)  |   |          |   |           |
-         +-----+-----+   +----+-----+   +-----+-----+
-               +---------------+---------------+
-                               v
-                  +-------------------------+
-                  |       mt_broker         |  Radio medium simulation
-                  |  - Link quality matrix  |  + fault injection
-                  |  - Packet loss/latency  |
-                  +-------------------------+
+           +----------+--------+--------+----------+
+           v          v        v        v          v
+    +----------+  +----------+  +-----------+  +-----------+
+    | mt_node 0 |  | mt_node 1|  | mt_node 2 |  | mt_node 3 |
+    | (Leader/  |  | (Router/ |  | (End      |  | (Phone/   |
+    |  Border   |  |  Relay)  |  |  Device/  |  |  Control- |
+    |  Router)  |  |          |  |  Sensor)  |  |  ler)     |
+    +-----+-----+  +----+-----+  +-----+-----+  +-----+-----+
+          +---------------+---------------+-----------+
+                          v
+             +-------------------------+
+             |       mt_broker         |  Radio medium simulation
+             |  - 4x4 Link matrix     |  + fault injection
+             |  - Topology presets     |  + backhaul simulation
+             +-------------------------+
 ```
 
 ### IPC Channels
@@ -56,10 +56,10 @@ mt_core  <--  mt_net  <--  mt_thread  <--  mt_matter  <--  mt_fault
 Shared primitives: Types (NodeId, RLOC16, FabricId), Clock (monotonic + simulated), Log (structured with severity + node tag), Random (seeded PRNG), ByteBuffer (zero-copy span), Result (error handling).
 
 ### Layer 1: Network (`src/net/`)
-Socket (RAII TCP wrapper), Frame (simulated 802.15.4 MAC), Channel (per-link loss/latency/LQI model), Broker (central TCP server), FaultInjector (packet drop/delay/reorder/corrupt/duplicate).
+Socket (RAII TCP wrapper), Frame (simulated 802.15.4 MAC), Channel (per-link loss/latency/LQI model), Broker (central TCP server + topology presets), FaultInjector (packet drop/delay/reorder/corrupt/duplicate), Discovery (ServiceRegistry + DiscoveryClient for DNS-SD simulation), SelfHealing (neighbor liveness, partition detection, backhaul management).
 
 ### Layer 2: Thread (`src/thread/`)
-ThreadNode (device lifecycle), MeshTopology (3x3 link matrix), MLE (mesh link establishment), Routing (distance-vector), AddressManager (RLOC16/ML-EID), Leader election, ChildTable.
+ThreadNode (device lifecycle), MeshTopology (4x4 link matrix with van/phone presets), MLE (mesh link establishment), Routing (distance-vector), AddressManager (RLOC16/ML-EID), Leader election, ChildTable, BorderRouter (proxy table for controller↔mesh sessions), SRP (lease-based service registration client/server).
 
 ### Layer 3: Matter (`src/matter/`)
 TLV (encoder/decoder), Session/PASE/CASE (stubbed crypto, real message flow), Fabric (NOC management), InteractionModel (Read/Write/Subscribe/Invoke), SubscriptionManager (lifecycle + liveness), Exchange (request-response + retransmission), DataModel (attribute store + device presets).

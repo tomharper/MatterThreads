@@ -6,6 +6,8 @@ add_library(mt_thread STATIC
     AddressManager.cpp
     Leader.cpp
     ChildTable.cpp
+    BorderRouter.cpp
+    SRP.cpp
 )
 
 target_link_libraries(mt_thread PUBLIC mt_net)

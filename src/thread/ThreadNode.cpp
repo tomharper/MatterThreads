@@ -66,6 +66,9 @@ void ThreadNode::tick() {
     if (role_ == DeviceRole::Router || role_ == DeviceRole::Leader) {
         child_table_.expireStale(now, neighbor_timeout_ * 4);
     }
+
+    // Self-healing: check neighbor liveness and detect partitions
+    healing_.tick(now, routing_);
 }
 
 void ThreadNode::onFrameReceived(const MacFrame& frame) {
@@ -86,6 +89,10 @@ void ThreadNode::processMLEFrame(const MacFrame& frame) {
     // Update routing table from the advertisement
     routing_.addDirectNeighbor(adv.source_router_id, now);
     routing_.updateFromAdvertisement(adv.source_router_id, adv.route_data, now);
+
+    // Notify self-healing engine that we heard from this neighbor
+    // Derive NodeId from router_id for the healing engine
+    healing_.onNeighborHeard(static_cast<NodeId>(adv.source_router_id), adv.source_router_id, now);
 
     MT_TRACE("thread", "Node " + std::to_string(id_) + " received MLE from router " +
              std::to_string(adv.source_router_id) + " (LQI=" + std::to_string(frame.lqi) + ")");
@@ -139,6 +146,34 @@ void ThreadNode::sendData(RLOC16 dst, const std::vector<uint8_t>& payload) {
     if (send_frame_) {
         send_frame_(frame);
     }
+}
+
+void ThreadNode::registerServices(ServiceRegistry& registry, TimePoint now) {
+    if (role_ == DeviceRole::Detached) return;
+
+    // Register operational service (device is commissioned and operational)
+    ServiceRecord op;
+    op.service_name = "node" + std::to_string(id_);
+    op.service_type = MATTER_OPERATIONAL_SERVICE;
+    op.node_id = id_;
+    op.rloc16 = rloc16_;
+    op.port = 5540;
+    op.registered_at = now;
+    op.ttl = Duration(120000);
+    registry.registerService(op);
+
+    // If not yet commissioned, also register commissioning service
+    ServiceRecord comm;
+    comm.service_name = "node" + std::to_string(id_) + "-commission";
+    comm.service_type = MATTER_COMMISSION_SERVICE;
+    comm.node_id = id_;
+    comm.rloc16 = rloc16_;
+    comm.port = 5540;
+    comm.registered_at = now;
+    comm.ttl = Duration(120000);
+    comm.commissioning_open = true;
+    comm.discriminator = std::to_string(1000 + id_);
+    registry.registerService(comm);
 }
 
 std::string ThreadNode::statusString() const {

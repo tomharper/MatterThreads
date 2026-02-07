@@ -4,6 +4,8 @@ add_library(mt_net STATIC
     Channel.cpp
     Broker.cpp
     FaultInjector.cpp
+    Discovery.cpp
+    SelfHealing.cpp
 )
 
 target_link_libraries(mt_net PUBLIC mt_core nlohmann_json::nlohmann_json)

@@ -1,4 +1,5 @@
 #include "net/Broker.h"
+#include "thread/MeshTopology.h"
 #include "core/Log.h"
 
 #include <poll.h>
@@ -45,6 +46,15 @@ LinkParams Broker::getLinkParams(NodeId from, NodeId to) const {
         return link_matrix_[from][to];
     }
     return LinkParams{};
+}
+
+void Broker::applyTopology(const MeshTopology& topology) {
+    for (size_t i = 0; i < MAX_NODES; ++i) {
+        for (size_t j = 0; j < MAX_NODES; ++j) {
+            link_matrix_[i][j] = topology.getLinkParams(
+                static_cast<NodeId>(i), static_cast<NodeId>(j));
+        }
+    }
 }
 
 void Broker::run() {

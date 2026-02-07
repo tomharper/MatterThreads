@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700" width="800" height="700" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="108%">
+      <feDropShadow dx="1" dy="2" stdDeviation="3" flood-color="#BDC3C7" flood-opacity="0.4"/>
+    </filter>
+    <filter id="glowOrange" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="3" result="glow"/>
+      <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="meshArrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#E8A838"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="700" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#2C3E50">Thread Mesh Topology — In-Van Network</text>
+
+  <!-- ===== BORDER ROUTER (Node 0 / Leader) ===== -->
+  <rect x="225" y="55" width="350" height="155" rx="12" ry="12" fill="#FFF8E1" stroke="#E8A838" stroke-width="2.5" filter="url(#shadow)"/>
+
+  <!-- Node icon circle -->
+  <circle cx="268" cy="82" r="14" fill="#E8A838" opacity="0.2" stroke="#E8A838" stroke-width="1.5"/>
+  <text x="268" y="87" text-anchor="middle" font-size="11" font-weight="bold" fill="#E8A838">0</text>
+
+  <text x="340" y="80" font-size="14" font-weight="bold" fill="#E8A838">BORDER ROUTER</text>
+  <text x="340" y="96" font-size="10" fill="#2C3E50">Node 0 / Thread Leader</text>
+
+  <!-- Details table -->
+  <rect x="240" y="108" width="320" height="90" rx="6" ry="6" fill="#FFFFFF" stroke="#BDC3C7" stroke-width="1"/>
+
+  <text x="255" y="126" font-size="9" font-weight="bold" fill="#7F8C8D">RLOC16:</text>
+  <text x="330" y="126" font-size="9" fill="#2C3E50" font-family="monospace">0x0000</text>
+  <text x="420" y="126" font-size="9" font-weight="bold" fill="#7F8C8D">Router ID:</text>
+  <text x="500" y="126" font-size="9" fill="#2C3E50" font-family="monospace">0</text>
+
+  <line x1="250" y1="133" x2="550" y2="133" stroke="#BDC3C7" stroke-width="0.5"/>
+
+  <text x="255" y="148" font-size="9" font-weight="bold" fill="#7F8C8D">EID:</text>
+  <text x="330" y="148" font-size="9" fill="#2C3E50" font-family="monospace">fd00::1000</text>
+
+  <line x1="250" y1="155" x2="550" y2="155" stroke="#BDC3C7" stroke-width="0.5"/>
+
+  <text x="255" y="170" font-size="9" font-weight="bold" fill="#7F8C8D">Roles:</text>
+  <rect x="290" y="161" width="82" height="15" rx="3" ry="3" fill="#E8A838" opacity="0.15"/>
+  <text x="331" y="172" text-anchor="middle" font-size="8" font-weight="bold" fill="#E8A838">Thread Leader</text>
+  <rect x="378" y="161" width="88" height="15" rx="3" ry="3" fill="#E8A838" opacity="0.15"/>
+  <text x="422" y="172" text-anchor="middle" font-size="8" font-weight="bold" fill="#E8A838">Border Router</text>
+  <rect x="290" y="179" width="72" height="15" rx="3" ry="3" fill="#9B59B6" opacity="0.15"/>
+  <text x="326" y="190" text-anchor="middle" font-size="8" font-weight="bold" fill="#9B59B6">SRP Server</text>
+  <rect x="370" y="179" width="98" height="15" rx="3" ry="3" fill="#9B59B6" opacity="0.15"/>
+  <text x="419" y="190" text-anchor="middle" font-size="8" font-weight="bold" fill="#9B59B6">Matter Controller</text>
+
+  <!-- Cloud connection going up -->
+  <line x1="400" y1="55" x2="400" y2="42" stroke="#4A90D9" stroke-width="2"/>
+  <rect x="340" y="30" width="120" height="16" rx="4" ry="4" fill="#F7F9FC" stroke="#4A90D9" stroke-width="1"/>
+  <text x="400" y="42" text-anchor="middle" font-size="8" font-weight="bold" fill="#4A90D9">LTE-M to Cloud</text>
+
+  <!-- ===== Link: BR to Relay ===== -->
+  <line x1="400" y1="210" x2="400" y2="290" stroke="#E8A838" stroke-width="3" stroke-dasharray="10,5" marker-end="url(#meshArrow)"/>
+
+  <!-- Link quality annotation -->
+  <rect x="415" y="232" width="145" height="42" rx="6" ry="6" fill="#FFFFFF" stroke="#E8A838" stroke-width="1" filter="url(#shadow)"/>
+  <text x="487" y="249" text-anchor="middle" font-size="9" font-weight="bold" fill="#E8A838">802.15.4 Link</text>
+  <text x="487" y="263" text-anchor="middle" font-size="9" fill="#2C3E50">LQI: 200 | RSSI: -45 dBm</text>
+
+  <!-- ===== RELAY ROUTER (Node 1 / Router) ===== -->
+  <rect x="225" y="290" width="350" height="130" rx="12" ry="12" fill="#FFF8E1" stroke="#E8A838" stroke-width="2.5" filter="url(#shadow)"/>
+
+  <!-- Node icon circle -->
+  <circle cx="268" cy="317" r="14" fill="#E8A838" opacity="0.2" stroke="#E8A838" stroke-width="1.5"/>
+  <text x="268" y="322" text-anchor="middle" font-size="11" font-weight="bold" fill="#E8A838">1</text>
+
+  <text x="340" y="315" font-size="14" font-weight="bold" fill="#E8A838">RELAY ROUTER</text>
+  <text x="340" y="331" font-size="10" fill="#2C3E50">Node 1 / Thread Router</text>
+
+  <!-- Details table -->
+  <rect x="240" y="343" width="320" height="65" rx="6" ry="6" fill="#FFFFFF" stroke="#BDC3C7" stroke-width="1"/>
+
+  <text x="255" y="361" font-size="9" font-weight="bold" fill="#7F8C8D">RLOC16:</text>
+  <text x="330" y="361" font-size="9" fill="#2C3E50" font-family="monospace">0x0400</text>
+  <text x="420" y="361" font-size="9" font-weight="bold" fill="#7F8C8D">Router ID:</text>
+  <text x="500" y="361" font-size="9" fill="#2C3E50" font-family="monospace">1</text>
+
+  <line x1="250" y1="368" x2="550" y2="368" stroke="#BDC3C7" stroke-width="0.5"/>
+
+  <text x="255" y="383" font-size="9" font-weight="bold" fill="#7F8C8D">EID:</text>
+  <text x="330" y="383" font-size="9" fill="#2C3E50" font-family="monospace">fd00::1001</text>
+
+  <line x1="250" y1="390" x2="550" y2="390" stroke="#BDC3C7" stroke-width="0.5"/>
+
+  <text x="255" y="403" font-size="9" font-weight="bold" fill="#7F8C8D">Role:</text>
+  <rect x="290" y="394" width="86" height="15" rx="3" ry="3" fill="#E8A838" opacity="0.15"/>
+  <text x="333" y="405" text-anchor="middle" font-size="8" font-weight="bold" fill="#E8A838">Thread Router</text>
+  <rect x="382" y="394" width="96" height="15" rx="3" ry="3" fill="#5BB55B" opacity="0.15"/>
+  <text x="430" y="405" text-anchor="middle" font-size="8" font-weight="bold" fill="#5BB55B">Range Extender</text>
+
+  <!-- ===== Branch Lines from Relay to Sensor Groups ===== -->
+  <!-- Left branch -->
+  <line x1="320" y1="420" x2="195" y2="490" stroke="#E8A838" stroke-width="2" stroke-dasharray="8,4" marker-end="url(#meshArrow)"/>
+  <!-- Right branch -->
+  <line x1="480" y1="420" x2="610" y2="490" stroke="#E8A838" stroke-width="2" stroke-dasharray="8,4" marker-end="url(#meshArrow)"/>
+
+  <!-- Left link quality -->
+  <rect x="195" y="445" width="110" height="30" rx="5" ry="5" fill="#FFFFFF" stroke="#BDC3C7" stroke-width="1"/>
+  <text x="250" y="458" text-anchor="middle" font-size="8" fill="#E8A838" font-weight="bold">802.15.4</text>
+  <text x="250" y="470" text-anchor="middle" font-size="8" fill="#2C3E50">LQI: 180 | -52 dBm</text>
+
+  <!-- Right link quality -->
+  <rect x="505" y="445" width="110" height="30" rx="5" ry="5" fill="#FFFFFF" stroke="#BDC3C7" stroke-width="1"/>
+  <text x="560" y="458" text-anchor="middle" font-size="8" fill="#E8A838" font-weight="bold">802.15.4</text>
+  <text x="560" y="470" text-anchor="middle" font-size="8" fill="#2C3E50">LQI: 160 | -58 dBm</text>
+
+  <!-- ===== CARGO SENSORS (MED) - Left ===== -->
+  <rect x="30" y="490" width="335" height="195" rx="12" ry="12" fill="#F3E5F5" stroke="#9B59B6" stroke-width="2" filter="url(#shadow)"/>
+  <text x="197" y="512" text-anchor="middle" font-size="12" font-weight="bold" fill="#9B59B6">CARGO SENSORS (MED)</text>
+  <text x="197" y="527" text-anchor="middle" font-size="9" fill="#7F8C8D">Minimal End Devices -- Always reachable via parent</text>
+
+  <!-- MED sensor boxes -->
+  <!-- Temp EP:2 -->
+  <rect x="45" y="540" width="95" height="50" rx="6" ry="6" fill="#FFFFFF" stroke="#9B59B6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="92" y="558" text-anchor="middle" font-size="10" font-weight="bold" fill="#9B59B6">Temp</text>
+  <text x="92" y="572" text-anchor="middle" font-size="9" fill="#2C3E50">EP:2</text>
+  <text x="92" y="585" text-anchor="middle" font-size="8" fill="#7F8C8D">MED</text>
+
+  <!-- Humidity EP:3 -->
+  <rect x="150" y="540" width="95" height="50" rx="6" ry="6" fill="#FFFFFF" stroke="#9B59B6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="197" y="558" text-anchor="middle" font-size="10" font-weight="bold" fill="#9B59B6">Humidity</text>
+  <text x="197" y="572" text-anchor="middle" font-size="9" fill="#2C3E50">EP:3</text>
+  <text x="197" y="585" text-anchor="middle" font-size="8" fill="#7F8C8D">MED</text>
+
+  <!-- Light EP:5 -->
+  <rect x="255" y="540" width="95" height="50" rx="6" ry="6" fill="#FFFFFF" stroke="#9B59B6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="302" y="558" text-anchor="middle" font-size="10" font-weight="bold" fill="#9B59B6">Light</text>
+  <text x="302" y="572" text-anchor="middle" font-size="9" fill="#2C3E50">EP:5</text>
+  <text x="302" y="585" text-anchor="middle" font-size="8" fill="#7F8C8D">MED</text>
+
+  <!-- Lock EP:1 -->
+  <rect x="85" y="600" width="95" height="50" rx="6" ry="6" fill="#FFFFFF" stroke="#9B59B6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="132" y="618" text-anchor="middle" font-size="10" font-weight="bold" fill="#9B59B6">Lock</text>
+  <text x="132" y="632" text-anchor="middle" font-size="9" fill="#2C3E50">EP:1</text>
+  <text x="132" y="645" text-anchor="middle" font-size="8" fill="#7F8C8D">MED</text>
+
+  <!-- Power EP:7 -->
+  <rect x="210" y="600" width="95" height="50" rx="6" ry="6" fill="#FFFFFF" stroke="#9B59B6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="257" y="618" text-anchor="middle" font-size="10" font-weight="bold" fill="#9B59B6">Power</text>
+  <text x="257" y="632" text-anchor="middle" font-size="9" fill="#2C3E50">EP:7</text>
+  <text x="257" y="645" text-anchor="middle" font-size="8" fill="#7F8C8D">MED</text>
+
+  <!-- ===== CARGO SENSORS (SED) - Right ===== -->
+  <rect x="435" y="490" width="335" height="195" rx="12" ry="12" fill="#FFF8E1" stroke="#E8A838" stroke-width="2" filter="url(#shadow)"/>
+  <text x="602" y="512" text-anchor="middle" font-size="12" font-weight="bold" fill="#E8A838">CARGO SENSORS (SED)</text>
+  <text x="602" y="527" text-anchor="middle" font-size="9" fill="#7F8C8D">Sleepy End Devices -- Battery-powered, poll parent</text>
+
+  <!-- Door Contact EP:4 -->
+  <rect x="460" y="545" width="145" height="80" rx="8" ry="8" fill="#FFFFFF" stroke="#E8A838" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="532" y="566" text-anchor="middle" font-size="11" font-weight="bold" fill="#E8A838">Door Contact</text>
+  <text x="532" y="582" text-anchor="middle" font-size="10" fill="#2C3E50">EP:4</text>
+  <text x="532" y="598" text-anchor="middle" font-size="9" fill="#E74C3C" font-weight="bold">SED</text>
+  <rect x="475" y="605" width="115" height="16" rx="3" ry="3" fill="#FFF8E1" stroke="#E8A838" stroke-width="0.5"/>
+  <text x="532" y="616" text-anchor="middle" font-size="8" fill="#2C3E50">Poll Interval: 2s</text>
+
+  <!-- Occupancy EP:6 -->
+  <rect x="625" y="545" width="130" height="80" rx="8" ry="8" fill="#FFFFFF" stroke="#E8A838" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="690" y="566" text-anchor="middle" font-size="11" font-weight="bold" fill="#E8A838">Occupancy</text>
+  <text x="690" y="582" text-anchor="middle" font-size="10" fill="#2C3E50">EP:6</text>
+  <text x="690" y="598" text-anchor="middle" font-size="9" fill="#E74C3C" font-weight="bold">SED</text>
+  <rect x="633" y="605" width="115" height="16" rx="3" ry="3" fill="#FFF8E1" stroke="#E8A838" stroke-width="0.5"/>
+  <text x="690" y="616" text-anchor="middle" font-size="8" fill="#2C3E50">Poll Interval: 5s</text>
+
+  <!-- Sleep mode note -->
+  <rect x="467" y="640" width="285" height="28" rx="5" ry="5" fill="#FFFFFF" stroke="#E74C3C" stroke-width="1" stroke-dasharray="4,2"/>
+  <text x="610" y="654" text-anchor="middle" font-size="8" fill="#E74C3C" font-weight="bold">Radio OFF between polls -- Battery life: 2+ years</text>
+  <text x="610" y="664" text-anchor="middle" font-size="8" fill="#7F8C8D">Wake on poll timer or GPIO interrupt (door open)</text>
+</svg>

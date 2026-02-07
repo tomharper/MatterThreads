@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="108%">
+      <feDropShadow dx="1" dy="2" stdDeviation="3" flood-color="#BDC3C7" flood-opacity="0.4"/>
+    </filter>
+    <marker id="arrowDown" markerWidth="10" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#BDC3C7"/>
+    </marker>
+    <marker id="arrowUp" markerWidth="10" markerHeight="7" refX="5" refY="3.5" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#BDC3C7"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="500" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="400" y="32" text-anchor="middle" font-size="18" font-weight="bold" fill="#2C3E50">Full System Architecture — Matter over Thread Delivery Fleet</text>
+
+  <!-- Cloud/Fleet Platform outer box -->
+  <rect x="40" y="50" width="720" height="230" rx="12" ry="12" fill="#F7F9FC" stroke="#4A90D9" stroke-width="2" filter="url(#shadow)"/>
+  <text x="400" y="75" text-anchor="middle" font-size="14" font-weight="bold" fill="#4A90D9">CLOUD / FLEET PLATFORM</text>
+
+  <!-- Fleet Dashboard -->
+  <rect x="60" y="90" width="150" height="55" rx="8" ry="8" fill="#FFFFFF" stroke="#4A90D9" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="135" y="113" text-anchor="middle" font-size="12" font-weight="bold" fill="#2C3E50">Fleet Dashboard</text>
+  <text x="135" y="130" text-anchor="middle" font-size="10" fill="#7F8C8D">Monitoring &amp; Control</text>
+
+  <!-- Route Optimizer -->
+  <rect x="230" y="90" width="150" height="55" rx="8" ry="8" fill="#FFFFFF" stroke="#4A90D9" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="305" y="113" text-anchor="middle" font-size="12" font-weight="bold" fill="#2C3E50">Route Optimizer</text>
+  <text x="305" y="130" text-anchor="middle" font-size="10" fill="#7F8C8D">Planning &amp; Dispatch</text>
+
+  <!-- Compliance Engine -->
+  <rect x="400" y="90" width="150" height="55" rx="8" ry="8" fill="#FFFFFF" stroke="#4A90D9" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="475" y="113" text-anchor="middle" font-size="12" font-weight="bold" fill="#2C3E50">Compliance Engine</text>
+  <text x="475" y="130" text-anchor="middle" font-size="10" fill="#7F8C8D">Regulatory &amp; Audit</text>
+
+  <!-- Fleet Gateway -->
+  <rect x="570" y="90" width="175" height="55" rx="8" ry="8" fill="#F3E5F5" stroke="#9B59B6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="657" y="108" text-anchor="middle" font-size="12" font-weight="bold" fill="#9B59B6">Fleet Gateway</text>
+  <text x="657" y="124" text-anchor="middle" font-size="10" fill="#2C3E50">(Matter Controller)</text>
+  <text x="657" y="138" text-anchor="middle" font-size="9" fill="#7F8C8D">Fabric Admin</text>
+
+  <!-- Fleet Gateway sub-items -->
+  <rect x="570" y="160" width="175" height="105" rx="8" ry="8" fill="#FFFFFF" stroke="#9B59B6" stroke-width="1" stroke-dasharray="4,2"/>
+  <text x="657" y="180" text-anchor="middle" font-size="10" font-weight="bold" fill="#9B59B6">CASE Sessions</text>
+  <line x1="585" y1="188" x2="740" y2="188" stroke="#BDC3C7" stroke-width="0.5"/>
+  <text x="657" y="205" text-anchor="middle" font-size="10" fill="#2C3E50">Subscriptions</text>
+  <text x="657" y="220" text-anchor="middle" font-size="9" fill="#7F8C8D">(temp, door, humidity)</text>
+  <line x1="585" y1="228" x2="740" y2="228" stroke="#BDC3C7" stroke-width="0.5"/>
+  <text x="657" y="245" text-anchor="middle" font-size="10" fill="#2C3E50">Command Relay</text>
+  <text x="657" y="258" text-anchor="middle" font-size="9" fill="#7F8C8D">(lock, unlock, config)</text>
+
+  <!-- Internal connections (Dashboard/Route/Compliance to Gateway) -->
+  <line x1="210" y1="117" x2="230" y2="117" stroke="#BDC3C7" stroke-width="1" stroke-dasharray="4,2"/>
+  <line x1="380" y1="117" x2="400" y2="117" stroke="#BDC3C7" stroke-width="1" stroke-dasharray="4,2"/>
+  <line x1="550" y1="117" x2="570" y2="117" stroke="#BDC3C7" stroke-width="1" stroke-dasharray="4,2"/>
+
+  <!-- Connection label area -->
+  <rect x="200" y="300" width="400" height="36" rx="6" ry="6" fill="#FFF8E1" stroke="#E8A838" stroke-width="1.5"/>
+  <text x="400" y="315" text-anchor="middle" font-size="11" font-weight="bold" fill="#E8A838">Matter over TCP/IPv6 over Cellular</text>
+  <text x="400" y="329" text-anchor="middle" font-size="9" fill="#7F8C8D">LTE-M / NB-IoT Backhaul  |  Encrypted CASE Sessions</text>
+
+  <!-- Lines from cloud to label bar -->
+  <line x1="250" y1="280" x2="250" y2="300" stroke="#BDC3C7" stroke-width="1.5"/>
+  <line x1="400" y1="280" x2="400" y2="300" stroke="#BDC3C7" stroke-width="1.5"/>
+  <line x1="550" y1="280" x2="550" y2="300" stroke="#BDC3C7" stroke-width="1.5"/>
+
+  <!-- Lines from label bar to vans -->
+  <line x1="250" y1="336" x2="145" y2="395" stroke="#BDC3C7" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+  <line x1="400" y1="336" x2="400" y2="395" stroke="#BDC3C7" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+  <line x1="550" y1="336" x2="655" y2="395" stroke="#BDC3C7" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+
+  <!-- VAN #1 -->
+  <rect x="60" y="395" width="170" height="80" rx="10" ry="10" fill="#E8F5E9" stroke="#5BB55B" stroke-width="2" filter="url(#shadow)"/>
+  <text x="145" y="425" text-anchor="middle" font-size="14" font-weight="bold" fill="#5BB55B">VAN #1</text>
+  <text x="145" y="445" text-anchor="middle" font-size="10" fill="#2C3E50">Border Router + Thread Mesh</text>
+  <text x="145" y="460" text-anchor="middle" font-size="9" fill="#7F8C8D">6 endpoints, 2 routers</text>
+
+  <!-- VAN #2 -->
+  <rect x="315" y="395" width="170" height="80" rx="10" ry="10" fill="#E8F5E9" stroke="#5BB55B" stroke-width="2" filter="url(#shadow)"/>
+  <text x="400" y="425" text-anchor="middle" font-size="14" font-weight="bold" fill="#5BB55B">VAN #2</text>
+  <text x="400" y="445" text-anchor="middle" font-size="10" fill="#2C3E50">Border Router + Thread Mesh</text>
+  <text x="400" y="460" text-anchor="middle" font-size="9" fill="#7F8C8D">6 endpoints, 2 routers</text>
+
+  <!-- VAN #N -->
+  <rect x="570" y="395" width="170" height="80" rx="10" ry="10" fill="#E8F5E9" stroke="#5BB55B" stroke-width="2" filter="url(#shadow)"/>
+  <text x="655" y="425" text-anchor="middle" font-size="14" font-weight="bold" fill="#5BB55B">VAN #N</text>
+  <text x="655" y="445" text-anchor="middle" font-size="10" fill="#2C3E50">Border Router + Thread Mesh</text>
+  <text x="655" y="460" text-anchor="middle" font-size="9" fill="#7F8C8D">6 endpoints, 2 routers</text>
+
+  <!-- Ellipsis between Van 2 and Van N -->
+  <text x="527" y="435" text-anchor="middle" font-size="22" fill="#BDC3C7">...</text>
+</svg>

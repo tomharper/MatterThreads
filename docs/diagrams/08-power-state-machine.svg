@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 800" width="700" height="800" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrowDown" markerWidth="10" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2C3E50"/>
+    </marker>
+    <marker id="arrowUp" markerWidth="10" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#5BB55B"/>
+    </marker>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="104%">
+      <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#00000020"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="700" height="800" fill="#F7F9FC" rx="8"/>
+
+  <!-- Title -->
+  <text x="350" y="36" text-anchor="middle" font-size="18" font-weight="bold" fill="#2C3E50">Power State Machine</text>
+  <text x="350" y="54" text-anchor="middle" font-size="11" fill="#7F8C8D">Van Border Router &amp; Thread Network Power Management</text>
+
+  <!-- ════════════════ STATE 1: ENGINE ON ════════════════ -->
+  <rect x="100" y="72" width="500" height="148" rx="12" fill="#E8F5E9" stroke="#5BB55B" stroke-width="2" filter="url(#shadow)"/>
+  <!-- State badge -->
+  <rect x="120" y="82" width="130" height="26" rx="13" fill="#5BB55B"/>
+  <text x="185" y="100" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">ENGINE ON</text>
+
+  <text x="130" y="128" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Border Router:</tspan> Full power</text>
+  <text x="130" y="144" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Relay Router:</tspan> Full power</text>
+  <text x="130" y="160" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Sensors:</tspan> MED / SED</text>
+  <text x="400" y="128" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Cellular:</tspan> Connected</text>
+  <text x="400" y="144" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Thread:</tspan> All active</text>
+
+  <!-- Active indicator dot -->
+  <circle cx="575" cy="92" r="6" fill="#5BB55B"/>
+  <circle cx="575" cy="92" r="6" fill="#5BB55B">
+    <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Transition 1→2 arrow -->
+  <line x1="350" y1="220" x2="350" y2="270" stroke="#2C3E50" stroke-width="2" marker-end="url(#arrowDown)"/>
+  <rect x="220" y="230" width="260" height="22" rx="11" fill="#FFF8E1" stroke="#E8A838" stroke-width="1"/>
+  <text x="350" y="245" text-anchor="middle" font-size="10" font-weight="bold" fill="#E8A838">Ignition off (ACC off)</text>
+
+  <!-- ════════════════ STATE 2: IGNITION OFF ════════════════ -->
+  <rect x="100" y="278" width="500" height="148" rx="12" fill="#FFF8E1" stroke="#E8A838" stroke-width="2" filter="url(#shadow)"/>
+  <!-- State badge -->
+  <rect x="120" y="288" width="140" height="26" rx="13" fill="#E8A838"/>
+  <text x="190" y="306" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">IGNITION OFF</text>
+
+  <text x="130" y="334" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Border Router:</tspan> Low power (wake every 30s)</text>
+  <text x="130" y="350" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Relay Router:</tspan> Low power</text>
+  <text x="130" y="366" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Sensors:</tspan> SED mode</text>
+  <text x="400" y="334" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Cellular:</tspan> Periodic (wake every 15m)</text>
+  <text x="400" y="350" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Thread:</tspan> Reduced advertisements</text>
+
+  <!-- Sleep indicator -->
+  <text x="570" y="300" font-size="14" fill="#E8A838" font-weight="bold">Zz</text>
+
+  <!-- Transition 2→3 arrow -->
+  <line x1="350" y1="426" x2="350" y2="476" stroke="#2C3E50" stroke-width="2" marker-end="url(#arrowDown)"/>
+  <rect x="230" y="436" width="240" height="22" rx="11" fill="#FDEDEC" stroke="#E74C3C" stroke-width="1"/>
+  <text x="350" y="451" text-anchor="middle" font-size="10" font-weight="bold" fill="#E74C3C">Parked &gt; 24 hours</text>
+
+  <!-- ════════════════ STATE 3: DEEP SLEEP ════════════════ -->
+  <rect x="100" y="484" width="500" height="178" rx="12" fill="#FDEDEC" stroke="#E74C3C" stroke-width="2" filter="url(#shadow)"/>
+  <!-- State badge -->
+  <rect x="120" y="494" width="130" height="26" rx="13" fill="#E74C3C"/>
+  <text x="185" y="512" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">DEEP SLEEP</text>
+
+  <text x="130" y="540" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Border Router:</tspan> Ultra-low (50&#x00B5;A, wake on CAN or timer)</text>
+  <text x="130" y="556" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Relay Router:</tspan> Off</text>
+  <text x="130" y="572" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Sensors:</tspan> Off or battery-only</text>
+  <text x="130" y="588" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Cellular:</tspan> Off</text>
+  <text x="130" y="604" font-size="11" fill="#2C3E50"><tspan font-weight="bold">Thread:</tspan> Off</text>
+
+  <!-- Wake triggers box -->
+  <rect x="395" y="530" width="185" height="70" rx="6" fill="#FFFFFF" stroke="#E74C3C" stroke-width="1" stroke-dasharray="4,2"/>
+  <text x="487" y="546" text-anchor="middle" font-size="10" font-weight="bold" fill="#E74C3C">Wake Triggers</text>
+  <text x="410" y="562" font-size="10" fill="#2C3E50">&#x2022; CAN bus activity</text>
+  <text x="410" y="576" font-size="10" fill="#2C3E50">&#x2022; Door open event</text>
+  <text x="410" y="590" font-size="10" fill="#2C3E50">&#x2022; 6-hour timer</text>
+
+  <!-- Power off indicator -->
+  <circle cx="575" cy="500" r="6" fill="none" stroke="#E74C3C" stroke-width="2"/>
+  <line x1="571" y1="496" x2="579" y2="504" stroke="#E74C3C" stroke-width="2"/>
+
+  <!-- Transition 3→1 curved arrow (back up to ENGINE ON) -->
+  <path d="M 100 560 C 50 560, 40 146, 100 146" fill="none" stroke="#5BB55B" stroke-width="2.5" stroke-dasharray="6,3" marker-end="url(#arrowUp)"/>
+  <rect x="16" y="336" width="56" height="60" rx="8" fill="#E8F5E9" stroke="#5BB55B" stroke-width="1"/>
+  <text x="44" y="356" text-anchor="middle" font-size="9" font-weight="bold" fill="#5BB55B">Engine</text>
+  <text x="44" y="370" text-anchor="middle" font-size="9" font-weight="bold" fill="#5BB55B">start</text>
+  <text x="44" y="387" text-anchor="middle" font-size="16" fill="#5BB55B">&#x21E7;</text>
+
+  <!-- ════════════════ POWER CONSUMPTION ANNOTATION ════════════════ -->
+  <rect x="80" y="682" width="540" height="100" rx="10" fill="#FFFFFF" stroke="#4A90D9" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="80" y="682" width="540" height="24" rx="10" fill="#4A90D9"/>
+  <rect x="80" y="694" width="540" height="12" fill="#4A90D9"/>
+  <text x="350" y="699" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFFFFF">Power Consumption Summary</text>
+
+  <!-- Row 1 -->
+  <circle cx="110" cy="725" r="6" fill="#5BB55B"/>
+  <text x="125" y="729" font-size="11" fill="#2C3E50"><tspan font-weight="bold">ENGINE ON:</tspan> ~600mA peak (cellular TX), ~80mA average</text>
+
+  <!-- Row 2 -->
+  <circle cx="110" cy="747" r="6" fill="#E8A838"/>
+  <text x="125" y="751" font-size="11" fill="#2C3E50"><tspan font-weight="bold">IGNITION OFF:</tspan> ~8mA average</text>
+
+  <!-- Row 3 -->
+  <circle cx="110" cy="769" r="6" fill="#E74C3C"/>
+  <text x="125" y="773" font-size="11" fill="#2C3E50"><tspan font-weight="bold">DEEP SLEEP:</tspan> ~110&#x00B5;A (BR + battery sensors only)</text>
+</svg>

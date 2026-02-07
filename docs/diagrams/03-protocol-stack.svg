@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 550" width="850" height="550" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="108%">
+      <feDropShadow dx="1" dy="2" stdDeviation="3" flood-color="#BDC3C7" flood-opacity="0.4"/>
+    </filter>
+    <marker id="arrowLR" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#BDC3C7"/>
+    </marker>
+    <marker id="arrowRL" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+      <polygon points="8 0, 0 3, 8 6" fill="#BDC3C7"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="850" height="550" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="425" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#2C3E50">Protocol Stack — Matter over Thread Delivery Van</text>
+
+  <!-- ===== APPLICATION LAYER ===== -->
+  <rect x="25" y="48" width="800" height="130" rx="12" ry="12" fill="#F7F9FC" stroke="#4A90D9" stroke-width="2" filter="url(#shadow)"/>
+  <text x="425" y="70" text-anchor="middle" font-size="13" font-weight="bold" fill="#4A90D9">APPLICATION LAYER</text>
+
+  <!-- Fleet Management -->
+  <rect x="45" y="82" width="170" height="55" rx="8" ry="8" fill="#FFFFFF" stroke="#4A90D9" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="130" y="103" text-anchor="middle" font-size="11" font-weight="bold" fill="#4A90D9">Fleet Management</text>
+  <text x="130" y="118" text-anchor="middle" font-size="9" fill="#7F8C8D">Dashboard, Alerts,</text>
+  <text x="130" y="130" text-anchor="middle" font-size="9" fill="#7F8C8D">Route Planning</text>
+
+  <!-- Fleet Gateway -->
+  <rect x="315" y="82" width="220" height="55" rx="8" ry="8" fill="#F3E5F5" stroke="#9B59B6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="425" y="103" text-anchor="middle" font-size="11" font-weight="bold" fill="#9B59B6">Fleet Gateway</text>
+  <text x="425" y="118" text-anchor="middle" font-size="9" fill="#2C3E50">Matter Controller / Fabric Admin</text>
+  <text x="425" y="130" text-anchor="middle" font-size="9" fill="#7F8C8D">Commission, Subscribe, Command</text>
+
+  <!-- Van Endpoints -->
+  <rect x="635" y="82" width="170" height="55" rx="8" ry="8" fill="#E8F5E9" stroke="#5BB55B" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="720" y="103" text-anchor="middle" font-size="11" font-weight="bold" fill="#5BB55B">Van Endpoints</text>
+  <text x="720" y="118" text-anchor="middle" font-size="9" fill="#2C3E50">Temp, Humidity, Door,</text>
+  <text x="720" y="130" text-anchor="middle" font-size="9" fill="#2C3E50">Lock, Light, Occupancy</text>
+
+  <!-- Arrows between app components -->
+  <line x1="215" y1="109" x2="315" y2="109" stroke="#BDC3C7" stroke-width="1.5" marker-end="url(#arrowLR)"/>
+  <line x1="315" y1="109" x2="215" y2="109" stroke="#BDC3C7" stroke-width="0" marker-end="url(#arrowRL)"/>
+  <line x1="535" y1="109" x2="635" y2="109" stroke="#BDC3C7" stroke-width="1.5" marker-end="url(#arrowLR)"/>
+
+  <!-- Data labels on arrows -->
+  <text x="265" y="100" text-anchor="middle" font-size="8" fill="#7F8C8D">Commands</text>
+  <text x="265" y="120" text-anchor="middle" font-size="8" fill="#7F8C8D">Reports</text>
+  <text x="585" y="100" text-anchor="middle" font-size="8" fill="#7F8C8D">Events</text>
+  <text x="585" y="120" text-anchor="middle" font-size="8" fill="#7F8C8D">Attributes</text>
+
+  <!-- Vertical separator line -->
+  <text x="425" y="156" text-anchor="middle" font-size="8" fill="#BDC3C7" font-weight="bold">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</text>
+
+  <!-- ===== MATTER PROTOCOL LAYER ===== -->
+  <rect x="25" y="190" width="800" height="145" rx="12" ry="12" fill="#F3E5F5" stroke="#9B59B6" stroke-width="2" filter="url(#shadow)"/>
+  <text x="425" y="212" text-anchor="middle" font-size="13" font-weight="bold" fill="#9B59B6">MATTER PROTOCOL</text>
+
+  <!-- Interaction Model -->
+  <rect x="45" y="224" width="180" height="90" rx="8" ry="8" fill="#FFFFFF" stroke="#9B59B6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="135" y="244" text-anchor="middle" font-size="11" font-weight="bold" fill="#9B59B6">Interaction Model</text>
+  <line x1="55" y1="252" x2="215" y2="252" stroke="#BDC3C7" stroke-width="0.5"/>
+  <text x="135" y="267" text-anchor="middle" font-size="9" fill="#2C3E50">Read / Write</text>
+  <text x="135" y="281" text-anchor="middle" font-size="9" fill="#2C3E50">Subscribe / Invoke</text>
+  <text x="135" y="295" text-anchor="middle" font-size="9" fill="#7F8C8D">Timed &amp; Group actions</text>
+
+  <!-- Session -->
+  <rect x="240" y="224" width="180" height="90" rx="8" ry="8" fill="#FFFFFF" stroke="#9B59B6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="330" y="244" text-anchor="middle" font-size="11" font-weight="bold" fill="#9B59B6">Session</text>
+  <line x1="250" y1="252" x2="410" y2="252" stroke="#BDC3C7" stroke-width="0.5"/>
+  <text x="330" y="267" text-anchor="middle" font-size="9" fill="#2C3E50">CASE (Sigma1-3)</text>
+  <text x="330" y="281" text-anchor="middle" font-size="9" fill="#2C3E50">PASE (Commissioning)</text>
+  <text x="330" y="295" text-anchor="middle" font-size="9" fill="#7F8C8D">AES-CCM Encryption</text>
+
+  <!-- Fabric -->
+  <rect x="435" y="224" width="180" height="90" rx="8" ry="8" fill="#FFFFFF" stroke="#9B59B6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="525" y="244" text-anchor="middle" font-size="11" font-weight="bold" fill="#9B59B6">Fabric</text>
+  <line x1="445" y1="252" x2="605" y2="252" stroke="#BDC3C7" stroke-width="0.5"/>
+  <text x="525" y="267" text-anchor="middle" font-size="9" fill="#2C3E50">Fleet CA (Root of Trust)</text>
+  <text x="525" y="281" text-anchor="middle" font-size="9" fill="#2C3E50">NOC (Node Operational Cert)</text>
+  <text x="525" y="295" text-anchor="middle" font-size="9" fill="#7F8C8D">ACL (Access Control Lists)</text>
+
+  <!-- Discovery -->
+  <rect x="630" y="224" width="180" height="90" rx="8" ry="8" fill="#FFFFFF" stroke="#9B59B6" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="720" y="244" text-anchor="middle" font-size="11" font-weight="bold" fill="#9B59B6">Discovery</text>
+  <line x1="640" y1="252" x2="800" y2="252" stroke="#BDC3C7" stroke-width="0.5"/>
+  <text x="720" y="267" text-anchor="middle" font-size="9" fill="#2C3E50">DNS-SD (Service Discovery)</text>
+  <text x="720" y="281" text-anchor="middle" font-size="9" fill="#2C3E50">SRP (Service Registration)</text>
+  <text x="720" y="295" text-anchor="middle" font-size="9" fill="#7F8C8D">mDNS / Operational Discovery</text>
+
+  <!-- Vertical separator -->
+  <text x="425" y="350" text-anchor="middle" font-size="8" fill="#BDC3C7" font-weight="bold">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</text>
+
+  <!-- ===== TRANSPORT LAYER ===== -->
+  <rect x="25" y="360" width="800" height="175" rx="12" ry="12" fill="#FFF8E1" stroke="#E8A838" stroke-width="2" filter="url(#shadow)"/>
+  <text x="425" y="382" text-anchor="middle" font-size="13" font-weight="bold" fill="#E8A838">TRANSPORT</text>
+
+  <!-- BACKHAUL Panel -->
+  <rect x="45" y="394" width="380" height="125" rx="8" ry="8" fill="#F7F9FC" stroke="#4A90D9" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="235" y="414" text-anchor="middle" font-size="12" font-weight="bold" fill="#4A90D9">BACKHAUL: Cloud ↔ Border Router</text>
+
+  <rect x="60" y="424" width="350" height="22" rx="5" ry="5" fill="#FFFFFF" stroke="#BDC3C7" stroke-width="1"/>
+  <text x="235" y="439" text-anchor="middle" font-size="10" fill="#2C3E50">UDP / TCP over IPv6</text>
+
+  <rect x="60" y="452" width="350" height="22" rx="5" ry="5" fill="#FFFFFF" stroke="#BDC3C7" stroke-width="1"/>
+  <text x="235" y="467" text-anchor="middle" font-size="10" fill="#2C3E50">Cellular Bearer (Point-to-Point)</text>
+
+  <rect x="60" y="480" width="350" height="28" rx="5" ry="5" fill="#F7F9FC" stroke="#4A90D9" stroke-width="1"/>
+  <text x="235" y="496" text-anchor="middle" font-size="10" font-weight="bold" fill="#4A90D9">LTE-M / NB-IoT / 5G</text>
+  <text x="235" y="506" text-anchor="middle" font-size="8" fill="#7F8C8D">PSM &amp; eDRX power saving</text>
+
+  <!-- MESH Panel -->
+  <rect x="440" y="394" width="370" height="125" rx="8" ry="8" fill="#FFF8E1" stroke="#E8A838" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="625" y="414" text-anchor="middle" font-size="12" font-weight="bold" fill="#E8A838">MESH: Border Router ↔ Sensors</text>
+
+  <rect x="455" y="424" width="340" height="22" rx="5" ry="5" fill="#FFFFFF" stroke="#BDC3C7" stroke-width="1"/>
+  <text x="625" y="439" text-anchor="middle" font-size="10" fill="#2C3E50">UDP over IPv6 (MLE secured)</text>
+
+  <rect x="455" y="452" width="340" height="22" rx="5" ry="5" fill="#FFFFFF" stroke="#BDC3C7" stroke-width="1"/>
+  <text x="625" y="467" text-anchor="middle" font-size="10" fill="#2C3E50">6LoWPAN Adaptation</text>
+
+  <rect x="455" y="480" width="340" height="28" rx="5" ry="5" fill="#FFF8E1" stroke="#E8A838" stroke-width="1"/>
+  <text x="625" y="496" text-anchor="middle" font-size="10" font-weight="bold" fill="#E8A838">IEEE 802.15.4 (Thread Mesh)</text>
+  <text x="625" y="506" text-anchor="middle" font-size="8" fill="#7F8C8D">2.4 GHz, 250 kbps, AES-128</text>
+</svg>

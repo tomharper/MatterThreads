@@ -6,7 +6,7 @@
 
 namespace mt {
 
-static constexpr size_t MESH_NODES = 3;
+static constexpr size_t MESH_NODES = 4;  // 0=Leader/BR, 1=Router, 2=EndDevice, 3=Phone
 
 class MeshTopology {
     std::array<std::array<LinkParams, MESH_NODES>, MESH_NODES> links_;
@@ -31,6 +31,7 @@ public:
     static MeshTopology fullyConnected();
     static MeshTopology linearChain();      // 0 <-> 1 <-> 2, no direct 0 <-> 2
     static MeshTopology starFromLeader();   // 0 is hub; 1 and 2 connect through 0
+    static MeshTopology vanWithPhone();     // Linear chain + phone on backhaul to BR
 };
 
 } // namespace mt

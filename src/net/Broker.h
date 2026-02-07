@@ -11,9 +11,11 @@
 #include <queue>
 #include <functional>
 
+namespace mt { class MeshTopology; }
+
 namespace mt {
 
-static constexpr size_t MAX_NODES = 3;
+static constexpr size_t MAX_NODES = 4;  // 0=Leader/BR, 1=Router, 2=EndDevice, 3=Phone
 
 struct DelayedFrame {
     TimePoint deliver_at;
@@ -41,6 +43,9 @@ public:
     // Link quality management
     void setLinkParams(NodeId from, NodeId to, const LinkParams& params);
     LinkParams getLinkParams(NodeId from, NodeId to) const;
+
+    // Apply a MeshTopology preset to the link matrix
+    void applyTopology(const MeshTopology& topology);
 
     // Fault injection
     FaultInjector& faultInjector() { return fault_injector_; }

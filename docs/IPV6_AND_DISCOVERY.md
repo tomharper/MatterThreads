@@ -367,6 +367,16 @@ Post-partition: [BR] -- [Router A]    [Device]    (Device isolated)
 | CASE session establishment | Full (stubbed crypto) | `src/matter/CASE.cpp` |
 | Subscription lifecycle | Full | `src/matter/SubscriptionManager.cpp` |
 
+### Now Implemented
+
+| Component | Status | File |
+|-----------|--------|------|
+| DNS-SD / mDNS simulation | **Done** | `src/net/Discovery.h/.cpp` |
+| SRP registration + expiry | **Done** | `src/thread/SRP.h/.cpp` |
+| Border Router proxy table | **Done** | `src/thread/BorderRouter.h/.cpp` |
+| Self-healing (neighbor liveness, partitions) | **Done** | `src/net/SelfHealing.h/.cpp` |
+| Backhaul (cellular) management | **Done** | `src/net/SelfHealing.h` (BackhaulState) |
+
 ### Not Yet Implemented
 
 | Component | Priority | Needed For |
@@ -374,31 +384,30 @@ Post-partition: [BR] -- [Router A]    [Device]    (Device isolated)
 | Full IPv6 packet routing by EID/RLOC | Medium | Realistic address-based routing |
 | 6LoWPAN compression | Low | Rarely causes Matter bugs |
 | UDP/CoAP transport | Medium | Transport-level failure simulation |
-| DNS-SD / mDNS simulation | **High** | Discovery failure debugging |
-| SRP registration + expiry | **High** | "Device unreachable" bugs |
-| Border Router proxy table | **High** | Wi-Fi/Thread boundary issues |
 | Sleepy End Device polling | Medium | Battery device latency testing |
 | Multicast forwarding | Low | Discovery edge cases |
+| Per-controller mDNS cache with TTL | Low | Multi-phone staleness testing |
 
-### Recommended Next Steps
+### Implementation Details
 
-To extend the framework for discovery simulation, add these to `src/thread/` and `src/matter/`:
+**DNS-SD Discovery** (`src/net/Discovery.h/.cpp`):
+- `ServiceRegistry` — simulated SRP server on the Border Router, stores DNS-SD records
+- `ServiceRecord` — stores `_matterc._udp` (commissioning) and `_matter._tcp` (operational) service types
+- `DiscoveryClient` — phone browses/resolves services, with callback for new discoveries
+- TTL-based expiration of stale registrations
 
-1. **SRP Client/Server** — `src/thread/SRP.h/.cpp`
-   - SRP client in each node (registers with BR after attach or RLOC change)
-   - SRP server in the Border Router node (Node 0)
-   - Lease management with configurable TTL
-   - Fault injection: delay re-registration, expire leases prematurely
+**SRP Client/Server** (`src/thread/SRP.h/.cpp`):
+- `SRPServer` — runs on Node 0 (BR), manages leases with configurable TTL (default 2 hours)
+- `SRPClient` — runs on each device, registers services and handles RLOC change re-registration
+- `SRPLease` — state machine: Active → Expiring → Expired
+- `forceExpireLease()` — fault injection to simulate premature lease expiry
+- Event callbacks for lease lifecycle monitoring
 
-2. **DNS-SD Cache** — `src/matter/DnssdCache.h/.cpp`
-   - Per-controller mDNS cache with TTL expiry
-   - Query/response simulation
-   - Configurable cache staleness for testing
-
-3. **Border Router Proxy** — `src/thread/BorderRouter.h/.cpp`
-   - Proxy table mapping controller sessions to mesh addresses
-   - Table size limit (configurable)
-   - EID-to-RLOC resolution via Thread routing table
-   - Session timeout and cleanup
-
-These additions would enable simulation of the five most common discovery-related bugs described above and integrate naturally with the existing fault injection framework.
+**Border Router Proxy** (`src/thread/BorderRouter.h/.cpp`):
+- `BorderRouterProxy` — maps controller sessions (phone/cloud) to mesh device addresses
+- Configurable table size limit (default 32, simulates constrained BR)
+- `resolveDevice()` — EID-to-RLOC resolution
+- `updateDeviceRLOC()` — handles re-attach with new RLOC
+- `refreshFromRouting()` — marks entries inactive when routes become unreachable
+- Session idle timeout with `expireIdle()`
+- Rejection counting for table overflow debugging

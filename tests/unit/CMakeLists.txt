@@ -4,6 +4,10 @@ add_executable(mt_tests
     TestChannel.cpp
     TestInteractionModel.cpp
     TestFaultInjector.cpp
+    TestDiscovery.cpp
+    TestSelfHealing.cpp
+    TestBorderRouter.cpp
+    TestSRP.cpp
 )
 
 target_link_libraries(mt_tests PRIVATE

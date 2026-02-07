@@ -7,6 +7,8 @@
 #include "thread/Leader.h"
 #include "thread/ChildTable.h"
 #include "net/Frame.h"
+#include "net/SelfHealing.h"
+#include "net/Discovery.h"
 #include <functional>
 #include <string>
 #include <vector>
@@ -76,6 +78,11 @@ public:
     MLEEngine& mle() { return mle_; }
     LeaderData& leaderData() { return leader_data_; }
     ChildTable& childTable() { return child_table_; }
+    SelfHealingEngine& healing() { return healing_; }
+    const SelfHealingEngine& healing() const { return healing_; }
+
+    // Discovery: register this node's services with the SRP server (Border Router)
+    void registerServices(ServiceRegistry& registry, TimePoint now);
 
     // Send data to a destination RLOC16
     void sendData(RLOC16 dst, const std::vector<uint8_t>& payload);
@@ -103,6 +110,7 @@ private:
 
     Clock* clock_ = nullptr;
     FrameSender send_frame_;
+    SelfHealingEngine healing_;
 
     // MLE timeout: if no advertisement from a neighbor within this window, consider them lost
     Duration neighbor_timeout_ = Duration(25000); // 2.5x advertisement interval

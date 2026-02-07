@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 550" width="850" height="550" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <filter id="shadow5" x="-2%" y="-2%" width="104%" height="104%">
+      <feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="850" height="550" fill="#F7F9FC" rx="8"/>
+
+  <!-- Title banner -->
+  <rect x="25" y="15" width="800" height="44" rx="8" fill="#E8A838" opacity="0.15"/>
+  <rect x="25" y="15" width="800" height="44" rx="8" fill="none" stroke="#E8A838" stroke-width="1.5"/>
+  <text x="425" y="43" text-anchor="middle" font-size="16" font-weight="bold" fill="#2C3E50">Thread Network: fd00::/64 (Mesh-Local Prefix)</text>
+
+  <!-- Table container -->
+  <rect x="25" y="72" width="800" height="340" rx="6" fill="white" stroke="#D5DBE3" stroke-width="1" filter="url(#shadow5)"/>
+
+  <!-- Table header row -->
+  <rect x="25" y="72" width="800" height="34" rx="6" fill="#2C3E50"/>
+  <!-- Fix top-right and top-left rounding by overlaying bottom portion -->
+  <rect x="25" y="90" width="800" height="16" fill="#2C3E50"/>
+
+  <text x="135" y="94" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Device</text>
+  <text x="420" y="94" text-anchor="middle" font-size="12" font-weight="bold" fill="white">Mesh-Local EID (stable)</text>
+  <text x="700" y="94" text-anchor="middle" font-size="12" font-weight="bold" fill="white">RLOC Address (topology-dependent)</text>
+
+  <!-- Column dividers in header -->
+  <line x1="245" y1="72" x2="245" y2="106" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+  <line x1="590" y1="72" x2="590" y2="106" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+
+  <!-- Column dividers in body -->
+  <line x1="245" y1="106" x2="245" y2="412" stroke="#E8EDF2" stroke-width="1"/>
+  <line x1="590" y1="106" x2="590" y2="412" stroke="#E8EDF2" stroke-width="1"/>
+
+  <!-- Row 1: Border Router -->
+  <rect x="25" y="106" width="800" height="34" fill="#E8F5E9"/>
+  <circle cx="46" cy="123" r="6" fill="#5BB55B"/>
+  <text x="55" y="127" font-size="11.5" font-weight="bold" fill="#2C3E50">Border Rtr</text>
+  <text x="420" y="127" text-anchor="middle" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">fd00::0200:0000:0000:1000</text>
+  <text x="700" y="127" text-anchor="middle" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">fd00::ff:fe00:0000</text>
+
+  <!-- Row 2: Relay Router -->
+  <rect x="25" y="140" width="800" height="34" fill="white"/>
+  <circle cx="46" cy="157" r="6" fill="#5BB55B"/>
+  <text x="55" y="161" font-size="11.5" font-weight="bold" fill="#2C3E50">Relay Rtr</text>
+  <text x="420" y="161" text-anchor="middle" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">fd00::0200:0000:0000:1001</text>
+  <text x="700" y="161" text-anchor="middle" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">fd00::ff:fe00:0400</text>
+
+  <!-- Row 3: Temp Sensor -->
+  <rect x="25" y="174" width="800" height="34" fill="#FFF8E1"/>
+  <circle cx="46" cy="191" r="6" fill="#E8A838"/>
+  <text x="55" y="195" font-size="11.5" fill="#2C3E50">Temp Sensor</text>
+  <text x="420" y="195" text-anchor="middle" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">fd00::0200:0000:0000:1002</text>
+  <text x="700" y="195" text-anchor="middle" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">fd00::ff:fe00:0401</text>
+
+  <!-- Row 4: Humidity -->
+  <rect x="25" y="208" width="800" height="34" fill="white"/>
+  <circle cx="46" cy="225" r="6" fill="#E8A838"/>
+  <text x="55" y="229" font-size="11.5" fill="#2C3E50">Humidity</text>
+  <text x="420" y="229" text-anchor="middle" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">fd00::0200:0000:0000:1003</text>
+  <text x="700" y="229" text-anchor="middle" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">fd00::ff:fe00:0402</text>
+
+  <!-- Row 5: Door Contact -->
+  <rect x="25" y="242" width="800" height="34" fill="#FFF8E1"/>
+  <circle cx="46" cy="259" r="6" fill="#E8A838"/>
+  <text x="55" y="263" font-size="11.5" fill="#2C3E50">Door Contact</text>
+  <text x="420" y="263" text-anchor="middle" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">fd00::0200:0000:0000:1004</text>
+  <text x="700" y="263" text-anchor="middle" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">fd00::ff:fe00:0403</text>
+
+  <!-- Row 6: Door Lock -->
+  <rect x="25" y="276" width="800" height="34" fill="white"/>
+  <circle cx="46" cy="293" r="6" fill="#E8A838"/>
+  <text x="55" y="297" font-size="11.5" fill="#2C3E50">Door Lock</text>
+  <text x="420" y="297" text-anchor="middle" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">fd00::0200:0000:0000:1005</text>
+  <text x="700" y="297" text-anchor="middle" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">fd00::ff:fe00:0406</text>
+
+  <!-- Row 7: Light -->
+  <rect x="25" y="310" width="800" height="34" fill="#FFF8E1"/>
+  <circle cx="46" cy="327" r="6" fill="#E8A838"/>
+  <text x="55" y="331" font-size="11.5" fill="#2C3E50">Light</text>
+  <text x="420" y="331" text-anchor="middle" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">fd00::0200:0000:0000:1006</text>
+  <text x="700" y="331" text-anchor="middle" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">fd00::ff:fe00:0405</text>
+
+  <!-- Row 8: Occupancy -->
+  <rect x="25" y="344" width="800" height="34" fill="white"/>
+  <circle cx="46" cy="361" r="6" fill="#E8A838"/>
+  <text x="55" y="365" font-size="11.5" fill="#2C3E50">Occupancy</text>
+  <text x="420" y="365" text-anchor="middle" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">fd00::0200:0000:0000:1007</text>
+  <text x="700" y="365" text-anchor="middle" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">fd00::ff:fe00:0404</text>
+
+  <!-- Row 9: Power Source -->
+  <rect x="25" y="378" width="800" height="34" fill="#FFF8E1" rx="0"/>
+  <!-- Bottom corners fix -->
+  <rect x="25" y="378" width="800" height="28" fill="#FFF8E1"/>
+  <rect x="25" y="400" width="800" height="12" rx="6" fill="#FFF8E1"/>
+  <rect x="25" y="400" width="800" height="6" fill="#FFF8E1"/>
+  <circle cx="46" cy="395" r="6" fill="#E8A838"/>
+  <text x="55" y="399" font-size="11.5" fill="#2C3E50">Power Source</text>
+  <text x="420" y="399" text-anchor="middle" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">fd00::0200:0000:0000:1008</text>
+  <text x="700" y="399" text-anchor="middle" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">fd00::ff:fe00:0407</text>
+
+  <!-- Row separator lines -->
+  <line x1="25" y1="106" x2="825" y2="106" stroke="#E8EDF2" stroke-width="1"/>
+  <line x1="25" y1="140" x2="825" y2="140" stroke="#E8EDF2" stroke-width="1"/>
+  <line x1="25" y1="174" x2="825" y2="174" stroke="#E8EDF2" stroke-width="1"/>
+  <line x1="25" y1="208" x2="825" y2="208" stroke="#E8EDF2" stroke-width="1"/>
+  <line x1="25" y1="242" x2="825" y2="242" stroke="#E8EDF2" stroke-width="1"/>
+  <line x1="25" y1="276" x2="825" y2="276" stroke="#E8EDF2" stroke-width="1"/>
+  <line x1="25" y1="310" x2="825" y2="310" stroke="#E8EDF2" stroke-width="1"/>
+  <line x1="25" y1="344" x2="825" y2="344" stroke="#E8EDF2" stroke-width="1"/>
+  <line x1="25" y1="378" x2="825" y2="378" stroke="#E8EDF2" stroke-width="1"/>
+
+  <!-- Legend: device type colors -->
+  <rect x="25" y="425" width="190" height="28" rx="4" fill="#E8F5E9" stroke="#5BB55B" stroke-width="1"/>
+  <circle cx="40" cy="439" r="5" fill="#5BB55B"/>
+  <text x="50" y="443" font-size="10.5" fill="#2C3E50">Router (full routing capability)</text>
+
+  <rect x="225" y="425" width="190" height="28" rx="4" fill="#FFF8E1" stroke="#E8A838" stroke-width="1"/>
+  <circle cx="240" cy="439" r="5" fill="#E8A838"/>
+  <text x="250" y="443" font-size="10.5" fill="#2C3E50">End Device / Sleepy End Device</text>
+
+  <!-- Annotation box -->
+  <rect x="25" y="465" width="800" height="72" rx="8" fill="#F3E5F5" stroke="#9B59B6" stroke-width="1.5" filter="url(#shadow5)"/>
+  <text x="40" y="486" font-size="12" font-weight="bold" fill="#9B59B6">RLOC16 Breakdown</text>
+
+  <text x="50" y="504" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">0x0000</text>
+  <text x="110" y="504" font-size="11" fill="#2C3E50">= Router 0, child 0 (router itself)</text>
+  <text x="430" y="504" font-size="11" fill="#6C7A89">Border Router is Router ID 0 in this network</text>
+
+  <text x="50" y="521" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">0x0400</text>
+  <text x="110" y="521" font-size="11" fill="#2C3E50">= Router 1, child 0 (router itself)</text>
+  <text x="430" y="521" font-size="11" fill="#6C7A89">Relay Router is Router ID 1</text>
+
+  <text x="50" y="538" font-size="11" fill="#2C3E50" font-family="'Courier New', monospace">0x0401</text>
+  <text x="110" y="538" font-size="11" fill="#2C3E50">= Router 1, child 1 (temp sensor)</text>
+  <text x="430" y="538" font-size="11" fill="#6C7A89">Sleepy end device attached to Router 1</text>
+</svg>
