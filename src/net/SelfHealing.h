@@ -21,6 +21,8 @@ enum class HealingEvent {
     ServiceReregistered,    // DNS-SD service re-registered after recovery
     BackhaulLost,           // Cellular/Wi-Fi backhaul down
     BackhaulRestored,       // Backhaul reconnected, draining buffer
+    PowerDown,              // System shutting down (engine off)
+    PowerUp,                // System booting up (engine on)
 };
 
 inline const char* healingEventToString(HealingEvent ev) {
@@ -34,6 +36,8 @@ inline const char* healingEventToString(HealingEvent ev) {
         case HealingEvent::ServiceReregistered:    return "ServiceReregistered";
         case HealingEvent::BackhaulLost:           return "BackhaulLost";
         case HealingEvent::BackhaulRestored:       return "BackhaulRestored";
+        case HealingEvent::PowerDown:              return "PowerDown";
+        case HealingEvent::PowerUp:                return "PowerUp";
     }
     return "Unknown";
 }
@@ -107,6 +111,10 @@ public:
     // Backhaul management
     void onBackhaulLost(TimePoint now);
     void onBackhaulRestored(TimePoint now);
+
+    // Power lifecycle
+    void onSystemPowerDown(TimePoint now);
+    void onSystemPowerUp(TimePoint now);
     BackhaulState& backhaulState() { return backhaul_; }
     const BackhaulState& backhaulState() const { return backhaul_; }
 

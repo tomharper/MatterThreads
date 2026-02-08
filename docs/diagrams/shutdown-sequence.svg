@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="monospace" font-size="12">
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#333"/>
+    </marker>
+    <marker id="arrRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#B71C1C"/>
+    </marker>
+  </defs>
+
+  <text x="400" y="25" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a2e">Shutdown &amp; Boot Sequence (60s Battery Window)</text>
+
+  <!-- Timeline axis -->
+  <line x1="80" y1="60" x2="80" y2="460" stroke="#999" stroke-width="1"/>
+  <text x="40" y="65" font-size="11" fill="#666">Time</text>
+
+  <!-- Nodes columns -->
+  <text x="200" y="50" text-anchor="middle" font-size="13" font-weight="bold" fill="#4CAF50">Sensor (P=0)</text>
+  <text x="400" y="50" text-anchor="middle" font-size="13" font-weight="bold" fill="#FF9800">Relay (P=1)</text>
+  <text x="600" y="50" text-anchor="middle" font-size="13" font-weight="bold" fill="#2196F3">BR (P=2)</text>
+
+  <!-- Column lines -->
+  <line x1="200" y1="60" x2="200" y2="460" stroke="#eee" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="400" y1="60" x2="400" y2="460" stroke="#eee" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="600" y1="60" x2="600" y2="460" stroke="#eee" stroke-width="1" stroke-dasharray="4,4"/>
+
+  <!-- T=0 Engine Off -->
+  <line x1="80" y1="80" x2="750" y2="80" stroke="#333" stroke-width="1" stroke-dasharray="2,4"/>
+  <text x="85" y="77" font-size="11" fill="#333" font-weight="bold">T=0s</text>
+  <text x="750" y="77" font-size="11" fill="#333">Engine OFF</text>
+
+  <!-- Green bars (On) -->
+  <rect x="170" y="80" width="60" height="60" fill="#C8E6C9" stroke="#4CAF50" stroke-width="1" rx="3"/>
+  <text x="200" y="115" text-anchor="middle" font-size="10" fill="#2E7D32">ON</text>
+
+  <rect x="370" y="80" width="60" height="120" fill="#C8E6C9" stroke="#4CAF50" stroke-width="1" rx="3"/>
+  <text x="400" y="145" text-anchor="middle" font-size="10" fill="#2E7D32">ON</text>
+
+  <rect x="570" y="80" width="60" height="180" fill="#C8E6C9" stroke="#4CAF50" stroke-width="1" rx="3"/>
+  <text x="600" y="175" text-anchor="middle" font-size="10" fill="#2E7D32">ON</text>
+
+  <!-- T=15s Sensor shutdown -->
+  <line x1="80" y1="140" x2="750" y2="140" stroke="#aaa" stroke-width="1" stroke-dasharray="2,4"/>
+  <text x="85" y="137" font-size="11" fill="#333">T=15s</text>
+
+  <rect x="170" y="140" width="60" height="30" fill="#FFECB3" stroke="#FF9800" stroke-width="1" rx="3"/>
+  <text x="200" y="160" text-anchor="middle" font-size="9" fill="#E65100">SHUTDOWN</text>
+  <rect x="170" y="170" width="60" height="290" fill="#FFCDD2" stroke="#F44336" stroke-width="1" rx="3"/>
+  <text x="200" y="320" text-anchor="middle" font-size="10" fill="#B71C1C">OFF</text>
+
+  <text x="270" y="155" font-size="10" fill="#555">SRP deregister</text>
+  <text x="270" y="168" font-size="10" fill="#555">Final reading</text>
+
+  <!-- T=30s Relay shutdown -->
+  <line x1="80" y1="200" x2="750" y2="200" stroke="#aaa" stroke-width="1" stroke-dasharray="2,4"/>
+  <text x="85" y="197" font-size="11" fill="#333">T=30s</text>
+
+  <rect x="370" y="200" width="60" height="30" fill="#FFECB3" stroke="#FF9800" stroke-width="1" rx="3"/>
+  <text x="400" y="220" text-anchor="middle" font-size="9" fill="#E65100">SHUTDOWN</text>
+  <rect x="370" y="230" width="60" height="230" fill="#FFCDD2" stroke="#F44336" stroke-width="1" rx="3"/>
+  <text x="400" y="350" text-anchor="middle" font-size="10" fill="#B71C1C">OFF</text>
+
+  <text x="470" y="215" font-size="10" fill="#555">Invalidate routes</text>
+
+  <!-- T=45s BR shutdown -->
+  <line x1="80" y1="260" x2="750" y2="260" stroke="#aaa" stroke-width="1" stroke-dasharray="2,4"/>
+  <text x="85" y="257" font-size="11" fill="#333">T=45s</text>
+
+  <rect x="570" y="260" width="60" height="30" fill="#FFECB3" stroke="#FF9800" stroke-width="1" rx="3"/>
+  <text x="600" y="280" text-anchor="middle" font-size="9" fill="#E65100">SHUTDOWN</text>
+  <rect x="570" y="290" width="60" height="170" fill="#FFCDD2" stroke="#F44336" stroke-width="1" rx="3"/>
+  <text x="600" y="380" text-anchor="middle" font-size="10" fill="#B71C1C">OFF</text>
+
+  <text x="660" y="275" font-size="10" fill="#555">Drain proxy</text>
+  <text x="660" y="288" font-size="10" fill="#555">Flush buffers</text>
+  <text x="660" y="301" font-size="10" fill="#555">PowerDown event</text>
+
+  <!-- T=45s SystemOff -->
+  <line x1="80" y1="300" x2="750" y2="300" stroke="#F44336" stroke-width="2"/>
+  <text x="85" y="317" font-size="11" fill="#B71C1C" font-weight="bold">T=45s</text>
+  <text x="750" y="317" font-size="11" fill="#B71C1C" font-weight="bold">System OFF</text>
+
+  <!-- Battery bar -->
+  <rect x="80" y="440" width="670" height="20" rx="5" fill="#f5f5f5" stroke="#ddd"/>
+  <rect x="80" y="440" width="450" height="20" rx="5" fill="#FFECB3" stroke="#FF9800"/>
+  <text x="305" y="455" text-anchor="middle" font-size="10" fill="#E65100">60s battery window</text>
+
+  <!-- Hard cutoff marker (45s) -->
+  <line x1="395" y1="435" x2="395" y2="465" stroke="#B71C1C" stroke-width="2" stroke-dasharray="3,2"/>
+  <text x="395" y="480" text-anchor="middle" font-size="10" fill="#B71C1C">hard cutoff risk</text>
+</svg>

@@ -72,13 +72,17 @@ Added 4th node (phone), discovery, self-healing, Border Router proxy, SRP lease 
 | Phone node | `src/node/NodeMain.cpp` | Phone role support, discovery scanning, healing callbacks, service registration |
 | Van CLI commands | `app/Main.cpp` | `discover`, `backhaul down/up`, `backhaul latency <ms>`, `tunnel <sec>`, `crank`, `healing` |
 | Van scenarios | `tests/scenarios/TestVanScenarios.cpp` | 5 integration tests: PhoneCommissionTunnel, BackhaulLossRecovery, UnlockDuringCrank, SRPLeaseExpiryDuringParking, ProxyTableOverflow |
-| Unit tests | `tests/unit/Test{Discovery,SelfHealing,BorderRouter,SRP}.cpp` | 44 unit tests covering all new modules |
+| Power lifecycle | `src/thread/PowerManager.h/.cpp` | Power state machine (EngineOn→ShuttingDown→Off→Booting), priority-ordered shutdown (sensors→relay→BR), hard cutoff, cold boot recovery, 60-90s battery window simulation |
+| Unit tests | `tests/unit/Test{Discovery,SelfHealing,BorderRouter,SRP,PowerManager}.cpp` | 58 unit tests covering network/thread modules |
+| Power lifecycle scenarios | `tests/scenarios/TestPowerLifecycle.cpp` | 5 scenarios: GracefulShutdownAndBoot, HardCutoffAt45s, ColdBootAfterExtendedParking, RaceConditionSensorVsRelay, PowerCycleSubscriptionRecovery |
 | Mobile SDK guide | `docs/MOBILE_SDK_GUIDE.md` | Evaluated Apple Matter Framework vs Google Home SDK vs connectedhomeip. Recommendation: connectedhomeip for fleet use. |
-| Architecture diagrams | `docs/diagrams/` (10 SVGs) | Full system, in-van network, protocol stack, Thread topology, IPv6 addresses, temp report flow, door unlock flow, power state machine, failure scenarios, simulation mapping |
+| Web dashboard | `src/metrics/DashboardServer.h/.cpp` | Non-blocking HTTP server on configurable port. Serves inline HTML dashboard + JSON API endpoints (`/api/status`, `/api/metrics`, `/api/timeline`, `/api/topology`). Auto-refresh every 2s. |
+| Dashboard tests | `tests/unit/TestDashboardServer.cpp` | 7 tests: start/listen, serve HTML, serve JSON metrics/timeline/status/topology, 404 handling |
+| Architecture diagrams | `docs/diagrams/` (13 SVGs) | Full system, in-van network, protocol stack, Thread topology, IPv6 addresses, temp report flow, door unlock flow, power state machine, shutdown/boot sequence, failure scenarios, simulation mapping |
 
 **Updated topology presets:** `fullyConnected()`, `linearChain()`, `starFromLeader()`, `vanWithPhone()` — all handle 4 nodes (phone connects to BR via backhaul).
 
-**Total tests after Phase 3: 86** (37 from Phase 1 + 10 Discovery + 12 SelfHealing + 10 BorderRouter + 12 SRP + 5 Van Scenarios)
+**Total tests after Phase 3: 112** (37 from Phase 1 + 10 Discovery + 12 SelfHealing + 10 BorderRouter + 12 SRP + 5 Van Scenarios + 14 PowerManager + 5 Power Lifecycle + 7 Dashboard)
 
 ---
 
@@ -168,8 +172,9 @@ Added 4th node (phone), discovery, self-healing, Border Router proxy, SRP lease 
 | `docs/DELIVERY_VAN_ARCH_DIAGRAM.md` | ASCII architecture diagrams: system, in-van, protocol stack, Thread topology, IPv6, data flows, power states, failure scenarios, simulation mapping |
 | `docs/IPV6_AND_DISCOVERY.md` | Thread IPv6 addressing (link-local, ML-EID, RLOC), 6LoWPAN, DNS-SD discovery (commissioning + operational), SRP, common discovery bugs |
 | `docs/MOBILE_SDK_GUIDE.md` | Apple vs Google vs connectedhomeip SDK comparison, recommendation for fleet, commissioning flow, code examples, build notes, certification |
+| `docs/POWER_LIFECYCLE.md` | Power lifecycle HLD: state machine, shutdown/boot sequences, integration map, hard cutoff consequences, test coverage |
 | `docs/ROADMAP.md` | This file — project plan and implementation status |
-| `docs/diagrams/*.svg` | 10 SVG architecture diagrams |
+| `docs/diagrams/*.svg` | 13 SVG architecture diagrams (includes power state machine, shutdown sequence, boot sequence) |
 
 ---
 
@@ -177,7 +182,7 @@ Added 4th node (phone), discovery, self-healing, Border Router proxy, SRP lease 
 
 ```bash
 cmake -B build && cmake --build build    # Build everything
-ctest --test-dir build                   # Run all 86 tests
+ctest --test-dir build                   # Run all 112 tests
 ./build/matterthreads --topology van     # Run van simulation
 ./build/matterthreads --help             # See all options
 ```

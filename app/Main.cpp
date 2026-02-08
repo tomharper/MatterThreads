@@ -4,6 +4,7 @@
 #include "fault/FaultPlan.h"
 #include "metrics/Collector.h"
 #include "metrics/Reporter.h"
+#include "metrics/DashboardServer.h"
 
 #include <nlohmann/json.hpp>
 
@@ -18,6 +19,7 @@
 #include <chrono>
 #include <thread>
 #include <fstream>
+#include <memory>
 
 #include <unistd.h>
 #include <sys/wait.h>
@@ -40,6 +42,7 @@ struct CLIOptions {
     bool verbose = false;
     std::string output_path;
     std::string scenario;
+    uint16_t dashboard_port = 0;   // 0 = disabled, >0 = serve on this port
 };
 
 static CLIOptions parseCLI(int argc, char* argv[]) {
@@ -53,6 +56,7 @@ static CLIOptions parseCLI(int argc, char* argv[]) {
         else if (arg == "--verbose") opts.verbose = true;
         else if (arg == "--output" && i + 1 < argc) opts.output_path = argv[++i];
         else if (arg == "--scenario" && i + 1 < argc) opts.scenario = argv[++i];
+        else if (arg == "--dashboard" && i + 1 < argc) opts.dashboard_port = static_cast<uint16_t>(std::stoul(argv[++i]));
         else if (arg == "--help" || arg == "-h") {
             std::cout << "Usage: matterthreads [options]\n"
                       << "\n"
@@ -64,6 +68,7 @@ static CLIOptions parseCLI(int argc, char* argv[]) {
                       << "  --verbose                      Verbose logging\n"
                       << "  --output <path>                Write JSON report to file\n"
                       << "  --scenario <name>              Run named scenario and exit\n"
+                      << "  --dashboard <port>             Start web dashboard on port (e.g. 8080)\n"
                       << "  --help                         Show this help\n"
                       << "\n"
                       << "Scenarios: mesh-healing, subscription-stress, commissioning-flaky,\n"
@@ -176,6 +181,33 @@ int main(int argc, char* argv[]) {
     mt::Collector collector;
     mt::Reporter reporter(collector);
 
+    // Dashboard server (optional)
+    std::unique_ptr<mt::DashboardServer> dashboard;
+    if (opts.dashboard_port > 0) {
+        dashboard = std::make_unique<mt::DashboardServer>(collector, opts.dashboard_port);
+
+        dashboard->setNodeStatusProvider([&]() -> std::vector<mt::NodeStatus> {
+            std::vector<mt::NodeStatus> nodes;
+            for (int i = 0; i < NUM_NODES; ++i) {
+                int status;
+                pid_t result = waitpid(node_pids[static_cast<size_t>(i)], &status, WNOHANG);
+                std::string state = (result == 0) ? "running" : "stopped";
+                nodes.push_back({static_cast<mt::NodeId>(i),
+                                 roles[static_cast<size_t>(i)], state,
+                                 static_cast<int>(node_pids[static_cast<size_t>(i)])});
+            }
+            return nodes;
+        });
+
+        auto start_result = dashboard->start();
+        if (!start_result) {
+            MT_WARN("ctrl", "Dashboard failed to start: " + start_result.error().message);
+            dashboard.reset();
+        } else {
+            MT_INFO("ctrl", "Dashboard: http://localhost:" + std::to_string(opts.dashboard_port));
+        }
+    }
+
     if (!opts.scenario.empty()) {
         // Scenario mode: run for duration, then report
         MT_INFO("ctrl", "Running scenario: " + opts.scenario);
@@ -186,6 +218,7 @@ int main(int argc, char* argv[]) {
         while (g_running) {
             auto elapsed = std::chrono::steady_clock::now() - start;
             if (elapsed >= max_dur) break;
+            if (dashboard) dashboard->poll();
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
 
@@ -235,6 +268,7 @@ int main(int argc, char* argv[]) {
                           << "  crank                Simulate engine cranking power dip\n"
                           << "  healing              Show self-healing history\n"
                           << "\n"
+                          << "  dashboard            Open dashboard URL\n"
                           << "  quit                 Shut down\n";
             } else if (cmd == "status") {
                 std::cout << "Broker PID: " << broker_pid << "\n";
@@ -304,6 +338,12 @@ int main(int argc, char* argv[]) {
                           << "  (healing events are logged by each node process)\n"
                           << "  Check node logs for: NeighborLost, PartitionDetected,\n"
                           << "  RouteRecalculated, SubscriptionRecovered, NodeReattached\n";
+            } else if (cmd == "dashboard") {
+                if (dashboard) {
+                    std::cout << "Dashboard running at http://localhost:" << dashboard->port() << "\n";
+                } else {
+                    std::cout << "Dashboard not enabled. Use --dashboard <port> to start.\n";
+                }
             } else if (cmd == "crash") {
                 int node;
                 if (iss >> node && node >= 0 && node < NUM_NODES) {
@@ -350,11 +390,17 @@ int main(int argc, char* argv[]) {
                 std::cout << "Unknown command: " << cmd << ". Type 'help' for commands.\n";
             }
 
+            // Poll dashboard server between commands
+            if (dashboard) dashboard->poll();
+
             if (g_running) {
                 std::cout << "> " << std::flush;
             }
         }
     }
+
+    // Stop dashboard
+    if (dashboard) dashboard->stop();
 
     // Shutdown all child processes
     MT_INFO("ctrl", "Shutting down...");

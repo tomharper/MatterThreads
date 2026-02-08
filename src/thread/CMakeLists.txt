@@ -8,6 +8,7 @@ add_library(mt_thread STATIC
     ChildTable.cpp
     BorderRouter.cpp
     SRP.cpp
+    PowerManager.cpp
 )
 
 target_link_libraries(mt_thread PUBLIC mt_net)

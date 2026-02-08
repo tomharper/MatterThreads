@@ -8,6 +8,8 @@ add_executable(mt_tests
     TestSelfHealing.cpp
     TestBorderRouter.cpp
     TestSRP.cpp
+    TestPowerManager.cpp
+    TestDashboardServer.cpp
 )
 
 target_link_libraries(mt_tests PRIVATE

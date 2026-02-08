@@ -17,6 +17,7 @@ matterthreads [options] [scenario]
 | `--verbose` | Verbose logging | off |
 | `--output <path>` | Write report to file (JSON) | stdout |
 | `--scenario <name>` | Run a named scenario and exit | interactive |
+| `--dashboard <port>` | Start web dashboard on given port | disabled |
 
 ### Topology Presets
 
@@ -35,7 +36,7 @@ status                          Show all node states, roles, routes
 topology                        Show current link quality matrix
 metrics                         Show current metrics summary
 timeline [from] [to]            Show event timeline
-dashboard                       Live ANSI dashboard (refreshes every 1s)
+dashboard                       Show web dashboard URL (requires --dashboard <port>)
 ```
 
 ### Link Manipulation
@@ -117,6 +118,10 @@ matterthreads --topology van
 
 # Run for 60s with verbose logging and JSON output
 matterthreads --duration 60 --verbose --output report.json
+
+# Van topology with web dashboard on port 8080
+matterthreads --topology van --dashboard 8080
+# Then open http://localhost:8080 in a browser
 
 # Hardware bridge mode
 matterthreads --hw

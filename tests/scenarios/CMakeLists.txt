@@ -6,6 +6,7 @@ add_executable(mt_scenario_tests
     TestRouteFailure.cpp
     TestMessageOrdering.cpp
     TestVanScenarios.cpp
+    TestPowerLifecycle.cpp
 )
 
 target_link_libraries(mt_scenario_tests PRIVATE

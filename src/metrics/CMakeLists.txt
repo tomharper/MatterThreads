@@ -4,6 +4,7 @@ add_library(mt_metrics STATIC
     Timeline.cpp
     Collector.cpp
     Reporter.cpp
+    DashboardServer.cpp
 )
 
 target_link_libraries(mt_metrics PUBLIC mt_matter nlohmann_json::nlohmann_json)

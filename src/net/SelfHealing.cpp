@@ -72,6 +72,18 @@ void SelfHealingEngine::onBackhaulRestored(TimePoint now) {
     backhaul_.buffered_messages = 0;
 }
 
+void SelfHealingEngine::onSystemPowerDown(TimePoint now) {
+    emit(HealingEvent::PowerDown, BROADCAST_NODE,
+         "System power down — engine off");
+    (void)now;
+}
+
+void SelfHealingEngine::onSystemPowerUp(TimePoint now) {
+    emit(HealingEvent::PowerUp, BROADCAST_NODE,
+         "System power up — engine on");
+    (void)now;
+}
+
 bool SelfHealingEngine::isNeighborReachable(NodeId node_id) const {
     auto it = neighbors_.find(node_id);
     if (it == neighbors_.end()) return false;
