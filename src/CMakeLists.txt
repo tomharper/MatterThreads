@@ -9,4 +9,11 @@ add_subdirectory(node)
 
 if(ENABLE_HW_BRIDGE)
     add_subdirectory(hw)
+    # Propagate to app targets that need to know hw bridge is available
+    add_compile_definitions(MT_HW_BRIDGE_ENABLED)
+endif()
+
+if(ENABLE_GATEWAY)
+    add_subdirectory(gateway)
+    add_compile_definitions(MT_GATEWAY_ENABLED)
 endif()

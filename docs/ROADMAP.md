@@ -86,44 +86,63 @@ Added 4th node (phone), discovery, self-healing, Border Router proxy, SRP lease 
 
 ---
 
-## What's Next (Phases 4-7)
+## What's Built (Phases 4-5 Complete)
 
 ### Phase 4: connectedhomeip Integration
 
-**Status: NOT STARTED**
-**Priority: HIGH**
-**Goal:** Wire up the real Matter SDK so the simulation can talk to actual chip-tool and real devices.
+**Status: DONE**
+**Approach:** Sidecar — chip-tool runs as a subprocess; ChipToolDriver wraps its CLI. connectedhomeip added as git submodule but NOT built by CMake (user builds chip-tool separately via connectedhomeip's own GN build).
 
-| Task | Description | Depends On |
-|------|-------------|------------|
-| Add connectedhomeip as submodule | Pull the CSA reference SDK, integrate with CMake build | — |
-| chip-tool driver | `src/hw/ChipToolDriver` already stubbed — wire it to the real chip-tool binary | connectedhomeip build |
-| Darwin Framework bridge | iOS controller app skeleton using `MTRDeviceController` | connectedhomeip Darwin build |
-| Android CHIPTool bridge | Android controller skeleton using `ChipDeviceController` | connectedhomeip Android build |
-| Real PASE/CASE | Replace stubbed crypto with actual connectedhomeip session code | connectedhomeip integration |
-| Certification test harness | Run CSA interop test suite against simulation + real devices | All above |
+| Component | Files | What It Does |
+|-----------|-------|-------------|
+| ProcessManager | `src/hw/ProcessManager.h/.cpp` | POSIX subprocess RAII wrapper (fork/exec/pipes, sync+async, timeout, SIGTERM/SIGKILL) |
+| ChipToolOutputParser | `src/hw/ChipToolOutputParser.h/.cpp` | Regex-based parsing of chip-tool stdout/stderr into Result types (pairing, read, write, invoke, subscribe) |
+| ChipToolDriver | `src/hw/ChipToolDriver.h/.cpp` | Core sidecar: builds CLI commands, manages cluster/attr/command name lookup, subscription polling |
+| OTBRClient | `src/hw/OTBRClient.h/.cpp` | libcurl REST client for OpenThread Border Router API (state, dataset, neighbors, SRP, commissioner) |
+| HardwareNode | `src/hw/HardwareNode.h/.cpp` | IHardwareNode interface + concrete impl delegating to Driver+OTBR |
+| Darwin bridge | `src/hw/darwin/DarwinBridge.h/.mm` | Obj-C++ bridge to Matter.framework using MTRDeviceController (gated by `ENABLE_DARWIN_BRIDGE`) |
+| Cert harness | `tests/scenarios/TestCertHarness.cpp` | 7 DISABLED_ tests covering CSA interop: PASE, CASE, Attestation, Read, Write, Invoke, Subscribe |
+| CLI hw mode | `app/Main.cpp` | `--hw` mode REPL: commission, read, write, invoke, version, status commands |
 
-**Key decision:** Whether to link connectedhomeip statically into our nodes or run it as a sidecar process. Sidecar is simpler for testing; static linking is needed for embedded deployment.
+**Build:** `cmake -B build -DENABLE_HW_BRIDGE=ON && cmake --build build` (requires libcurl)
+
+**Tests:** 32 new hw unit tests (ProcessManager 6, ChipToolOutputParser 8, ChipToolDriver 6, OTBRClient 6, HardwareNode 6) + 7 disabled cert tests
+
+**Total tests after Phase 4: 144** (112 existing + 32 new hw unit tests)
 
 ---
 
 ### Phase 5: Fleet Gateway Service
 
-**Status: NOT STARTED**
-**Priority: HIGH**
-**Goal:** Cloud-side Matter controller that manages all vans in the fleet.
+**Status: DONE**
 
-| Task | Description | Depends On |
-|------|-------------|------------|
-| Gateway service skeleton | Linux service wrapping chip-tool or Python controller | Phase 4 (chip-tool) |
-| Fabric management | Fleet CA, NOC issuance, per-van fabric credentials | connectedhomeip cert tools |
-| CASE session pool | Maintain persistent CASE sessions to all online vans | Gateway skeleton |
-| Subscription aggregation | Subscribe to critical attributes on all van endpoints, fan out to dashboard | CASE sessions |
-| Command relay | REST/gRPC API → Matter InvokeCommand to specific van/endpoint | CASE sessions |
-| Offline buffering | Handle vans going offline, re-sync when they reconnect | Subscription aggregation |
-| Multi-tenant | Support multiple fleet operators on shared infrastructure | Fabric management |
+Cloud-side Matter controller managing all delivery vans in the fleet. Gated by `ENABLE_GATEWAY=ON` (requires `ENABLE_HW_BRIDGE=ON`).
+
+| Component | Files | What It Does |
+|-----------|-------|-------------|
+| GatewayTypes | `src/gateway/GatewayTypes.h` | VanId, TenantId, VanState enum, VanRegistration, GatewayConfig |
+| VanRegistry | `src/gateway/VanRegistry.h/.cpp` | CRUD for van records, per-tenant filtering, JSON serialization |
+| CASESessionPool | `src/gateway/SessionPool.h/.cpp` | Persistent CASE sessions, keepalive (60s), exponential backoff reconnect (5s->5min, max 10) |
+| FleetSubscriptionManager | `src/gateway/FleetSubscriptionManager.h/.cpp` | Fleet-wide subscription rules (8 defaults), per-van state, 3-strike liveness, observer callbacks |
+| CommandRelay | `src/gateway/CommandRelay.h/.cpp` | Routes REST commands to ChipToolDriver per van/endpoint, connection check |
+| OfflineBuffer | `src/gateway/OfflineBuffer.h/.cpp` | Per-van ring buffer (10K/van, 100K total), sequence-based drain, age eviction |
+| FabricManager | `src/gateway/FabricManager.h/.cpp` | Per-tenant fabric isolation, simulated NOC issuance, van limit enforcement |
+| GatewayServer | `src/gateway/GatewayServer.h/.cpp` | HTTP server: GET/POST/PUT/DELETE, path params, JSON body, 24 REST endpoints |
+| GatewayMain | `src/gateway/GatewayMain.cpp` | Standalone executable with signal handling and poll-based event loop |
+
+**REST API:** 24 endpoints covering van CRUD, attribute read/write, command invoke, lock/unlock shortcuts, subscription rules, fleet status/alerts/telemetry, events, tenants/fabric/NOC, health, metrics.
+
+**Build:** `cmake -B build -DENABLE_HW_BRIDGE=ON -DENABLE_GATEWAY=ON && cmake --build build`
+
+**Tests:** 62 new (8 VanRegistry + 8 OfflineBuffer + 8 FabricManager + 8 SessionPool + 8 FleetSubscription + 6 CommandRelay + 10 GatewayServer + 6 Scenarios)
+
+**Total tests after Phase 5: 206** (112 base + 32 hw bridge + 62 gateway)
+
+**Docs:** `docs/FLEET_GATEWAY.md`
 
 ---
+
+## What's Next (Phases 6-7)
 
 ### Phase 6: Phone Controller App
 
@@ -173,18 +192,23 @@ Added 4th node (phone), discovery, self-healing, Border Router proxy, SRP lease 
 | `docs/IPV6_AND_DISCOVERY.md` | Thread IPv6 addressing (link-local, ML-EID, RLOC), 6LoWPAN, DNS-SD discovery (commissioning + operational), SRP, common discovery bugs |
 | `docs/MOBILE_SDK_GUIDE.md` | Apple vs Google vs connectedhomeip SDK comparison, recommendation for fleet, commissioning flow, code examples, build notes, certification |
 | `docs/POWER_LIFECYCLE.md` | Power lifecycle HLD: state machine, shutdown/boot sequences, integration map, hard cutoff consequences, test coverage |
+| `docs/FLEET_GATEWAY.md` | Fleet Gateway service: architecture, REST API, subscription rules, session pool, offline buffer, multi-tenant |
 | `docs/ROADMAP.md` | This file — project plan and implementation status |
-| `docs/diagrams/*.svg` | 13 SVG architecture diagrams (includes power state machine, shutdown sequence, boot sequence) |
+| `docs/diagrams/*.svg` | 14 SVG architecture diagrams (includes power state machine, shutdown/boot sequences, fleet gateway) |
 
 ---
 
 ## Build & Test
 
 ```bash
-cmake -B build && cmake --build build    # Build everything
-ctest --test-dir build                   # Run all 112 tests
-./build/matterthreads --topology van     # Run van simulation
-./build/matterthreads --help             # See all options
+cmake -B build && cmake --build build                                          # Default (112 tests)
+cmake -B build -DENABLE_HW_BRIDGE=ON && cmake --build build                    # HW bridge (144 tests)
+cmake -B build -DENABLE_HW_BRIDGE=ON -DENABLE_GATEWAY=ON && cmake --build build  # Full (206 tests)
+ctest --test-dir build                                                         # Run all tests
+./build/matterthreads --topology van                                           # Van simulation
+./build/matterthreads --hw --chip-tool /path/to/chip-tool                      # HW bridge mode
+./build/src/gateway/mt_gateway_server --port 8090                              # Fleet gateway server
+./build/matterthreads --help                                                   # All options
 ```
 
 ---
@@ -197,7 +221,7 @@ ctest --test-dir build                   # Run all 112 tests
 | Build | CMake 3.20+ |
 | Compiler | Apple Clang 17 (macOS), GCC 12+ (Linux) |
 | Dependencies | nlohmann/json (FetchContent), GoogleTest (FetchContent) |
-| Matter SDK (planned) | connectedhomeip (Apache 2.0) |
+| Matter SDK | connectedhomeip (Apache 2.0) — sidecar via chip-tool subprocess |
 | Mobile — iOS | Darwin Framework (Obj-C/Swift) |
 | Mobile — Android | CHIPTool APIs (Kotlin) |
 | Fleet gateway | chip-tool or Python controller (Linux) |

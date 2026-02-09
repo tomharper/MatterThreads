@@ -8,6 +8,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Project options
 option(ENABLE_HW_BRIDGE "Enable hardware bridge mode (requires libcurl)" OFF)
+option(ENABLE_DARWIN_BRIDGE "Enable Darwin Framework bridge (macOS/iOS, requires Matter.framework)" OFF)
+option(ENABLE_GATEWAY "Enable fleet gateway service (requires ENABLE_HW_BRIDGE)" OFF)
+
+if(ENABLE_GATEWAY AND NOT ENABLE_HW_BRIDGE)
+    message(FATAL_ERROR "ENABLE_GATEWAY requires ENABLE_HW_BRIDGE=ON")
+endif()
 option(ENABLE_TESTS "Build unit and scenario tests" ON)
 option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 

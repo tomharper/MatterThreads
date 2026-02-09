@@ -1,5 +1,7 @@
 # Build
 build/
+build-*/
+build_*/
 cmake-build-*/
 
 # IDE
@@ -19,3 +21,10 @@ cmake-build-*/
 # Generated
 compile_commands.json
 .cache/
+
+# connectedhomeip build artifacts (submodule built separately)
+third_party/connectedhomeip/out/
+
+# Runtime
+/tmp/matterthreads/
+*.log
