@@ -1,0 +1,422 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 70;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA000001 /* MatterAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000001 /* MatterAIApp.swift */; };
+		AA000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000002 /* ContentView.swift */; };
+		AA000003 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000003 /* HomeView.swift */; };
+		AA000004 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000004 /* ChatView.swift */; };
+		AA000005 /* HomeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000005 /* HomeManager.swift */; };
+		AA000010 /* DeviceModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB000010 /* DeviceModel.cpp */; };
+		AA000012 /* TLVCodec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB000012 /* TLVCodec.cpp */; };
+		AA000014 /* SceneEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB000014 /* SceneEngine.cpp */; };
+		AA000020 /* MatterBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = BB000020 /* MatterBridge.mm */; };
+		AA000030 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB000030 /* Assets.xcassets */; };
+		AA000040 /* SimulationModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB000040A /* SimulationModel.cpp */; };
+		AA000041 /* SimulationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000041 /* SimulationService.swift */; };
+		AA000042 /* SimulationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000042 /* SimulationView.swift */; };
+		B1D571E92F78957D00BF5B69 /* Leetcode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1D571E82F78957D00BF5B69 /* Leetcode.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B1D571E72F78957D00BF5B69 /* Leetcode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Leetcode.hpp; sourceTree = "<group>"; };
+		B1D571E82F78957D00BF5B69 /* Leetcode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Leetcode.cpp; sourceTree = "<group>"; };
+		BB000001 /* MatterAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatterAIApp.swift; sourceTree = "<group>"; };
+		BB000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		BB000003 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		BB000004 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		BB000005 /* HomeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeManager.swift; sourceTree = "<group>"; };
+		BB000009 /* DeviceModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DeviceModel.h; sourceTree = "<group>"; };
+		BB000010 /* DeviceModel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DeviceModel.cpp; sourceTree = "<group>"; };
+		BB000011 /* TLVCodec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TLVCodec.h; sourceTree = "<group>"; };
+		BB000012 /* TLVCodec.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TLVCodec.cpp; sourceTree = "<group>"; };
+		BB000013 /* SceneEngine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SceneEngine.h; sourceTree = "<group>"; };
+		BB000014 /* SceneEngine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SceneEngine.cpp; sourceTree = "<group>"; };
+		BB000019 /* MatterBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MatterBridge.h; sourceTree = "<group>"; };
+		BB000020 /* MatterBridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MatterBridge.mm; sourceTree = "<group>"; };
+		BB000025 /* MatterAI-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MatterAI-Bridging-Header.h"; sourceTree = "<group>"; };
+		BB000030 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BB000031 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BB000040 /* MatterAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MatterAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB000039 /* SimulationModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SimulationModel.h; sourceTree = "<group>"; };
+		BB000040A /* SimulationModel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SimulationModel.cpp; sourceTree = "<group>"; };
+		BB000041 /* SimulationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulationService.swift; sourceTree = "<group>"; };
+		BB000042 /* SimulationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulationView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		B1EB1CD52F66F50300AEECAC /* CodePractice */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = CodePractice; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CC000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B1D571E62F7386D800BF5B69 /* Questions */ = {
+			isa = PBXGroup;
+			children = (
+				B1D571E72F78957D00BF5B69 /* Leetcode.hpp */,
+				B1D571E82F78957D00BF5B69 /* Leetcode.cpp */,
+			);
+			path = Questions;
+			sourceTree = "<group>";
+		};
+		DD000000 = {
+			isa = PBXGroup;
+			children = (
+				DD000001 /* MatterAI */,
+				DD000005 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DD000001 /* MatterAI */ = {
+			isa = PBXGroup;
+			children = (
+				B1EB1CD52F66F50300AEECAC /* CodePractice */,
+				DD000002 /* App */,
+				DD000003 /* Core */,
+				DD000004 /* Bridge */,
+				BB000025 /* MatterAI-Bridging-Header.h */,
+				BB000030 /* Assets.xcassets */,
+				BB000031 /* Info.plist */,
+			);
+			path = MatterAI;
+			sourceTree = "<group>";
+		};
+		DD000002 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				BB000001 /* MatterAIApp.swift */,
+				BB000002 /* ContentView.swift */,
+				BB000003 /* HomeView.swift */,
+				BB000004 /* ChatView.swift */,
+				BB000005 /* HomeManager.swift */,
+				BB000041 /* SimulationService.swift */,
+				BB000042 /* SimulationView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		DD000003 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				B1D571E62F7386D800BF5B69 /* Questions */,
+				BB000009 /* DeviceModel.h */,
+				BB000010 /* DeviceModel.cpp */,
+				BB000011 /* TLVCodec.h */,
+				BB000012 /* TLVCodec.cpp */,
+				BB000013 /* SceneEngine.h */,
+				BB000014 /* SceneEngine.cpp */,
+				BB000039 /* SimulationModel.h */,
+				BB000040A /* SimulationModel.cpp */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		DD000004 /* Bridge */ = {
+			isa = PBXGroup;
+			children = (
+				BB000019 /* MatterBridge.h */,
+				BB000020 /* MatterBridge.mm */,
+			);
+			path = Bridge;
+			sourceTree = "<group>";
+		};
+		DD000005 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BB000040 /* MatterAI.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		EE000001 /* MatterAI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FF000004 /* Build configuration list for PBXNativeTarget "MatterAI" */;
+			buildPhases = (
+				CC000001 /* Sources */,
+				CC000002 /* Frameworks */,
+				CC000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				B1EB1CD52F66F50300AEECAC /* CodePractice */,
+			);
+			name = MatterAI;
+			productName = MatterAI;
+			productReference = BB000040 /* MatterAI.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		EE000000 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 2630;
+				TargetAttributes = {
+					EE000001 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = FF000001 /* Build configuration list for PBXProject "MatterAI" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = DD000000;
+			productRefGroup = DD000005 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EE000001 /* MatterAI */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CC000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA000030 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CC000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B1D571E92F78957D00BF5B69 /* Leetcode.cpp in Sources */,
+				AA000001 /* MatterAIApp.swift in Sources */,
+				AA000002 /* ContentView.swift in Sources */,
+				AA000003 /* HomeView.swift in Sources */,
+				AA000004 /* ChatView.swift in Sources */,
+				AA000005 /* HomeManager.swift in Sources */,
+				AA000010 /* DeviceModel.cpp in Sources */,
+				AA000012 /* TLVCodec.cpp in Sources */,
+				AA000014 /* SceneEngine.cpp in Sources */,
+				AA000020 /* MatterBridge.mm in Sources */,
+				AA000040 /* SimulationModel.cpp in Sources */,
+				AA000041 /* SimulationService.swift in Sources */,
+				AA000042 /* SimulationView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		FF000002 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		FF000003 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		FF000005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/MatterAI/Core",
+					"$(SRCROOT)/MatterAI/Bridge",
+				);
+				INFOPLIST_FILE = MatterAI/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.matterai.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "MatterAI/MatterAI-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		FF000006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/MatterAI/Core",
+					"$(SRCROOT)/MatterAI/Bridge",
+				);
+				INFOPLIST_FILE = MatterAI/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.matterai.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "MatterAI/MatterAI-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FF000001 /* Build configuration list for PBXProject "MatterAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FF000002 /* Debug */,
+				FF000003 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FF000004 /* Build configuration list for PBXNativeTarget "MatterAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FF000005 /* Debug */,
+				FF000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = EE000000 /* Project object */;
+}
