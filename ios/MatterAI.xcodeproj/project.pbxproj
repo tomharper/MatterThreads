@@ -21,6 +21,16 @@
 		AA000041 /* SimulationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000041 /* SimulationService.swift */; };
 		AA000042 /* SimulationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000042 /* SimulationView.swift */; };
 		B1D571E92F78957D00BF5B69 /* Leetcode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1D571E82F78957D00BF5B69 /* Leetcode.cpp */; };
+		AA000050 /* DeviceBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000050 /* DeviceBackend.swift */; };
+		AA000051 /* UnifiedDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000051 /* UnifiedDevice.swift */; };
+		AA000052 /* BackendRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000052 /* BackendRouter.swift */; };
+		AA000053 /* MatterHomeSDK.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000053 /* MatterHomeSDK.swift */; };
+		AA000060 /* LocalBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000060 /* LocalBackend.swift */; };
+		AA000061 /* MatterBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000061 /* MatterBackend.swift */; };
+		AA000062 /* HomeKitBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000062 /* HomeKitBackend.swift */; };
+		AA000063 /* GoogleHomeBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000063 /* GoogleHomeBackend.swift */; };
+		AA000064 /* ThreadBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000064 /* ThreadBackend.swift */; };
+		AA000065 /* SDKStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000065 /* SDKStatusView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +57,17 @@
 		BB000040A /* SimulationModel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SimulationModel.cpp; sourceTree = "<group>"; };
 		BB000041 /* SimulationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulationService.swift; sourceTree = "<group>"; };
 		BB000042 /* SimulationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulationView.swift; sourceTree = "<group>"; };
+		BB000045 /* BackendTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BackendTypes.h; sourceTree = "<group>"; };
+		BB000050 /* DeviceBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceBackend.swift; sourceTree = "<group>"; };
+		BB000051 /* UnifiedDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedDevice.swift; sourceTree = "<group>"; };
+		BB000052 /* BackendRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendRouter.swift; sourceTree = "<group>"; };
+		BB000053 /* MatterHomeSDK.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatterHomeSDK.swift; sourceTree = "<group>"; };
+		BB000060 /* LocalBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalBackend.swift; sourceTree = "<group>"; };
+		BB000061 /* MatterBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatterBackend.swift; sourceTree = "<group>"; };
+		BB000062 /* HomeKitBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeKitBackend.swift; sourceTree = "<group>"; };
+		BB000063 /* GoogleHomeBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleHomeBackend.swift; sourceTree = "<group>"; };
+		BB000064 /* ThreadBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadBackend.swift; sourceTree = "<group>"; };
+		BB000065 /* SDKStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKStatusView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -88,6 +109,8 @@
 				DD000002 /* App */,
 				DD000003 /* Core */,
 				DD000004 /* Bridge */,
+				DD000006 /* SDK */,
+				DD000007 /* Backends */,
 				BB000025 /* MatterAI-Bridging-Header.h */,
 				BB000030 /* Assets.xcassets */,
 				BB000031 /* Info.plist */,
@@ -105,6 +128,7 @@
 				BB000005 /* HomeManager.swift */,
 				BB000041 /* SimulationService.swift */,
 				BB000042 /* SimulationView.swift */,
+				BB000065 /* SDKStatusView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -121,6 +145,7 @@
 				BB000014 /* SceneEngine.cpp */,
 				BB000039 /* SimulationModel.h */,
 				BB000040A /* SimulationModel.cpp */,
+				BB000045 /* BackendTypes.h */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -132,6 +157,29 @@
 				BB000020 /* MatterBridge.mm */,
 			);
 			path = Bridge;
+			sourceTree = "<group>";
+		};
+		DD000006 /* SDK */ = {
+			isa = PBXGroup;
+			children = (
+				BB000050 /* DeviceBackend.swift */,
+				BB000051 /* UnifiedDevice.swift */,
+				BB000052 /* BackendRouter.swift */,
+				BB000053 /* MatterHomeSDK.swift */,
+			);
+			path = SDK;
+			sourceTree = "<group>";
+		};
+		DD000007 /* Backends */ = {
+			isa = PBXGroup;
+			children = (
+				BB000060 /* LocalBackend.swift */,
+				BB000061 /* MatterBackend.swift */,
+				BB000062 /* HomeKitBackend.swift */,
+				BB000063 /* GoogleHomeBackend.swift */,
+				BB000064 /* ThreadBackend.swift */,
+			);
+			path = Backends;
 			sourceTree = "<group>";
 		};
 		DD000005 /* Products */ = {
@@ -227,6 +275,16 @@
 				AA000040 /* SimulationModel.cpp in Sources */,
 				AA000041 /* SimulationService.swift in Sources */,
 				AA000042 /* SimulationView.swift in Sources */,
+				AA000050 /* DeviceBackend.swift in Sources */,
+				AA000051 /* UnifiedDevice.swift in Sources */,
+				AA000052 /* BackendRouter.swift in Sources */,
+				AA000053 /* MatterHomeSDK.swift in Sources */,
+				AA000060 /* LocalBackend.swift in Sources */,
+				AA000061 /* MatterBackend.swift in Sources */,
+				AA000062 /* HomeKitBackend.swift in Sources */,
+				AA000063 /* GoogleHomeBackend.swift in Sources */,
+				AA000064 /* ThreadBackend.swift in Sources */,
+				AA000065 /* SDKStatusView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
