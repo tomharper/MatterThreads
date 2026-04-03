@@ -31,6 +31,9 @@ class MatterHomeSDK: ObservableObject {
     /// Overall connectivity status
     @Published private(set) var isConnected: Bool = false
 
+    /// Event stream for real-time device lifecycle events
+    let eventStream = DeviceEventStream()
+
     // MARK: - Internal
 
     private let router = BackendRouter()
@@ -122,6 +125,14 @@ class MatterHomeSDK: ObservableObject {
     /// Start all enabled backends
     func start() async {
         await router.startAll()
+        // Emit discovery events for initial devices
+        for device in router.devices {
+            eventStream.emit(DeviceEvent(
+                timestamp: Date(), deviceId: device.id,
+                deviceName: device.name, source: device.source,
+                type: .discovered, detail: device.stateDescription
+            ))
+        }
     }
 
     /// Stop all backends
@@ -149,6 +160,11 @@ class MatterHomeSDK: ObservableObject {
     /// Toggle a device on/off
     func toggleDevice(_ device: UnifiedDevice) async throws {
         try await router.toggleDevice(device)
+        eventStream.emit(DeviceEvent(
+            timestamp: Date(), deviceId: device.id,
+            deviceName: device.name, source: device.source,
+            type: .stateChanged, detail: device.isOn ? "Off" : "On"
+        ))
     }
 
     /// Read an attribute from a device
@@ -159,6 +175,12 @@ class MatterHomeSDK: ObservableObject {
     /// Write an attribute to a device
     func writeAttribute(device: UnifiedDevice, path: AttributePath, value: SDKAttributeValue) async throws {
         try await router.writeAttribute(deviceId: device.id, path: path, value: value)
+        eventStream.emit(DeviceEvent(
+            timestamp: Date(), deviceId: device.id,
+            deviceName: device.name, source: device.source,
+            type: .attributeWrite,
+            detail: "ep\(path.endpointId)/0x\(String(format: "%04X", path.clusterId))/0x\(String(format: "%04X", path.attributeId))"
+        ))
     }
 
     /// Invoke a command on a device

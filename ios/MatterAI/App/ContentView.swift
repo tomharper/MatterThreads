@@ -16,6 +16,11 @@ struct ContentView: View {
                     Label("SDK", systemImage: "puzzlepiece.extension.fill")
                 }
 
+            EventLogView()
+                .tabItem {
+                    Label("Events", systemImage: "list.bullet.clipboard")
+                }
+
             SimulationView()
                 .tabItem {
                     Label("Mesh", systemImage: "network")

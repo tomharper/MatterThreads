@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SDKStatusView: View {
     @EnvironmentObject var sdk: MatterHomeSDK
+    @State private var showCommissioning = false
 
     var body: some View {
         NavigationStack {
@@ -38,60 +39,79 @@ struct SDKStatusView: View {
                     ForEach(sdk.rooms, id: \.self) { room in
                         Section(room) {
                             ForEach(sdk.devicesInRoom(room)) { device in
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        HStack(spacing: 4) {
-                                            Text(device.name)
-                                                .font(.body)
-                                            Text(device.source.rawValue)
-                                                .font(.caption2)
-                                                .padding(.horizontal, 4)
-                                                .padding(.vertical, 1)
-                                                .background(.quaternary)
-                                                .clipShape(Capsule())
-                                        }
-                                        Text(device.stateDescription)
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                        if !device.vendor.isEmpty {
-                                            Text(device.vendor)
-                                                .font(.caption2)
-                                                .foregroundStyle(.tertiary)
-                                        }
-                                    }
-                                    Spacer()
-                                    if !device.reachable {
-                                        Image(systemName: "wifi.slash")
-                                            .font(.caption)
-                                            .foregroundStyle(.red)
-                                    } else if device.hasToggle {
-                                        Toggle("", isOn: .constant(device.isOn))
-                                            .labelsHidden()
-                                            .onTapGesture {
-                                                Task { try? await sdk.toggleDevice(device) }
+                                NavigationLink(value: device.id) {
+                                    HStack {
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            HStack(spacing: 4) {
+                                                Text(device.name)
+                                                    .font(.body)
+                                                Text(device.source.rawValue)
+                                                    .font(.caption2)
+                                                    .padding(.horizontal, 4)
+                                                    .padding(.vertical, 1)
+                                                    .background(.quaternary)
+                                                    .clipShape(Capsule())
                                             }
+                                            Text(device.stateDescription)
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                            if !device.vendor.isEmpty {
+                                                Text(device.vendor)
+                                                    .font(.caption2)
+                                                    .foregroundStyle(.tertiary)
+                                            }
+                                        }
+                                        Spacer()
+                                        if !device.reachable {
+                                            Image(systemName: "wifi.slash")
+                                                .font(.caption)
+                                                .foregroundStyle(.red)
+                                        } else if device.hasToggle {
+                                            Toggle("", isOn: .constant(device.isOn))
+                                                .labelsHidden()
+                                                .onTapGesture {
+                                                    Task { try? await sdk.toggleDevice(device) }
+                                                }
+                                        }
                                     }
+                                    .opacity(device.reachable ? 1.0 : 0.5)
                                 }
-                                .opacity(device.reachable ? 1.0 : 0.5)
                             }
                         }
                     }
                 }
 
-                // Summary
-                Section("Summary") {
-                    Text(sdk.homeSummary())
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                // Architecture Info
+                Section("Architecture") {
+                    VStack(alignment: .leading, spacing: 6) {
+                        ArchRow(icon: "app.connected.to.app.below.fill", label: "MatterHomeSDK", detail: "Public API")
+                        ArchRow(icon: "arrow.triangle.branch", label: "BackendRouter", detail: "Routes by device source")
+                        ArchRow(icon: "square.stack.3d.up", label: "DeviceBackend", detail: "Protocol — 5 implementations")
+                        ArchRow(icon: "cpu", label: "C++ Core", detail: "DeviceModel + TLV + SimulationModel")
+                    }
+                    .font(.caption)
                 }
             }
             .navigationTitle("Integration SDK")
+            .navigationDestination(for: String.self) { deviceId in
+                if let device = sdk.devices.first(where: { $0.id == deviceId }) {
+                    DeviceDetailView(device: device)
+                }
+            }
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: { showCommissioning = true }) {
+                        Image(systemName: "plus")
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { sdk.refresh() }) {
                         Image(systemName: "arrow.clockwise")
                     }
                 }
+            }
+            .sheet(isPresented: $showCommissioning) {
+                CommissioningView()
             }
         }
     }
@@ -124,6 +144,23 @@ struct SDKStatusView: View {
         case .homeKit: return "Requires HomeKit entitlement"
         case .googleHome: return "Requires OAuth setup"
         case .thread: return "Requires Thread network"
+        }
+    }
+}
+
+private struct ArchRow: View {
+    let icon: String
+    let label: String
+    let detail: String
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .frame(width: 20)
+                .foregroundStyle(.blue)
+            Text(label).bold()
+            Text("— \(detail)")
+                .foregroundStyle(.secondary)
         }
     }
 }

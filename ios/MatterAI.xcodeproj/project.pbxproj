@@ -31,6 +31,13 @@
 		AA000063 /* GoogleHomeBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000063 /* GoogleHomeBackend.swift */; };
 		AA000064 /* ThreadBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000064 /* ThreadBackend.swift */; };
 		AA000065 /* SDKStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000065 /* SDKStatusView.swift */; };
+		AA000066 /* CommissioningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000067 /* CommissioningView.swift */; };
+		AA000068 /* DeviceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000068 /* DeviceDetailView.swift */; };
+		AA000069 /* DeviceEventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000069 /* DeviceEventStream.swift */; };
+		AA00006A /* EventLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00006A /* EventLogView.swift */; };
+		AA000070 /* Matter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB000070 /* Matter.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		AA000071 /* HomeKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB000071 /* HomeKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		AA000072 /* ThreadNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB000072 /* ThreadNetwork.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -68,6 +75,14 @@
 		BB000063 /* GoogleHomeBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleHomeBackend.swift; sourceTree = "<group>"; };
 		BB000064 /* ThreadBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadBackend.swift; sourceTree = "<group>"; };
 		BB000065 /* SDKStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKStatusView.swift; sourceTree = "<group>"; };
+		BB000067 /* CommissioningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommissioningView.swift; sourceTree = "<group>"; };
+		BB000068 /* DeviceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetailView.swift; sourceTree = "<group>"; };
+		BB000069 /* DeviceEventStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceEventStream.swift; sourceTree = "<group>"; };
+		BB00006A /* EventLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventLogView.swift; sourceTree = "<group>"; };
+		BB000066 /* MatterAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MatterAI.entitlements; sourceTree = "<group>"; };
+		BB000070 /* Matter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Matter.framework; path = System/Library/Frameworks/Matter.framework; sourceTree = SDKROOT; };
+		BB000071 /* HomeKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HomeKit.framework; path = System/Library/Frameworks/HomeKit.framework; sourceTree = SDKROOT; };
+		BB000072 /* ThreadNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ThreadNetwork.framework; path = System/Library/Frameworks/ThreadNetwork.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -79,6 +94,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA000070 /* Matter.framework in Frameworks */,
+				AA000071 /* HomeKit.framework in Frameworks */,
+				AA000072 /* ThreadNetwork.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -98,6 +116,7 @@
 			isa = PBXGroup;
 			children = (
 				DD000001 /* MatterAI */,
+				DD000008 /* Frameworks */,
 				DD000005 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -112,6 +131,7 @@
 				DD000006 /* SDK */,
 				DD000007 /* Backends */,
 				BB000025 /* MatterAI-Bridging-Header.h */,
+				BB000066 /* MatterAI.entitlements */,
 				BB000030 /* Assets.xcassets */,
 				BB000031 /* Info.plist */,
 			);
@@ -129,6 +149,9 @@
 				BB000041 /* SimulationService.swift */,
 				BB000042 /* SimulationView.swift */,
 				BB000065 /* SDKStatusView.swift */,
+				BB000067 /* CommissioningView.swift */,
+				BB000068 /* DeviceDetailView.swift */,
+				BB00006A /* EventLogView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -166,6 +189,7 @@
 				BB000051 /* UnifiedDevice.swift */,
 				BB000052 /* BackendRouter.swift */,
 				BB000053 /* MatterHomeSDK.swift */,
+				BB000069 /* DeviceEventStream.swift */,
 			);
 			path = SDK;
 			sourceTree = "<group>";
@@ -180,6 +204,16 @@
 				BB000064 /* ThreadBackend.swift */,
 			);
 			path = Backends;
+			sourceTree = "<group>";
+		};
+		DD000008 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BB000070 /* Matter.framework */,
+				BB000071 /* HomeKit.framework */,
+				BB000072 /* ThreadNetwork.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		DD000005 /* Products */ = {
@@ -285,6 +319,10 @@
 				AA000063 /* GoogleHomeBackend.swift in Sources */,
 				AA000064 /* ThreadBackend.swift in Sources */,
 				AA000065 /* SDKStatusView.swift in Sources */,
+				AA000066 /* CommissioningView.swift in Sources */,
+				AA000068 /* DeviceDetailView.swift in Sources */,
+				AA000069 /* DeviceEventStream.swift in Sources */,
+				AA00006A /* EventLogView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -396,6 +434,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MatterAI/MatterAI.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -427,6 +466,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MatterAI/MatterAI.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;

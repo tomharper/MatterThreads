@@ -10,6 +10,7 @@ struct MatterAIApp: App {
             ContentView()
                 .environmentObject(homeManager)
                 .environmentObject(sdk)
+                .environmentObject(sdk.eventStream)
                 .task {
                     sdk.enableLocal()
                     sdk.enableMatter()
