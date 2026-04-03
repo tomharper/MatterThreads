@@ -186,22 +186,32 @@ struct DeviceInfo: Identifiable {
     let nodeId: UInt64
     let name: String
     let room: String
+    let vendor: String?
     let isOn: Bool
     let reachable: Bool
     let stateDescription: String
     let temperature: Float?
+    let humidity: Float?
     let brightness: Int?
+    let battery: Int?
+    let isLocked: Bool
+    let hasToggle: Bool
 
     init(from maDevice: MADevice) {
         self.id = maDevice.nodeId
         self.nodeId = maDevice.nodeId
         self.name = maDevice.name
         self.room = maDevice.room
+        self.vendor = maDevice.vendorName
         self.isOn = maDevice.isOn
         self.reachable = maDevice.reachable
         self.stateDescription = maDevice.stateDescription
         self.temperature = maDevice.temperature?.floatValue
+        self.humidity = maDevice.humidity?.floatValue
         self.brightness = maDevice.brightness?.intValue
+        self.battery = maDevice.battery?.intValue
+        self.isLocked = maDevice.isLocked
+        self.hasToggle = maDevice.hasToggle
     }
 }
 

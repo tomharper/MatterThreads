@@ -7,11 +7,16 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) uint64_t nodeId;
 @property (nonatomic, copy) NSString *name;
 @property (nonatomic, copy) NSString *room;
+@property (nonatomic, copy) NSString *vendorName;
 @property (nonatomic, assign) BOOL isOn;
 @property (nonatomic, assign) BOOL reachable;
 @property (nonatomic, copy) NSString *stateDescription;
 @property (nonatomic, strong, nullable) NSNumber *temperature;
+@property (nonatomic, strong, nullable) NSNumber *humidity;
 @property (nonatomic, strong, nullable) NSNumber *brightness;
+@property (nonatomic, strong, nullable) NSNumber *battery;
+@property (nonatomic, assign) BOOL isLocked;
+@property (nonatomic, assign) BOOL hasToggle;
 @end
 
 /// Action to execute on a device

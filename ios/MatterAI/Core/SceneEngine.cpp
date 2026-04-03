@@ -222,11 +222,9 @@ SceneEngine::Result SceneEngine::processCommand(const UserIntent& intent) {
 
     for (auto* dev : targets) {
         for (auto& ep : dev->endpoints) {
+            if (ep.id == 0) continue; // skip root endpoint
             if (intent.action == "on" || intent.action == "off") {
-                // Only act on devices with OnOff cluster
-                uint32_t key = (static_cast<uint32_t>(ClusterId::OnOff) << 16) |
-                               static_cast<uint32_t>(AttributeId::OnOff);
-                if (ep.attributes.count(key)) {
+                if (ep.hasCluster(ClusterId::OnOff)) {
                     actions.push_back({
                         dev->nodeId, ep.id, ClusterId::OnOff,
                         intent.action == "on" ? "On" : "Off",
@@ -234,9 +232,7 @@ SceneEngine::Result SceneEngine::processCommand(const UserIntent& intent) {
                     });
                 }
             } else if (intent.action == "set" && intent.value) {
-                uint32_t key = (static_cast<uint32_t>(ClusterId::LevelControl) << 16) |
-                               static_cast<uint32_t>(AttributeId::CurrentLevel);
-                if (ep.attributes.count(key)) {
+                if (ep.hasCluster(ClusterId::LevelControl)) {
                     actions.push_back({
                         dev->nodeId, ep.id, ClusterId::LevelControl,
                         "MoveToLevel",
@@ -244,9 +240,7 @@ SceneEngine::Result SceneEngine::processCommand(const UserIntent& intent) {
                     });
                 }
             } else if (intent.action == "lock" || intent.action == "unlock") {
-                uint32_t key = (static_cast<uint32_t>(ClusterId::DoorLock) << 16) |
-                               static_cast<uint32_t>(AttributeId::LockState);
-                if (ep.attributes.count(key)) {
+                if (ep.hasCluster(ClusterId::DoorLock)) {
                     actions.push_back({
                         dev->nodeId, ep.id, ClusterId::DoorLock,
                         intent.action == "lock" ? "LockDoor" : "UnlockDoor",

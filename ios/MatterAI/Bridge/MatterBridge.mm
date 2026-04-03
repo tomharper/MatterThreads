@@ -51,51 +51,21 @@
                        name:(NSString *)name
                        room:(NSString *)room
                  deviceType:(uint32_t)deviceType {
+    // Legacy method — kept for compatibility but the realistic home
+    // uses DeviceManager::loadRealisticHome() with factory methods instead
     matter::Device device;
     device.nodeId = nodeId;
     device.name = [name UTF8String];
     device.room = [room UTF8String];
     device.reachable = true;
 
-    // Add a default endpoint
     matter::Endpoint ep;
     ep.id = 1;
     ep.deviceType = static_cast<matter::DeviceType>(deviceType);
-
-    // Initialize default attributes based on device type
-    auto dt = static_cast<matter::DeviceType>(deviceType);
-    uint32_t onOffKey = (static_cast<uint32_t>(matter::ClusterId::OnOff) << 16) |
-                        static_cast<uint32_t>(matter::AttributeId::OnOff);
-    uint32_t levelKey = (static_cast<uint32_t>(matter::ClusterId::LevelControl) << 16) |
-                        static_cast<uint32_t>(matter::AttributeId::CurrentLevel);
-    uint32_t tempKey = (static_cast<uint32_t>(matter::ClusterId::TemperatureMeas) << 16) |
-                       static_cast<uint32_t>(matter::AttributeId::MeasuredValue);
-    uint32_t lockKey = (static_cast<uint32_t>(matter::ClusterId::DoorLock) << 16) |
-                       static_cast<uint32_t>(matter::AttributeId::LockState);
-
-    switch (dt) {
-        case matter::DeviceType::OnOffLight:
-            ep.attributes[onOffKey] = matter::AttributeValue::fromBool(false);
-            break;
-        case matter::DeviceType::DimmableLight:
-            ep.attributes[onOffKey] = matter::AttributeValue::fromBool(false);
-            ep.attributes[levelKey] = matter::AttributeValue::fromInt(0);
-            break;
-        case matter::DeviceType::TempSensor:
-            ep.attributes[tempKey] = matter::AttributeValue::fromFloat(20.0f);
-            break;
-        case matter::DeviceType::DoorLock:
-            ep.attributes[lockKey] = matter::AttributeValue::fromBool(true);
-            break;
-        default:
-            ep.attributes[onOffKey] = matter::AttributeValue::fromBool(false);
-            break;
-    }
+    ep.setAttribute(matter::ClusterId::OnOff, matter::attr::OnOff, matter::AttributeValue::fromBool(false));
 
     device.endpoints.push_back(std::move(ep));
     _deviceManager.addDevice(std::move(device));
-
-    // Update intent parser with known rooms
     _intentParser.setKnownRooms(_deviceManager.roomNames());
 }
 
@@ -106,7 +76,7 @@
                       boolValue:(BOOL)value {
     _deviceManager.updateAttribute(nodeId, endpointId,
                                     static_cast<matter::ClusterId>(clusterId),
-                                    static_cast<matter::AttributeId>(attrId),
+                                    attrId,
                                     matter::AttributeValue::fromBool(value));
 }
 
@@ -117,7 +87,7 @@
                      floatValue:(float)value {
     _deviceManager.updateAttribute(nodeId, endpointId,
                                     static_cast<matter::ClusterId>(clusterId),
-                                    static_cast<matter::AttributeId>(attrId),
+                                    attrId,
                                     matter::AttributeValue::fromFloat(value));
 }
 
@@ -128,7 +98,7 @@
                        intValue:(int64_t)value {
     _deviceManager.updateAttribute(nodeId, endpointId,
                                     static_cast<matter::ClusterId>(clusterId),
-                                    static_cast<matter::AttributeId>(attrId),
+                                    attrId,
                                     matter::AttributeValue::fromInt(value));
 }
 
@@ -141,15 +111,23 @@
         d.nodeId = dev.nodeId;
         d.name = [NSString stringWithUTF8String:dev.name.c_str()];
         d.room = [NSString stringWithUTF8String:dev.room.c_str()];
+        d.vendorName = [NSString stringWithUTF8String:dev.vendorName.c_str()];
         d.isOn = dev.isOn();
         d.reachable = dev.reachable;
         d.stateDescription = [NSString stringWithUTF8String:dev.stateDescription().c_str()];
-        if (auto temp = dev.temperature()) {
-            d.temperature = @(*temp);
+        if (auto temp = dev.temperature()) d.temperature = @(*temp);
+        if (auto hum = dev.humidity()) d.humidity = @(*hum);
+        if (auto lvl = dev.level()) d.brightness = @(*lvl);
+        if (auto bat = dev.batteryPercent()) d.battery = @(*bat / 2); // spec uses 200=100%
+        if (auto ls = dev.lockState()) d.isLocked = (*ls == matter::LockStateEnum::Locked);
+
+        // Determine if device has a toggle (OnOff cluster on app endpoint)
+        bool toggle = false;
+        if (const auto* ep = dev.appEndpoint()) {
+            toggle = ep->hasCluster(matter::ClusterId::OnOff);
         }
-        if (auto lvl = dev.level()) {
-            d.brightness = @(*lvl);
-        }
+        d.hasToggle = toggle;
+
         [result addObject:d];
     }
     return result;
@@ -231,43 +209,15 @@
 #pragma mark - Demo Data
 
 - (void)loadDemoHome {
-    // Living room
-    [self addDeviceWithNodeId:1 name:@"Ceiling Light" room:@"Living Room"
-                   deviceType:static_cast<uint32_t>(matter::DeviceType::DimmableLight)];
-    [self addDeviceWithNodeId:2 name:@"Floor Lamp" room:@"Living Room"
-                   deviceType:static_cast<uint32_t>(matter::DeviceType::DimmableLight)];
-    [self addDeviceWithNodeId:3 name:@"Temperature Sensor" room:@"Living Room"
-                   deviceType:static_cast<uint32_t>(matter::DeviceType::TempSensor)];
+    _deviceManager.loadRealisticHome();
+    _intentParser.setKnownRooms(_deviceManager.roomNames());
 
-    // Kitchen
-    [self addDeviceWithNodeId:4 name:@"Kitchen Lights" room:@"Kitchen"
-                   deviceType:static_cast<uint32_t>(matter::DeviceType::OnOffLight)];
-    [self addDeviceWithNodeId:5 name:@"Under Cabinet" room:@"Kitchen"
-                   deviceType:static_cast<uint32_t>(matter::DeviceType::DimmableLight)];
-
-    // Bedroom
-    [self addDeviceWithNodeId:6 name:@"Bedside Lamp" room:@"Bedroom"
-                   deviceType:static_cast<uint32_t>(matter::DeviceType::DimmableLight)];
-    [self addDeviceWithNodeId:7 name:@"Thermostat" room:@"Bedroom"
-                   deviceType:static_cast<uint32_t>(matter::DeviceType::TempSensor)];
-
-    // Front door
-    [self addDeviceWithNodeId:8 name:@"Front Door Lock" room:@"Hallway"
-                   deviceType:static_cast<uint32_t>(matter::DeviceType::DoorLock)];
-    [self addDeviceWithNodeId:9 name:@"Porch Light" room:@"Hallway"
-                   deviceType:static_cast<uint32_t>(matter::DeviceType::OnOffLight)];
-
-    // Set some devices on
-    [self updateAttributeForNode:1 endpoint:1 cluster:0x0006 attribute:0x0000 boolValue:YES];
-    [self updateAttributeForNode:1 endpoint:1 cluster:0x0008 attribute:0x0000 intValue:200];
-    [self updateAttributeForNode:4 endpoint:1 cluster:0x0006 attribute:0x0000 boolValue:YES];
-    [self updateAttributeForNode:3 endpoint:1 cluster:0x0402 attribute:0x0000 floatValue:21.5f];
-    [self updateAttributeForNode:7 endpoint:1 cluster:0x0402 attribute:0x0000 floatValue:19.2f];
-
-    // Add some scenes
-    [self addSceneWithName:@"Movie" description:@"Dim living room, everything else off"];
-    [self addSceneWithName:@"Bedtime" description:@"All lights off, lock doors"];
-    [self addSceneWithName:@"Morning" description:@"Kitchen and hallway lights on"];
+    // Register scenes
+    [self addSceneWithName:@"Movie" description:@"Dim living room to 20%, blinds closed, TV bias light on"];
+    [self addSceneWithName:@"Bedtime" description:@"All lights off, lock doors, close blinds, fan low"];
+    [self addSceneWithName:@"Morning" description:@"Kitchen lights on, open blinds, start coffee"];
+    [self addSceneWithName:@"Away" description:@"Everything off, lock all doors, close all blinds"];
+    [self addSceneWithName:@"Reading" description:@"Floor lamp 70%, ceiling light warm 2700K"];
 }
 
 #pragma mark - Simulation Bridge
