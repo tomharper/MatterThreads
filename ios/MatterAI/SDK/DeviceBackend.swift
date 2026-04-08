@@ -42,6 +42,16 @@ enum SDKAttributeValue: Sendable {
         if case .float(let v) = self { return v }
         return nil
     }
+
+    var displayString: String {
+        switch self {
+        case .bool(let v): return v ? "on" : "off"
+        case .int(let v): return "\(v)"
+        case .float(let v): return String(format: "%.2f", v)
+        case .string(let v): return v
+        case .bytes(let v): return "\(v.count) bytes"
+        }
+    }
 }
 
 // MARK: - Device Backend Protocol

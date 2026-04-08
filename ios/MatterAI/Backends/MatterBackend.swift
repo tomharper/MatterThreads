@@ -76,9 +76,7 @@ final class MatterBackend: DeviceBackend, @unchecked Sendable {
                 attributes: [:],
                 lastUpdated: Date()
             )
-            lock.lock()
-            discoveredDevices[deviceId] = device
-            lock.unlock()
+            lock.withLock { discoveredDevices[deviceId] = device }
             return device
         }
         #endif
@@ -154,10 +152,7 @@ final class MatterBackend: DeviceBackend, @unchecked Sendable {
 
     func knownDevices() -> [UnifiedDevice] {
         #if canImport(Matter)
-        lock.lock()
-        let devices = Array(discoveredDevices.values)
-        lock.unlock()
-        return devices
+        return lock.withLock { Array(discoveredDevices.values) }
         #else
         return []
         #endif

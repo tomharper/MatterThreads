@@ -34,10 +34,10 @@
 		AA000066 /* CommissioningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000067 /* CommissioningView.swift */; };
 		AA000068 /* DeviceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000068 /* DeviceDetailView.swift */; };
 		AA000069 /* DeviceEventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000069 /* DeviceEventStream.swift */; };
+		AA00006B /* SDKKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00006B /* SDKKeychain.swift */; };
 		AA00006A /* EventLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00006A /* EventLogView.swift */; };
 		AA000070 /* Matter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB000070 /* Matter.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		AA000071 /* HomeKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB000071 /* HomeKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		AA000072 /* ThreadNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB000072 /* ThreadNetwork.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -78,6 +78,7 @@
 		BB000067 /* CommissioningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommissioningView.swift; sourceTree = "<group>"; };
 		BB000068 /* DeviceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetailView.swift; sourceTree = "<group>"; };
 		BB000069 /* DeviceEventStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceEventStream.swift; sourceTree = "<group>"; };
+		BB00006B /* SDKKeychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKKeychain.swift; sourceTree = "<group>"; };
 		BB00006A /* EventLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventLogView.swift; sourceTree = "<group>"; };
 		BB000066 /* MatterAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MatterAI.entitlements; sourceTree = "<group>"; };
 		BB000070 /* Matter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Matter.framework; path = System/Library/Frameworks/Matter.framework; sourceTree = SDKROOT; };
@@ -96,7 +97,6 @@
 			files = (
 				AA000070 /* Matter.framework in Frameworks */,
 				AA000071 /* HomeKit.framework in Frameworks */,
-				AA000072 /* ThreadNetwork.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -190,6 +190,7 @@
 				BB000052 /* BackendRouter.swift */,
 				BB000053 /* MatterHomeSDK.swift */,
 				BB000069 /* DeviceEventStream.swift */,
+				BB00006B /* SDKKeychain.swift */,
 			);
 			path = SDK;
 			sourceTree = "<group>";
@@ -322,6 +323,7 @@
 				AA000066 /* CommissioningView.swift in Sources */,
 				AA000068 /* DeviceDetailView.swift in Sources */,
 				AA000069 /* DeviceEventStream.swift in Sources */,
+				AA00006B /* SDKKeychain.swift in Sources */,
 				AA00006A /* EventLogView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

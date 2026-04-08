@@ -207,7 +207,7 @@ final class HomeKitBackend: NSObject, DeviceBackend, @unchecked Sendable {
             return .measuredTemp
         case HMCharacteristicTypeCurrentRelativeHumidity:
             return .measuredHumidity
-        case HMCharacteristicTypeLockMechanismCurrentState:
+        case HMCharacteristicTypeCurrentLockMechanismState:
             return .lockState
         case HMCharacteristicTypeBatteryLevel:
             return .batteryRemaining

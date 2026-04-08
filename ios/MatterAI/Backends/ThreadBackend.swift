@@ -62,9 +62,7 @@ final class ThreadBackend: DeviceBackend, @unchecked Sendable {
 
     func stopDiscovery() async {
         isActive = false
-        lock.lock()
-        discoveredDevices.removeAll()
-        lock.unlock()
+        lock.withLock { discoveredDevices.removeAll() }
     }
 
     func commission(deviceId: String, payload: String?) async throws -> UnifiedDevice {
@@ -118,10 +116,7 @@ final class ThreadBackend: DeviceBackend, @unchecked Sendable {
     }
 
     func knownDevices() -> [UnifiedDevice] {
-        lock.lock()
-        let devices = Array(discoveredDevices.values)
-        lock.unlock()
-        return devices
+        lock.withLock { Array(discoveredDevices.values) }
     }
 
     // MARK: - Thread Diagnostics
@@ -242,8 +237,6 @@ final class ThreadBackend: DeviceBackend, @unchecked Sendable {
             )
         }
 
-        lock.lock()
-        discoveredDevices = devices
-        lock.unlock()
+        lock.withLock { discoveredDevices = devices }
     }
 }

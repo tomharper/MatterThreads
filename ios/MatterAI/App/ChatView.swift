@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ChatView: View {
-    @EnvironmentObject var homeManager: HomeManager
+    @EnvironmentObject var sdk: MatterHomeSDK
     @State private var inputText = ""
     @FocusState private var inputFocused: Bool
 
@@ -12,20 +12,31 @@ struct ChatView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(spacing: 12) {
-                            if homeManager.chatMessages.isEmpty {
+                            if sdk.chatHistory.isEmpty {
                                 WelcomeCard()
                                     .padding(.top, 40)
                             }
 
-                            ForEach(homeManager.chatMessages) { message in
+                            ForEach(sdk.chatHistory) { message in
                                 MessageBubble(message: message)
                                     .id(message.id)
+                            }
+
+                            if sdk.isProcessingQuery {
+                                HStack {
+                                    ProgressView().scaleEffect(0.7)
+                                    Text("Thinking...")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                    Spacer()
+                                }
+                                .padding(.horizontal, 12)
                             }
                         }
                         .padding()
                     }
-                    .onChange(of: homeManager.chatMessages.count) {
-                        if let last = homeManager.chatMessages.last {
+                    .onChange(of: sdk.chatHistory.count) {
+                        if let last = sdk.chatHistory.last {
                             withAnimation {
                                 proxy.scrollTo(last.id, anchor: .bottom)
                             }
@@ -39,6 +50,7 @@ struct ChatView: View {
                         QuickAction("What's on?") { send("What's on?") }
                         QuickAction("Home status") { send("status") }
                         QuickAction("Temperatures") { send("What are the temperatures?") }
+                        QuickAction("Backends") { send("backend status") }
                         QuickAction("All off") { send("Turn everything off") }
                     }
                     .padding(.horizontal)
@@ -58,13 +70,21 @@ struct ChatView: View {
                             .font(.title2)
                             .foregroundColor(inputText.isEmpty ? .secondary : .blue)
                     }
-                    .disabled(inputText.isEmpty)
+                    .disabled(inputText.isEmpty || sdk.isProcessingQuery)
                 }
                 .padding()
                 .background(.ultraThinMaterial)
             }
             .navigationTitle("Assistant")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: { sdk.clearChat() }) {
+                        Image(systemName: "trash")
+                    }
+                    .disabled(sdk.chatHistory.isEmpty)
+                }
+            }
         }
     }
 
@@ -76,14 +96,14 @@ struct ChatView: View {
     }
 
     private func send(_ text: String) {
-        homeManager.sendMessage(text)
+        Task { await sdk.ask(text) }
     }
 }
 
 // MARK: - Subviews
 
 struct MessageBubble: View {
-    let message: ChatMessage
+    let message: SDKChatMessage
 
     var body: some View {
         HStack {

@@ -32,10 +32,34 @@ final class GoogleHomeBackend: DeviceBackend, @unchecked Sendable {
     func configure(_ config: GoogleHomeConfig) {
         self.config = config
         self.projectId = config.projectId
+        // Persist refresh token to Keychain so it survives restart
+        if let rt = config.refreshToken {
+            SDKKeychain.set(rt, for: "google.refreshToken")
+        }
+        SDKKeychain.set(config.clientId, for: "google.clientId")
+        SDKKeychain.set(config.clientSecret, for: "google.clientSecret")
+        SDKKeychain.set(config.projectId, for: "google.projectId")
+    }
+
+    /// Restore configuration from Keychain (call on startup before startDiscovery)
+    func restoreFromKeychain() {
+        guard let projectId = SDKKeychain.get("google.projectId"),
+              let clientId = SDKKeychain.get("google.clientId"),
+              let clientSecret = SDKKeychain.get("google.clientSecret") else {
+            return
+        }
+        self.config = GoogleHomeConfig(
+            projectId: projectId,
+            clientId: clientId,
+            clientSecret: clientSecret,
+            refreshToken: SDKKeychain.get("google.refreshToken")
+        )
+        self.projectId = projectId
     }
 
     func setAccessToken(_ token: String) {
         self.accessToken = token
+        SDKKeychain.set(token, for: "google.accessToken")
     }
 
     // MARK: - DeviceBackend
@@ -62,9 +86,7 @@ final class GoogleHomeBackend: DeviceBackend, @unchecked Sendable {
 
     func stopDiscovery() async {
         isActive = false
-        lock.lock()
-        discoveredDevices.removeAll()
-        lock.unlock()
+        lock.withLock { discoveredDevices.removeAll() }
     }
 
     func commission(deviceId: String, payload: String?) async throws -> UnifiedDevice {
@@ -153,10 +175,7 @@ final class GoogleHomeBackend: DeviceBackend, @unchecked Sendable {
     }
 
     func knownDevices() -> [UnifiedDevice] {
-        lock.lock()
-        let devices = Array(discoveredDevices.values)
-        lock.unlock()
-        return devices
+        lock.withLock { Array(discoveredDevices.values) }
     }
 
     // MARK: - Internal
@@ -226,9 +245,7 @@ final class GoogleHomeBackend: DeviceBackend, @unchecked Sendable {
             )
         }
 
-        lock.lock()
-        discoveredDevices = devices
-        lock.unlock()
+        lock.withLock { discoveredDevices = devices }
     }
 
     private func mapGoogleTypeToMatterDeviceType(_ type: String) -> UInt32 {

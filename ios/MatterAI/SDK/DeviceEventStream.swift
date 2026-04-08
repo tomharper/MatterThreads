@@ -55,15 +55,16 @@ struct DeviceEvent: Identifiable, Sendable {
     let detail: String
 
     enum EventType: String, Sendable {
-        case discovered     = "Discovered"
-        case stateChanged   = "State Changed"
-        case reachable      = "Reachable"
-        case unreachable    = "Unreachable"
-        case commissioned   = "Commissioned"
-        case removed        = "Removed"
-        case attributeWrite = "Attribute Write"
-        case commandInvoked = "Command Invoked"
-        case error          = "Error"
+        case discovered       = "Discovered"
+        case stateChanged     = "State Changed"
+        case reachable        = "Reachable"
+        case unreachable      = "Unreachable"
+        case commissioned     = "Commissioned"
+        case removed          = "Removed"
+        case attributeWrite   = "Attribute Write"
+        case attributeChanged = "Attribute Changed"
+        case commandInvoked   = "Command Invoked"
+        case error            = "Error"
     }
 }
 
@@ -77,6 +78,7 @@ extension DeviceEvent {
         case .commissioned: return "checkmark.seal.fill"
         case .removed: return "minus.circle.fill"
         case .attributeWrite: return "pencil.circle.fill"
+        case .attributeChanged: return "dot.radiowaves.left.and.right"
         case .commandInvoked: return "bolt.circle.fill"
         case .error: return "exclamationmark.triangle.fill"
         }
@@ -85,7 +87,7 @@ extension DeviceEvent {
     var iconColor: String {
         switch type {
         case .discovered, .commissioned: return "green"
-        case .stateChanged, .attributeWrite, .commandInvoked: return "blue"
+        case .stateChanged, .attributeWrite, .attributeChanged, .commandInvoked: return "blue"
         case .reachable: return "green"
         case .unreachable, .error: return "red"
         case .removed: return "orange"

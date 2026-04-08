@@ -8,6 +8,9 @@ class BackendRouter: ObservableObject {
     @Published private(set) var devices: [UnifiedDevice] = []
     @Published private(set) var activeBackends: [BackendSource] = []
 
+    /// Optional sink for attribute updates — set by MatterHomeSDK to forward to DeviceEventStream.
+    var attributeUpdateSink: ((UnifiedDevice, AttributeUpdate) -> Void)?
+
     private var backends: [BackendSource: DeviceBackend] = [:]
     private var subscriptionTasks: [String: Task<Void, Never>] = [:]
 
@@ -88,14 +91,14 @@ class BackendRouter: ObservableObject {
                            minInterval: TimeInterval = 1, maxInterval: TimeInterval = 60) {
         cancelSubscription(for: deviceId)
 
+        guard let backend = try? resolveBackend(for: deviceId) else { return }
+        let nativeId = extractNativeId(from: deviceId)
+        let stream = backend.subscribe(deviceId: nativeId, paths: paths,
+                                       minInterval: minInterval, maxInterval: maxInterval)
         let task = Task { [weak self] in
-            guard let backend = try? self?.resolveBackend(for: deviceId) else { return }
-            let nativeId = self?.extractNativeId(from: deviceId) ?? deviceId
-            let stream = backend.subscribe(deviceId: nativeId, paths: paths,
-                                           minInterval: minInterval, maxInterval: maxInterval)
             for await update in stream {
                 guard !Task.isCancelled else { break }
-                await self?.handleAttributeUpdate(deviceId: deviceId, update: update)
+                self?.handleAttributeUpdate(deviceId: deviceId, update: update)
             }
         }
         subscriptionTasks[deviceId] = task
@@ -121,6 +124,7 @@ class BackendRouter: ObservableObject {
         if let idx = devices.firstIndex(where: { $0.id == deviceId }) {
             devices[idx].attributes[update.path] = update.value
             devices[idx].lastUpdated = update.timestamp
+            attributeUpdateSink?(devices[idx], update)
         }
     }
 

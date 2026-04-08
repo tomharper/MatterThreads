@@ -1,6 +1,14 @@
 import Foundation
 import Combine
 
+/// A single message in the assistant chat history.
+struct SDKChatMessage: Identifiable, Equatable {
+    let id = UUID()
+    let text: String
+    let isUser: Bool
+    let timestamp = Date()
+}
+
 /// MatterHomeSDK — unified smart home integration SDK.
 ///
 /// Wraps Apple Matter.framework, HomeKit, Google Home Device Access API,
@@ -34,6 +42,15 @@ class MatterHomeSDK: ObservableObject {
     /// Event stream for real-time device lifecycle events
     let eventStream = DeviceEventStream()
 
+    /// Persistent store of devices commissioned through the SDK
+    let commissionedStore = CommissionedDeviceStore()
+
+    /// Conversation history for the assistant chat
+    @Published private(set) var chatHistory: [SDKChatMessage] = []
+
+    /// True while processing an NL query (so the UI can show a typing indicator)
+    @Published private(set) var isProcessingQuery: Bool = false
+
     // MARK: - Internal
 
     private let router = BackendRouter()
@@ -62,6 +79,32 @@ class MatterHomeSDK: ObservableObject {
             .receive(on: RunLoop.main)
             .map { Set($0) }
             .assign(to: &$activeBackends)
+
+        // Forward attribute updates from subscriptions into the event stream
+        router.attributeUpdateSink = { [weak self] device, update in
+            guard let self else { return }
+            self.eventStream.emit(DeviceEvent(
+                timestamp: update.timestamp,
+                deviceId: device.id,
+                deviceName: device.name,
+                source: device.source,
+                type: .attributeChanged,
+                detail: "\(self.shortPath(update.path)) → \(update.value.displayString)"
+            ))
+        }
+    }
+
+    private func shortPath(_ p: AttributePath) -> String {
+        if p == .onOff { return "OnOff" }
+        if p == .currentLevel { return "Level" }
+        if p == .measuredTemp { return "Temp" }
+        if p == .measuredHumidity { return "Humidity" }
+        if p == .lockState { return "Lock" }
+        if p == .batteryRemaining { return "Battery" }
+        if p == .colorTemp { return "ColorTemp" }
+        if p == .occupancy { return "Occupancy" }
+        if p == .contactState { return "Contact" }
+        return String(format: "ep%d/0x%04X/0x%04X", p.endpointId, p.clusterId, p.attributeId)
     }
 
     // MARK: - Backend Configuration
@@ -115,7 +158,12 @@ class MatterHomeSDK: ObservableObject {
         case .local: enableLocal()
         case .appleMatter: enableMatter()
         case .homeKit: enableHomeKit()
-        case .googleHome: break  // Needs config, use enableGoogleHome()
+        case .googleHome:
+            // Try to restore previously persisted config from Keychain
+            let backend = GoogleHomeBackend()
+            backend.restoreFromKeychain()
+            googleHomeBackend = backend
+            router.register(backend)
         case .thread: enableThread()
         }
     }
@@ -199,14 +247,109 @@ class MatterHomeSDK: ObservableObject {
 
     /// Commission a new device through a specific backend
     func commission(via source: BackendSource, deviceId: String, payload: String? = nil) async throws -> UnifiedDevice {
-        try await router.commission(backend: source, deviceId: deviceId, payload: payload)
+        let device = try await router.commission(backend: source, deviceId: deviceId, payload: payload)
+        commissionedStore.add(CommissionedDeviceRecord(
+            deviceId: device.id,
+            source: device.source.rawValue,
+            nativeId: device.nativeId,
+            name: device.name,
+            commissionedAt: Date()
+        ))
+        eventStream.emit(DeviceEvent(
+            timestamp: Date(), deviceId: device.id,
+            deviceName: device.name, source: device.source,
+            type: .commissioned, detail: "via \(source.rawValue)"
+        ))
+        return device
     }
 
     // MARK: - AI / NL Query
 
-    /// Process a natural language query about the home
+    /// Process a natural language query about the home (synchronous, C++ side only)
     func processQuery(_ text: String) -> String {
         return bridge.processNaturalLanguage(text).response
+    }
+
+    /// Send a user message and get an assistant reply.
+    /// Routes simple intents across all backends (e.g. "turn off all lights")
+    /// and falls back to the C++ NL processor for general queries.
+    @discardableResult
+    func ask(_ text: String) async -> String {
+        chatHistory.append(SDKChatMessage(text: text, isUser: true))
+        isProcessingQuery = true
+        defer { isProcessingQuery = false }
+
+        let lower = text.lowercased()
+        var reply: String
+
+        // Cross-backend intents
+        if lower.contains("all off") || lower.contains("turn everything off") || lower.contains("turn off all") {
+            let n = await applyToAllOnOff(turnOn: false)
+            reply = "Turned off \(n) device(s) across \(activeBackends.count) backend(s)."
+        } else if lower.contains("all on") || lower.contains("turn everything on") || lower.contains("turn on all") {
+            let n = await applyToAllOnOff(turnOn: true)
+            reply = "Turned on \(n) device(s)."
+        } else if lower.contains("status") || lower.contains("summary") || lower.contains("what's on") || lower.contains("whats on") {
+            reply = homeSummary()
+        } else if lower.contains("temperature") || lower.contains("temperatures") {
+            reply = temperatureSummary()
+        } else if lower.contains("backend") || lower.contains("integration") {
+            reply = backendSummary()
+        } else {
+            // Fallback to C++ NL processor + augment with cross-backend stats
+            let coreReply = bridge.processNaturalLanguage(text).response
+            reply = coreReply
+            if activeBackends.count > 1 {
+                reply += "\n\n(Searched \(activeBackends.count) backends, \(devices.count) total device(s).)"
+            }
+        }
+
+        chatHistory.append(SDKChatMessage(text: reply, isUser: false))
+        return reply
+    }
+
+    /// Clear the chat history
+    func clearChat() {
+        chatHistory.removeAll()
+    }
+
+    // MARK: - Cross-backend intent helpers
+
+    private func applyToAllOnOff(turnOn: Bool) async -> Int {
+        var count = 0
+        for d in devices where d.hasToggle && d.reachable && d.isOn != turnOn {
+            do {
+                try await router.writeAttribute(deviceId: d.id, path: .onOff, value: .bool(turnOn))
+                count += 1
+                eventStream.emit(DeviceEvent(
+                    timestamp: Date(), deviceId: d.id, deviceName: d.name,
+                    source: d.source, type: .stateChanged,
+                    detail: turnOn ? "On (bulk)" : "Off (bulk)"
+                ))
+            } catch {
+                // Skip failures, continue with the rest
+            }
+        }
+        return count
+    }
+
+    private func temperatureSummary() -> String {
+        let temps = devices.compactMap { d -> (String, Double)? in
+            guard case .int(let centi) = d.attributes[.measuredTemp] else { return nil }
+            return (d.name, Double(centi) / 100.0)
+        }
+        if temps.isEmpty { return "No temperature sensors found." }
+        return temps.map { "\($0.0): \(String(format: "%.1f", $0.1))°C" }.joined(separator: "\n")
+    }
+
+    private func backendSummary() -> String {
+        var lines = ["Active backends: \(activeBackends.count)"]
+        for source in BackendSource.allCases {
+            let n = devices(from: source).count
+            let status = activeBackends.contains(source) ? "✓" : "·"
+            lines.append("  \(status) \(source.rawValue): \(n) device(s)")
+        }
+        return lines.joined(separator: "\n")
     }
 
     /// Get a summary of all devices

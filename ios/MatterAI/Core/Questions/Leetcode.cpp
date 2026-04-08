@@ -228,5 +228,151 @@ public:
 
 
 
-class Solution7 {
+
+#include <unordered_map>
+#include <list>
+
+    class LRUCache {
+        int capacity;
+        // List stores {key, value} pairs; MRU at front, LRU at back
+        std::list<std::pair<int, int>> cacheList;
+        // Map stores key -> iterator to the list node for O(1) access
+        std::unordered_map<int, std::list<std::pair<int, int>>::iterator> cacheMap;
+
+    public:
+        LRUCache(int cap) : capacity(cap) {}
+
+        int get(int key) {
+            if (cacheMap.find(key) == cacheMap.end()) return -1;
+            
+            // Move accessed node to the front (MRU)
+            cacheList.splice(cacheList.begin(), cacheList, cacheMap[key]);
+            return cacheMap[key]->second;
+        }
+
+        void put(int key, int value) {
+            if (cacheMap.find(key) != cacheMap.end()) {
+                // Key exists: update value and move to front
+                cacheList.splice(cacheList.begin(), cacheList, cacheMap[key]);
+                cacheMap[key]->second = value;
+            } else {
+                // Evict LRU if at capacity
+                if (cacheList.size() == capacity) {
+                    int lastKey = cacheList.back().first;
+                    cacheMap.erase(lastKey);
+                    cacheList.pop_back();
+                }
+                // Insert new node at front
+                cacheList.push_front({key, value});
+                cacheMap[key] = cacheList.begin();
+            }
+        }
+    };
+
+
+
+
+#include <iostream>
+#include <queue>
+#include <string>
+#include <vector>
+
+// Define Task Priorities
+enum Priority { LOW = 0, MEDIUM = 1, HIGH = 2 };
+
+struct Task {
+    int id;
+    std::string name;
+    Priority priority;
+
+    // Operator overloading for priority queue
+    bool operator<(const Task& other) const {
+        return priority < other.priority; // Higher priority number comes first
+    }
 };
+
+class TaskManager {
+    std::priority_queue<Task> tasks;
+public:
+    void addTask(int id, std::string name, Priority p) {
+        tasks.push({id, name, p});
+    }
+
+    void processTasks() {
+        while (!tasks.empty()) {
+            Task t = tasks.top();
+            std::cout << "Processing: " << t.name << " (Priority: " << t.priority << ")\n";
+            tasks.pop();
+        }
+    }
+};
+
+#ifdef LEETCODE_STANDALONE
+int main() {
+    TaskManager tm;
+    tm.addTask(1, "Fix bugs", HIGH);
+    tm.addTask(2, "Write docs", LOW);
+    tm.addTask(3, "Implement feature", MEDIUM);
+
+    tm.processTasks();
+    return 0;
+}
+#endif
+
+
+
+
+struct Node {
+    int data;
+    Node* next;
+};
+
+Node* deleteMiddle(Node* head) {
+    // Edge case: Empty list or single node
+    if (head == nullptr || head->next == nullptr) {
+        delete head;
+        return nullptr;
+    }
+
+    Node* slow = head;
+    Node* fast = head;
+    Node* prev = nullptr;
+
+    // Fast moves 2 steps, slow moves 1 step
+    while (fast != nullptr && fast->next != nullptr) {
+        fast = fast->next->next;
+        prev = slow;
+        slow = slow->next;
+    }
+
+    // slow is now the middle node; prev is the node before it
+    prev->next = slow->next;
+    delete slow; // Free memory
+
+    return head;
+}
+
+
+/*
+ Prompt
+ Given a 2D rectangular matrix, return all of the values in a single, linear array in spiral order. Start at (0, 0) and first include everything in the first row. Then down the last column, back the last row (in reverse), and finally up the first column before turning right and continuing into the interior of the matrix.
+
+  
+
+ For example:
+
+  1  2  3  4
+  5  6  7  8
+  9 10 11 12
+  13 14 15 16
+
+ Returns:
+
+  
+
+ [1, 2, 3, 4, 8, 12, 16, 15, 14, 13, 9, 5, 6, 7, 11, 10]
+
+ function spiralTraversal(matrix) {
+   // your code here
+ }
+ */
