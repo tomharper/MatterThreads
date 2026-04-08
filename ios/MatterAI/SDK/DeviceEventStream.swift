@@ -42,6 +42,11 @@ class DeviceEventStream: ObservableObject {
     func events(ofType type: DeviceEvent.EventType) -> [DeviceEvent] {
         recentEvents.filter { $0.type == type }
     }
+
+    /// Clear all buffered events
+    func clear() {
+        recentEvents.removeAll()
+    }
 }
 
 /// A discrete event in the device lifecycle

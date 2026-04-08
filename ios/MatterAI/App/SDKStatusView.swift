@@ -3,6 +3,7 @@ import SwiftUI
 struct SDKStatusView: View {
     @EnvironmentObject var sdk: MatterHomeSDK
     @State private var showCommissioning = false
+    @State private var showSettings = false
 
     var body: some View {
         NavigationStack {
@@ -105,13 +106,21 @@ struct SDKStatusView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: { sdk.refresh() }) {
-                        Image(systemName: "arrow.clockwise")
+                    HStack {
+                        Button(action: { showSettings = true }) {
+                            Image(systemName: "gearshape")
+                        }
+                        Button(action: { sdk.refresh() }) {
+                            Image(systemName: "arrow.clockwise")
+                        }
                     }
                 }
             }
             .sheet(isPresented: $showCommissioning) {
                 CommissioningView()
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsView()
             }
         }
     }

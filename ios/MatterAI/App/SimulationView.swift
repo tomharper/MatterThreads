@@ -85,8 +85,13 @@ struct SimulationView: View {
             .navigationTitle("Simulation")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: { homeManager.refreshSimulation() }) {
-                        Image(systemName: "arrow.clockwise")
+                    HStack {
+                        NavigationLink(destination: ThreadDiagnosticsView()) {
+                            Image(systemName: "point.3.connected.trianglepath.dotted")
+                        }
+                        Button(action: { homeManager.refreshSimulation() }) {
+                            Image(systemName: "arrow.clockwise")
+                        }
                     }
                 }
                 ToolbarItem(placement: .topBarLeading) {

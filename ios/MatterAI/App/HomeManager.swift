@@ -1,14 +1,14 @@
 import Foundation
 import Combine
 
-/// Swift-side home manager backed by the C++ engine via MatterBridge
+/// Swift-side simulation state manager backed by the C++ engine via MatterBridge.
+///
+/// Previously also handled home devices and chat; those responsibilities moved
+/// to `MatterHomeSDK`. This class now exists solely to drive the mesh/fleet
+/// simulation views (`SimulationView`) by polling the dashboard/gateway HTTP
+/// endpoints and publishing the C++ engine's view of the mesh.
 @MainActor
 class HomeManager: ObservableObject {
-    // Home devices (demo)
-    @Published var devices: [DeviceInfo] = []
-    @Published var rooms: [String] = []
-    @Published var chatMessages: [ChatMessage] = []
-
     // Simulation state
     @Published var simNodes: [SimNodeInfo] = []
     @Published var simVans: [SimVanInfo] = []
@@ -22,69 +22,6 @@ class HomeManager: ObservableObject {
     private let bridge = MatterBridge()
     private let simService = SimulationService()
     private var pollTask: Task<Void, Never>?
-
-    init() {
-        bridge.loadDemoHome()
-        refresh()
-    }
-
-    // MARK: - Home Devices
-
-    func refresh() {
-        let maDevices = bridge.allDevices()
-        devices = maDevices.map { DeviceInfo(from: $0) }
-        rooms = (bridge.roomNames() as [String]?) ?? []
-    }
-
-    func homeSummary() -> String {
-        return bridge.homeSummary()
-    }
-
-    func roomSummary(_ room: String) -> String {
-        return bridge.roomSummary(room)
-    }
-
-    func processQuery(_ text: String) -> String {
-        // Check if this is a simulation query
-        let lower = text.lowercased()
-        let simKeywords = ["mesh", "node", "fleet", "van", "topology", "link",
-                           "network", "simulation", "sim", "healthy", "health",
-                           "alert", "metric", "traffic"]
-        let isSimQuery = simKeywords.contains(where: { lower.contains($0) })
-
-        if isSimQuery && dashboardConnected {
-            return bridge.answerSimulationQuery(text)
-        }
-
-        let result = bridge.processNaturalLanguage(text)
-
-        // Apply actions locally
-        for action in result.actions {
-            if action.command == "On" {
-                bridge.updateAttribute(forNode: action.nodeId, endpoint: action.endpointId,
-                                       cluster: 0x0006, attribute: 0x0000, boolValue: true)
-            } else if action.command == "Off" {
-                bridge.updateAttribute(forNode: action.nodeId, endpoint: action.endpointId,
-                                       cluster: 0x0006, attribute: 0x0000, boolValue: false)
-            }
-        }
-
-        refresh()
-        return result.response
-    }
-
-    func sendMessage(_ text: String) {
-        chatMessages.append(ChatMessage(text: text, isUser: true))
-        let response = processQuery(text)
-        chatMessages.append(ChatMessage(text: response, isUser: false))
-    }
-
-    func toggleDevice(_ device: DeviceInfo) {
-        let newState = !device.isOn
-        bridge.updateAttribute(forNode: device.nodeId, endpoint: 1,
-                               cluster: 0x0006, attribute: 0x0000, boolValue: newState)
-        refresh()
-    }
 
     // MARK: - Simulation
 
@@ -180,47 +117,6 @@ class HomeManager: ObservableObject {
 }
 
 // MARK: - Data Models
-
-struct DeviceInfo: Identifiable {
-    let id: UInt64
-    let nodeId: UInt64
-    let name: String
-    let room: String
-    let vendor: String?
-    let isOn: Bool
-    let reachable: Bool
-    let stateDescription: String
-    let temperature: Float?
-    let humidity: Float?
-    let brightness: Int?
-    let battery: Int?
-    let isLocked: Bool
-    let hasToggle: Bool
-
-    init(from maDevice: MADevice) {
-        self.id = maDevice.nodeId
-        self.nodeId = maDevice.nodeId
-        self.name = maDevice.name
-        self.room = maDevice.room
-        self.vendor = maDevice.vendorName
-        self.isOn = maDevice.isOn
-        self.reachable = maDevice.reachable
-        self.stateDescription = maDevice.stateDescription
-        self.temperature = maDevice.temperature?.floatValue
-        self.humidity = maDevice.humidity?.floatValue
-        self.brightness = maDevice.brightness?.intValue
-        self.battery = maDevice.battery?.intValue
-        self.isLocked = maDevice.isLocked
-        self.hasToggle = maDevice.hasToggle
-    }
-}
-
-struct ChatMessage: Identifiable {
-    let id = UUID()
-    let text: String
-    let isUser: Bool
-    let timestamp = Date()
-}
 
 struct SimNodeInfo: Identifiable {
     let id: UInt16

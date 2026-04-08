@@ -36,6 +36,8 @@
 		AA000069 /* DeviceEventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000069 /* DeviceEventStream.swift */; };
 		AA00006B /* SDKKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00006B /* SDKKeychain.swift */; };
 		AA00006A /* EventLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00006A /* EventLogView.swift */; };
+		AA00006C /* ThreadDiagnosticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00006C /* ThreadDiagnosticsView.swift */; };
+		AA00006D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00006D /* SettingsView.swift */; };
 		AA000070 /* Matter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB000070 /* Matter.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		AA000071 /* HomeKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB000071 /* HomeKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 /* End PBXBuildFile section */
@@ -80,6 +82,8 @@
 		BB000069 /* DeviceEventStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceEventStream.swift; sourceTree = "<group>"; };
 		BB00006B /* SDKKeychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKKeychain.swift; sourceTree = "<group>"; };
 		BB00006A /* EventLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventLogView.swift; sourceTree = "<group>"; };
+		BB00006C /* ThreadDiagnosticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadDiagnosticsView.swift; sourceTree = "<group>"; };
+		BB00006D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		BB000066 /* MatterAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MatterAI.entitlements; sourceTree = "<group>"; };
 		BB000070 /* Matter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Matter.framework; path = System/Library/Frameworks/Matter.framework; sourceTree = SDKROOT; };
 		BB000071 /* HomeKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HomeKit.framework; path = System/Library/Frameworks/HomeKit.framework; sourceTree = SDKROOT; };
@@ -152,6 +156,8 @@
 				BB000067 /* CommissioningView.swift */,
 				BB000068 /* DeviceDetailView.swift */,
 				BB00006A /* EventLogView.swift */,
+				BB00006C /* ThreadDiagnosticsView.swift */,
+				BB00006D /* SettingsView.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -325,6 +331,8 @@
 				AA000069 /* DeviceEventStream.swift in Sources */,
 				AA00006B /* SDKKeychain.swift in Sources */,
 				AA00006A /* EventLogView.swift in Sources */,
+				AA00006C /* ThreadDiagnosticsView.swift in Sources */,
+				AA00006D /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

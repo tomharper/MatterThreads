@@ -1,26 +1,50 @@
 import SwiftUI
 
 struct HomeView: View {
-    @EnvironmentObject var homeManager: HomeManager
+    @EnvironmentObject var sdk: MatterHomeSDK
 
     var body: some View {
         NavigationStack {
             List {
-                ForEach(homeManager.rooms, id: \.self) { room in
+                ForEach(sdk.rooms, id: \.self) { room in
                     Section(room) {
-                        let roomDevices = homeManager.devices.filter { $0.room == room }
-                        ForEach(roomDevices) { device in
-                            DeviceRow(device: device) {
-                                homeManager.toggleDevice(device)
+                        ForEach(sdk.devicesInRoom(room)) { device in
+                            NavigationLink(value: device.id) {
+                                UnifiedDeviceRow(device: device) {
+                                    Task { try? await sdk.toggleDevice(device) }
+                                }
                             }
                         }
                     }
                 }
+
+                if sdk.devices.isEmpty {
+                    Section {
+                        VStack(spacing: 8) {
+                            Image(systemName: "house.slash")
+                                .font(.largeTitle)
+                                .foregroundStyle(.secondary)
+                            Text("No devices yet")
+                                .font(.headline)
+                            Text("Enable a backend in the SDK tab to discover devices.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 24)
+                    }
+                }
             }
             .navigationTitle("Matter Home")
+            .navigationDestination(for: String.self) { deviceId in
+                if let device = sdk.devices.first(where: { $0.id == deviceId }) {
+                    DeviceDetailView(device: device)
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: { homeManager.refresh() }) {
+                    Button(action: { sdk.refresh() }) {
                         Image(systemName: "arrow.clockwise")
                     }
                 }
@@ -29,8 +53,8 @@ struct HomeView: View {
     }
 }
 
-struct DeviceRow: View {
-    let device: DeviceInfo
+struct UnifiedDeviceRow: View {
+    let device: UnifiedDevice
     let onToggle: () -> Void
 
     var body: some View {
@@ -44,7 +68,13 @@ struct DeviceRow: View {
                 HStack(spacing: 4) {
                     Text(device.name)
                         .font(.body)
-                    if let bat = device.battery, bat < 30 {
+                    Text(device.source.rawValue)
+                        .font(.caption2)
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 1)
+                        .background(.quaternary)
+                        .clipShape(Capsule())
+                    if let bat = device.attributes[.batteryRemaining]?.intValue, bat < 60 {
                         Image(systemName: "battery.25")
                             .font(.caption2)
                             .foregroundStyle(.orange)
@@ -56,8 +86,8 @@ struct DeviceRow: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
 
-                if let vendor = device.vendor, !vendor.isEmpty {
-                    Text(vendor)
+                if !device.vendor.isEmpty {
+                    Text(device.vendor)
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                 }
@@ -81,7 +111,10 @@ struct DeviceRow: View {
 
     private var iconName: String {
         let name = device.name.lowercased()
-        if name.contains("lock") { return device.isLocked ? "lock.fill" : "lock.open.fill" }
+        if name.contains("lock") {
+            let locked = (device.attributes[.lockState]?.intValue ?? 0) == 1
+            return locked ? "lock.fill" : "lock.open.fill"
+        }
         if name.contains("thermostat") { return "thermostat.medium" }
         if name.contains("fan") { return "fan.fill" }
         if name.contains("blind") || name.contains("covering") { return "blinds.vertical.open" }
@@ -89,8 +122,8 @@ struct DeviceRow: View {
         if name.contains("motion") || name.contains("occupancy") { return "sensor.fill" }
         if name.contains("contact") || name.contains("door sensor") || name.contains("fridge") { return "door.left.hand.closed" }
         if name.contains("plug") || name.contains("coffee") || name.contains("monitor") { return "powerplug.fill" }
-        if device.temperature != nil && device.humidity != nil { return "humidity.fill" }
-        if device.temperature != nil { return "thermometer.medium" }
+        if device.attributes[.measuredTemp] != nil && device.attributes[.measuredHumidity] != nil { return "humidity.fill" }
+        if device.attributes[.measuredTemp] != nil { return "thermometer.medium" }
         if name.contains("lamp") { return "lamp.floor.fill" }
         if name.contains("downlight") || name.contains("cabinet") || name.contains("ceiling light") { return "light.recessed.fill" }
         if name.contains("porch") { return "light.beacon.max.fill" }
@@ -100,11 +133,14 @@ struct DeviceRow: View {
     private var iconColor: Color {
         if !device.reachable { return .secondary }
         let name = device.name.lowercased()
-        if name.contains("lock") { return device.isLocked ? .green : .orange }
+        if name.contains("lock") {
+            let locked = (device.attributes[.lockState]?.intValue ?? 0) == 1
+            return locked ? .green : .orange
+        }
         if name.contains("thermostat") { return .orange }
         if name.contains("smoke") { return .red }
         if name.contains("fan") { return device.isOn ? .blue : .secondary }
-        if device.temperature != nil { return .teal }
+        if device.attributes[.measuredTemp] != nil { return .teal }
         if name.contains("motion") || name.contains("contact") || name.contains("fridge") { return .indigo }
         if name.contains("plug") || name.contains("coffee") || name.contains("monitor") { return device.isOn ? .green : .secondary }
         return device.isOn ? .yellow : .secondary
