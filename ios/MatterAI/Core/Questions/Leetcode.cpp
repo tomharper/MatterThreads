@@ -11,10 +11,11 @@
 #include <set>
 #include <algorithm>
 
+
 using namespace std;
 
 
-class Solution {
+class MergeTwoLists {
     struct ListNode {
         int val;
         ListNode *next;
@@ -58,6 +59,8 @@ public:
 };
 
 
+
+
 class Solution2 {
 public:
     int trap(vector<int>& height) {
@@ -87,6 +90,8 @@ public:
         return totalWater;
     }
 };
+
+
 
 class TrieNode {
 public:
@@ -131,6 +136,8 @@ public:
     }
 };
 
+
+
 //1268 leetcode
 class Solution3 {
 public:
@@ -153,7 +160,7 @@ public:
 
 // best time to buy and selll stock
 
-class Solution4 {
+class StockSale {
 public:
     vector<vector<int>> getSkyline(vector<vector<int>>& buildings) {
         vector<vector<int>> ans;
@@ -195,7 +202,7 @@ public:
 
 // buy and sell stock
 
-class Solution5 {
+class BestTimeToBuyAndSellStock {
 public:
     int maxProfit(vector<int>& prices) {
         int n = (int)prices.size();
@@ -232,44 +239,181 @@ public:
 #include <unordered_map>
 #include <list>
 
-    class LRUCache {
-        int capacity;
-        // List stores {key, value} pairs; MRU at front, LRU at back
-        std::list<std::pair<int, int>> cacheList;
-        // Map stores key -> iterator to the list node for O(1) access
-        std::unordered_map<int, std::list<std::pair<int, int>>::iterator> cacheMap;
+class LRUCache {
+    int capacity;
+    std::list<std::pair<int, int>> cacheList;
+    std::unordered_map<int, std::list<std::pair<int, int>>::iterator> cacheMap;
+    mutable std::mutex cacheMutex;  // Add this
 
-    public:
-        LRUCache(int cap) : capacity(cap) {}
+public:
+    LRUCache(int cap) : capacity(cap) {}
 
-        int get(int key) {
-            if (cacheMap.find(key) == cacheMap.end()) return -1;
-            
-            // Move accessed node to the front (MRU)
+    int get(int key) {
+        std::lock_guard<std::mutex> lock(cacheMutex);  // Lock entire operation
+        
+        if (cacheMap.find(key) == cacheMap.end()) return -1;
+        
+        cacheList.splice(cacheList.begin(), cacheList, cacheMap[key]);
+        return cacheMap[key]->second;
+    }
+
+    void put(int key, int value) {
+        std::lock_guard<std::mutex> lock(cacheMutex);  // Lock entire operation
+        
+        if (cacheMap.find(key) != cacheMap.end()) {
             cacheList.splice(cacheList.begin(), cacheList, cacheMap[key]);
-            return cacheMap[key]->second;
-        }
-
-        void put(int key, int value) {
-            if (cacheMap.find(key) != cacheMap.end()) {
-                // Key exists: update value and move to front
-                cacheList.splice(cacheList.begin(), cacheList, cacheMap[key]);
-                cacheMap[key]->second = value;
-            } else {
-                // Evict LRU if at capacity
-                if (cacheList.size() == capacity) {
-                    int lastKey = cacheList.back().first;
-                    cacheMap.erase(lastKey);
-                    cacheList.pop_back();
-                }
-                // Insert new node at front
-                cacheList.push_front({key, value});
-                cacheMap[key] = cacheList.begin();
+            cacheMap[key]->second = value;
+        } else {
+            if (cacheList.size() == capacity) {
+                int lastKey = cacheList.back().first;
+                cacheMap.erase(lastKey);
+                cacheList.pop_back();
             }
+            cacheList.push_front({key, value});
+            cacheMap[key] = cacheList.begin();
         }
+    }
+};
+
+
+
+#include <unordered_map>
+#include <mutex>
+
+class LRUCacheDLL {
+    struct Node {
+        int key, value;
+        Node* prev;
+        Node* next;
+        Node(int k, int v) : key(k), value(v), prev(nullptr), next(nullptr) {}
     };
 
+    int capacity;
+    Node* head;  // Most recently used (sentinel)
+    Node* tail;  // Least recently used (sentinel)
+    std::unordered_map<int, Node*> cacheMap;
+    mutable std::mutex cacheMutex;
 
+    void removeNode(Node* node) {
+        node->prev->next = node->next;
+        node->next->prev = node->prev;
+    }
+
+    void insertFront(Node* node) {
+        node->next = head->next;
+        node->prev = head;
+        head->next->prev = node;
+        head->next = node;
+    }
+
+public:
+    LRUCacheDLL(int cap) : capacity(cap) {
+        head = new Node(0, 0);  // Sentinel head (MRU side)
+        tail = new Node(0, 0);  // Sentinel tail (LRU side)
+        head->next = tail;
+        tail->prev = head;
+    }
+
+    ~LRUCacheDLL() {
+        Node* curr = head;
+        while (curr) {
+            Node* next = curr->next;
+            delete curr;
+            curr = next;
+        }
+    }
+
+    int get(int key) {
+        std::lock_guard<std::mutex> lock(cacheMutex);
+
+        auto it = cacheMap.find(key);
+        if (it == cacheMap.end()) return -1;
+
+        Node* node = it->second;
+        removeNode(node);
+        insertFront(node);
+        return node->value;
+    }
+
+    void put(int key, int value) {
+        std::lock_guard<std::mutex> lock(cacheMutex);
+
+        auto it = cacheMap.find(key);
+        if (it != cacheMap.end()) {
+            Node* node = it->second;
+            node->value = value;
+            removeNode(node);
+            insertFront(node);
+        } else {
+            if ((int)cacheMap.size() == capacity) {
+                Node* lru = tail->prev;  // LRU node is just before sentinel tail
+                removeNode(lru);
+                cacheMap.erase(lru->key);
+                delete lru;
+            }
+            Node* node = new Node(key, value);
+            insertFront(node);
+            cacheMap[key] = node;
+        }
+    }
+};
+
+
+/*
+ 2. Heap Algorithms (in <algorithm>)
+ C++ offers several functions that can turn any random-access container (like a std::vector or an array) into a heap. This approach is more flexible as it allows you to manipulate the underlying data directly.
+ GeeksforGeeks
+ GeeksforGeeks
+  +4
+ std::make_heap: Rearranges elements in a range to satisfy heap properties (O(N) complexity).
+ std::push_heap: Adds a new element to an existing heap (O(log N)).
+ std::pop_heap: Moves the largest/smallest element to the end of the range so it can be removed (O(log N)).
+ std::is_heap: Checks if a range is a valid heap.
+ std::sort_heap: Converts a heap into a sorted range.
+ GeeksforGeeks
+ GeeksforGeeks
+  +4
+ */
+
+
+
+bool isPalindrome(const std::string& s) {
+    int left = 0;
+    int right = s.length() - 1;
+    
+    while (left < right) {
+        if (s[left] != s[right]) return false;
+        left++;
+        right--;
+    }
+    return true;
+}
+
+#include <cctype>
+/*
+ 
+ isalnum(c) - alphanumeric (a-z, A-Z, 0-9)
+ isalpha(c) - alphabetic only
+ isdigit(c) - digit only
+ tolower(c) - convert to lowercase
+ toupper(c) - convert to uppercase
+ */
+
+bool isPalindromeAscii(const std::string& s) {
+    int left = 0;
+    int right = s.length() - 1;
+    
+    while (left < right) {
+        while (left < right && !isalnum(s[left])) left++;
+        while (left < right && !isalnum(s[right])) right--;
+        
+        if (tolower(s[left]) != tolower(s[right])) return false;
+        
+        left++;
+        right--;
+    }
+    return true;
+}
 
 
 #include <iostream>
@@ -308,7 +452,7 @@ public:
 };
 
 #ifdef LEETCODE_STANDALONE
-int main() {
+int runTaskMgr() {
     TaskManager tm;
     tm.addTask(1, "Fix bugs", HIGH);
     tm.addTask(2, "Write docs", LOW);
@@ -352,6 +496,126 @@ Node* deleteMiddle(Node* head) {
     return head;
 }
 
+/*
+ In C++, a std::set is a container that stores only the unique elements in a sorted fashion.
+ */
+#include <iostream>
+#include <set>
+using namespace std;
+
+int use_set()
+{
+    // creating a set of integer type
+    set<int> st;
+
+    // Inserting values in random order and with duplicates
+    // in a set
+    st.insert(10);
+    st.insert(5);
+    st.insert(10);
+    st.insert(15);
+
+    // printing the element in a set
+    for (auto it : st) {
+        cout << it << ' ';
+    }
+    return 0;
+}
+
+
+// C++ program to demonstrate the use of HashSet container
+// uses insert;
+
+#include <iostream>
+#include <unordered_set>
+using namespace std;
+
+int use_hashset()
+{
+    // creating a HashSet of integer type
+    unordered_set<int> ust;
+
+    // Inserting values in random order and with duplicates
+    // in a HashSet
+    ust.insert(10);
+    ust.insert(5);
+    ust.insert(10);
+    ust.insert(15);
+
+    // printing the element in a set
+    for (auto it : ust) {
+        cout << it << ' ';
+    }
+    return 0;
+}
+
+
+#include <iostream>
+#include <stack>
+#include <vector>
+
+class Graph {
+public:
+    Graph(int n) : adj_(n) {}
+
+    void addEdge(int u, int v, bool directed = false) {
+        adj_[u].push_back(v);
+        if (!directed) {
+            adj_[v].push_back(u);
+        }
+    }
+
+    std::vector<int> dfsIterative(int start) const {
+        std::vector<int> order;
+        std::vector<bool> visited(adj_.size(), false);
+        std::stack<int> s;
+
+        s.push(start);
+
+        while (!s.empty()) {
+            int node = s.top();
+            s.pop();
+
+            // Mark visited on POP, not on push (see note below)
+            if (visited[node]) {
+                continue;
+            }
+            visited[node] = true;
+            order.push_back(node);
+
+            // Push neighbors — they'll be processed LIFO
+            for (int neighbor : adj_[node]) {
+                if (!visited[neighbor]) {
+                    s.push(neighbor);
+                }
+            }
+        }
+
+        return order;
+    }
+
+    // Recursive version for comparison
+    std::vector<int> dfsRecursive(int start) const {
+        std::vector<int> order;
+        std::vector<bool> visited(adj_.size(), false);
+        dfsHelper(start, visited, order);
+        return order;
+    }
+
+private:
+    void dfsHelper(int node, std::vector<bool>& visited, std::vector<int>& order) const {
+        visited[node] = true;
+        order.push_back(node);
+        for (int neighbor : adj_[node]) {
+            if (!visited[neighbor]) {
+                dfsHelper(neighbor, visited, order);
+            }
+        }
+    }
+
+    std::vector<std::vector<int>> adj_;
+};
+
 
 /*
  Prompt
@@ -376,3 +640,201 @@ Node* deleteMiddle(Node* head) {
    // your code here
  }
  */
+
+#include <vector>
+
+std::vector<int> spiralTraversal(const std::vector<std::vector<int>>& matrix) {
+    std::vector<int> output;
+
+    if (matrix.empty()) return output;
+
+    int rstart = 0, rend = static_cast<int>(matrix.size()) - 1;
+    int cstart = 0, cend = static_cast<int>(matrix[0].size()) - 1;
+    int direction = 0;
+
+    while (rstart <= rend && cstart <= cend) {
+        switch (direction) {
+            case 0: // across left to right
+                for (int i = cstart; i <= cend; i++)
+                    output.push_back(matrix[rstart][i]);
+                rstart++;
+                break;
+            case 1: // down
+                for (int i = rstart; i <= rend; i++)
+                    output.push_back(matrix[i][cend]);
+                cend--;
+                break;
+            case 2: // across right to left
+                for (int i = cend; i >= cstart; i--)
+                    output.push_back(matrix[rend][i]);
+                rend--;
+                break;
+            case 3: // up
+                for (int i = rend; i >= rstart; i--)
+                    output.push_back(matrix[i][cstart]);
+                cstart++;
+                break;
+        }
+        direction = (direction + 1) % 4;
+    }
+
+    return output;
+}
+
+/*
+ std::queue<int> is fine for interview code. It wraps std::deque by default.
+ If you need more performance, std::vector with head/tail indices can be faster than std::queue due to cache locality, but don't reach for that unless asked.
+ For graphs with non-integer node identifiers, use std::unordered_map<NodeType, std::vector<NodeType>> for the adjacency list and std::unordered_set<NodeType> for visited.
+ Pass adj_ by const reference in member functions when possible. Interviewers notice const correctness in C++.
+ */
+#include <iostream>
+#include <queue>
+#include <vector>
+#include <unordered_set>
+
+class GraphBFS {
+public:
+    GraphBFS(int n) : adj_(n) {}
+
+    void addEdge(int u, int v, bool directed = false) {
+        adj_[u].push_back(v);
+        if (!directed) {
+            adj_[v].push_back(u);
+        }
+    }
+
+    std::vector<int> bfs(int start) const {
+        std::vector<int> order;
+        std::vector<bool> visited(adj_.size(), false);
+        std::queue<int> q;
+
+        visited[start] = true;
+        q.push(start);
+
+        while (!q.empty()) {
+            int node = q.front();
+            q.pop();
+            order.push_back(node);
+
+            for (int neighbor : adj_[node]) {
+                if (!visited[neighbor]) {
+                    visited[neighbor] = true;  // mark on enqueue, not on dequeue
+                    q.push(neighbor);
+                }
+            }
+        }
+
+        return order;
+    }
+
+private:
+    std::vector<std::vector<int>> adj_;
+};
+
+int main() {
+    GraphBFS g(6);
+    g.addEdge(0, 1);
+    g.addEdge(0, 2);
+    g.addEdge(1, 3);
+    g.addEdge(2, 4);
+    g.addEdge(3, 5);
+
+    auto order = g.bfs(0);
+    for (int node : order) {
+        std::cout << node << " ";
+    }
+    std::cout << "\n";  // prints: 0 1 2 3 4 5
+}
+
+
+
+#include <iostream>
+
+struct ListNode {
+    int val;
+    ListNode* next;
+    ListNode(int x) : val(x), next(nullptr) {}
+};
+
+ListNode* reverseInGroupsOfK(ListNode* head, int k) {
+    // 0 and 1 length lists do not require reversing, no matter what k is.
+    if (!head || !head->next || k == 1) return head;
+
+    // We'll need two pointers so that we can make changes to
+    // pointers without losing our position.
+    ListNode* prev = head;
+    ListNode* curr = prev->next;
+
+    // This makes sure that the first node will point to null
+    // when it is the last node after reversal.
+    prev->next = nullptr;
+
+    // Now we'll count out k nodes to reverse.
+    ListNode* last = prev;
+    int count = 1;
+    while (curr && count < k) {
+        ListNode* temp = curr->next;
+        curr->next = prev;
+        prev = curr;
+        curr = temp;
+        count++;
+    }
+
+    // At this point we've reversed up to k nodes. If there
+    // is anything left, reverse that and set as the next
+    // node of the last of the current set.
+    if (curr) {
+        last->next = reverseInGroupsOfK(curr, k);
+    }
+
+    // Return the first node in this group of k.
+    return prev;
+}
+
+
+/* teoplitz matrix*/
+
+#include <vector>
+
+bool isToeplitz(const std::vector<std::vector<int>>& matrix) {
+    for (int r = 0; r < matrix.size(); r++) {
+        for (int c = 0; c < matrix[r].size(); c++) {
+            int value = matrix[r][c];
+            if (r > 0 && c > 0 && matrix[r - 1][c - 1] != value) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+
+#include <vector>
+
+bool isMatrixMonotonic(const std::vector<std::vector<int>>& matrix) {
+    // These two loops form a typical row-major traversal
+    // over the matrix.
+    for (int r = 0; r < matrix.size(); r++) {
+        for (int c = 0; c < matrix[r].size(); c++) {
+            // Get the value at this location.
+            int value = matrix[r][c];
+
+            // If we are on a row past the first, then
+            // look up one position and make sure that value
+            // is not larger.
+            if (r > 0 && matrix[r - 1][c] > value) {
+                return false;
+            }
+
+            // If we are on a column past the first, then
+            // look left one position and make sure that value
+            // is not larger.
+            if (c > 0 && matrix[r][c - 1] > value) {
+                return false;
+            }
+        }
+    }
+
+    // If we didn't find any problems, then return true.
+    return true;
+}
