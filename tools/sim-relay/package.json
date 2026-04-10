@@ -1,0 +1,13 @@
+{
+  "name": "matterthreads-sim-relay",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WebSocket-based reverse tunnel relay for MatterThreads iOS → local simulation",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "fastify": "^5.0.0",
+    "ws": "^8.16.0"
+  }
+}

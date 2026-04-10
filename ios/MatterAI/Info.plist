@@ -24,6 +24,11 @@
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>MatterAI needs local network access to discover and control Matter devices.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>NSHomeKitUsageDescription</key>
 	<string>MatterAI integrates with HomeKit to discover and control your smart home devices.</string>
 	<key>NSBonjourServices</key>

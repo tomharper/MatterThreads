@@ -1,0 +1,12 @@
+{
+  "name": "matterthreads-sim-tunnel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Connects local MatterThreads simulation to Railway relay",
+  "scripts": {
+    "start": "node tunnel.js"
+  },
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+}

@@ -731,6 +731,7 @@ private:
     std::vector<std::vector<int>> adj_;
 };
 
+#ifdef LEETCODE_STANDALONE
 int main() {
     GraphBFS g(6);
     g.addEdge(0, 1);
@@ -745,6 +746,7 @@ int main() {
     }
     std::cout << "\n";  // prints: 0 1 2 3 4 5
 }
+#endif
 
 
 
@@ -807,6 +809,13 @@ bool isToeplitz(const std::vector<std::vector<int>>& matrix) {
     }
     return true;
 }
+
+
+// min heap
+std::priority_queue<int> maxHeap;
+std::priority_queue<int, std::vector<int>, std::greater<int>> minHeap;
+//std::make_heap
+
 
 
 #include <vector>

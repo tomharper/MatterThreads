@@ -28,9 +28,22 @@ final class ThreadBackend: DeviceBackend, @unchecked Sendable {
     private var dashboardURL: URL?
     private let session = URLSession.shared
 
-    /// Configure with optional MatterThreads Dashboard URL for detailed mesh data
-    func configure(dashboardURL: URL?) {
-        self.dashboardURL = dashboardURL
+    /// Configure with optional MatterThreads Dashboard URL for detailed mesh data.
+    /// If nil, reads from SimulationConfig.shared.dashboardURL at runtime.
+    func configure(dashboardURL: URL? = nil) {
+        if let url = dashboardURL {
+            self.dashboardURL = url
+        }
+        // If still nil, will resolve lazily from SimulationConfig
+    }
+
+    /// Resolves dashboard URL — explicit override or falls back to SimulationConfig
+    private func resolvedDashboardURL() -> URL? {
+        if let url = dashboardURL { return url }
+        // Read from shared config (MainActor-isolated, but we only need the string)
+        let urlString = UserDefaults.standard.string(forKey: "sim.dashboardURL")
+            ?? "http://localhost:8080"
+        return URL(string: urlString)
     }
 
     // MARK: - DeviceBackend
@@ -53,7 +66,7 @@ final class ThreadBackend: DeviceBackend, @unchecked Sendable {
         #endif
 
         // Also fetch from MatterThreads Dashboard if configured
-        if dashboardURL != nil {
+        if resolvedDashboardURL() != nil {
             await fetchMeshNodes()
         }
 
@@ -140,7 +153,7 @@ final class ThreadBackend: DeviceBackend, @unchecked Sendable {
     }
 
     private func readThreadDiagnostic(deviceId: String, attributeId: UInt32) async throws -> SDKAttributeValue {
-        guard let dashURL = dashboardURL else {
+        guard let dashURL = resolvedDashboardURL() else {
             throw BackendError.notConnected
         }
 
@@ -187,7 +200,7 @@ final class ThreadBackend: DeviceBackend, @unchecked Sendable {
     // MARK: - Dashboard Integration
 
     private func fetchMeshNodes() async {
-        guard let dashURL = dashboardURL else { return }
+        guard let dashURL = resolvedDashboardURL() else { return }
 
         let url = dashURL.appendingPathComponent("api/status")
         guard let (data, _) = try? await session.data(from: url),

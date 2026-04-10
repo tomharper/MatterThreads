@@ -4,9 +4,12 @@ import SwiftUI
 /// commissioned devices, and backend enable/disable.
 struct SettingsView: View {
     @EnvironmentObject var sdk: MatterHomeSDK
+    @StateObject private var simConfig = SimulationConfig.shared
 
     @State private var showGoogleConfig = false
     @State private var showClearConfirm = false
+    @State private var dashboardTestResult: String?
+    @State private var gatewayTestResult: String?
 
     var body: some View {
         NavigationStack {
@@ -16,6 +19,63 @@ struct SettingsView: View {
                     ForEach(BackendSource.allCases, id: \.self) { source in
                         BackendToggleRow(source: source)
                     }
+                }
+
+                // Simulation endpoints
+                Section {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Dashboard URL")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        TextField("http://localhost:8080", text: $simConfig.dashboardURL)
+                            .textFieldStyle(.roundedBorder)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
+                            .font(.caption.monospaced())
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Gateway URL")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        TextField("http://localhost:8090", text: $simConfig.gatewayURL)
+                            .textFieldStyle(.roundedBorder)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
+                            .font(.caption.monospaced())
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Relay Auth Token (optional)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        SecureField("Bearer token", text: $simConfig.relayToken)
+                            .textFieldStyle(.roundedBorder)
+                            .font(.caption.monospaced())
+                    }
+                    HStack {
+                        Button("Test Dashboard") { testDashboard() }
+                            .font(.caption)
+                        Spacer()
+                        Button("Test Gateway") { testGateway() }
+                            .font(.caption)
+                    }
+                    if let r = dashboardTestResult {
+                        Text(r)
+                            .font(.caption2)
+                            .foregroundStyle(r.hasPrefix("✓") ? .green : .red)
+                    }
+                    if let r = gatewayTestResult {
+                        Text(r)
+                            .font(.caption2)
+                            .foregroundStyle(r.hasPrefix("✓") ? .green : .red)
+                    }
+                    Button("Reset to localhost", action: { simConfig.resetToLocal() })
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } header: {
+                    Text("Simulation Endpoints")
+                } footer: {
+                    Text("Point at localhost for simulator, or a Railway relay URL (https://xxx.up.railway.app) for physical device testing.")
+                        .font(.caption2)
                 }
 
                 // Google OAuth configuration
@@ -121,11 +181,31 @@ struct SettingsView: View {
         SDKKeychain.delete("google.clientSecret")
         SDKKeychain.delete("google.refreshToken")
         SDKKeychain.delete("google.accessToken")
+        SDKKeychain.delete("sim.relayToken")
+        simConfig.resetToLocal()
         for record in sdk.commissionedStore.records {
             sdk.commissionedStore.remove(deviceId: record.deviceId)
         }
         sdk.clearChat()
         sdk.eventStream.clear()
+    }
+
+    private func testDashboard() {
+        dashboardTestResult = "Testing..."
+        Task {
+            let svc = SimulationService()
+            let ok = await svc.testDashboardConnection()
+            dashboardTestResult = ok ? "✓ Dashboard reachable" : "✗ Cannot reach dashboard"
+        }
+    }
+
+    private func testGateway() {
+        gatewayTestResult = "Testing..."
+        Task {
+            let svc = SimulationService()
+            let ok = await svc.testGatewayConnection()
+            gatewayTestResult = ok ? "✓ Gateway reachable" : "✗ Cannot reach gateway"
+        }
     }
 }
 
