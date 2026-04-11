@@ -20,7 +20,6 @@
 		AA000040 /* SimulationModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB000040A /* SimulationModel.cpp */; };
 		AA000041 /* SimulationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000041 /* SimulationService.swift */; };
 		AA000042 /* SimulationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000042 /* SimulationView.swift */; };
-		B1D571E92F78957D00BF5B69 /* Leetcode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1D571E82F78957D00BF5B69 /* Leetcode.cpp */; };
 		AA000050 /* DeviceBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000050 /* DeviceBackend.swift */; };
 		AA000051 /* UnifiedDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000051 /* UnifiedDevice.swift */; };
 		AA000052 /* BackendRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000052 /* BackendRouter.swift */; };
@@ -34,15 +33,17 @@
 		AA000066 /* CommissioningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000067 /* CommissioningView.swift */; };
 		AA000068 /* DeviceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000068 /* DeviceDetailView.swift */; };
 		AA000069 /* DeviceEventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000069 /* DeviceEventStream.swift */; };
-		AA00006B /* SDKKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00006B /* SDKKeychain.swift */; };
 		AA00006A /* EventLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00006A /* EventLogView.swift */; };
+		AA00006B /* SDKKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00006B /* SDKKeychain.swift */; };
 		AA00006C /* ThreadDiagnosticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00006C /* ThreadDiagnosticsView.swift */; };
 		AA00006D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00006D /* SettingsView.swift */; };
 		AA000070 /* Matter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB000070 /* Matter.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		AA000071 /* HomeKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB000071 /* HomeKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		B1D571E92F78957D00BF5B69 /* Leetcode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1D571E82F78957D00BF5B69 /* Leetcode.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B173BE1E2F89549200AA6565 /* Leetcode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Leetcode.swift; sourceTree = "<group>"; };
 		B1D571E72F78957D00BF5B69 /* Leetcode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Leetcode.hpp; sourceTree = "<group>"; };
 		B1D571E82F78957D00BF5B69 /* Leetcode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Leetcode.cpp; sourceTree = "<group>"; };
 		BB000001 /* MatterAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatterAIApp.swift; sourceTree = "<group>"; };
@@ -61,8 +62,8 @@
 		BB000025 /* MatterAI-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MatterAI-Bridging-Header.h"; sourceTree = "<group>"; };
 		BB000030 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BB000031 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		BB000040 /* MatterAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MatterAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB000039 /* SimulationModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SimulationModel.h; sourceTree = "<group>"; };
+		BB000040 /* MatterAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MatterAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB000040A /* SimulationModel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SimulationModel.cpp; sourceTree = "<group>"; };
 		BB000041 /* SimulationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulationService.swift; sourceTree = "<group>"; };
 		BB000042 /* SimulationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulationView.swift; sourceTree = "<group>"; };
@@ -77,14 +78,14 @@
 		BB000063 /* GoogleHomeBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleHomeBackend.swift; sourceTree = "<group>"; };
 		BB000064 /* ThreadBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadBackend.swift; sourceTree = "<group>"; };
 		BB000065 /* SDKStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKStatusView.swift; sourceTree = "<group>"; };
+		BB000066 /* MatterAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MatterAI.entitlements; sourceTree = "<group>"; };
 		BB000067 /* CommissioningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommissioningView.swift; sourceTree = "<group>"; };
 		BB000068 /* DeviceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetailView.swift; sourceTree = "<group>"; };
 		BB000069 /* DeviceEventStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceEventStream.swift; sourceTree = "<group>"; };
-		BB00006B /* SDKKeychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKKeychain.swift; sourceTree = "<group>"; };
 		BB00006A /* EventLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventLogView.swift; sourceTree = "<group>"; };
+		BB00006B /* SDKKeychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKKeychain.swift; sourceTree = "<group>"; };
 		BB00006C /* ThreadDiagnosticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadDiagnosticsView.swift; sourceTree = "<group>"; };
 		BB00006D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		BB000066 /* MatterAI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MatterAI.entitlements; sourceTree = "<group>"; };
 		BB000070 /* Matter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Matter.framework; path = System/Library/Frameworks/Matter.framework; sourceTree = SDKROOT; };
 		BB000071 /* HomeKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HomeKit.framework; path = System/Library/Frameworks/HomeKit.framework; sourceTree = SDKROOT; };
 		BB000072 /* ThreadNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ThreadNetwork.framework; path = System/Library/Frameworks/ThreadNetwork.framework; sourceTree = SDKROOT; };
@@ -112,6 +113,7 @@
 			children = (
 				B1D571E72F78957D00BF5B69 /* Leetcode.hpp */,
 				B1D571E82F78957D00BF5B69 /* Leetcode.cpp */,
+				B173BE1E2F89549200AA6565 /* Leetcode.swift */,
 			);
 			path = Questions;
 			sourceTree = "<group>";
@@ -188,6 +190,14 @@
 			path = Bridge;
 			sourceTree = "<group>";
 		};
+		DD000005 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BB000040 /* MatterAI.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		DD000006 /* SDK */ = {
 			isa = PBXGroup;
 			children = (
@@ -221,14 +231,6 @@
 				BB000072 /* ThreadNetwork.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		DD000005 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				BB000040 /* MatterAI.app */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

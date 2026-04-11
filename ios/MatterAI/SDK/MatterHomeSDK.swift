@@ -295,6 +295,12 @@ class MatterHomeSDK: ObservableObject {
             reply = temperatureSummary()
         } else if lower.contains("backend") || lower.contains("integration") {
             reply = backendSummary()
+        } else if isSimulationQuery(lower) {
+            // Route mesh/fleet queries to the C++ simulation engine
+            reply = bridge.answerSimulationQuery(text)
+            if reply.isEmpty {
+                reply = "Simulation data unavailable — is the dashboard running?"
+            }
         } else {
             // Fallback to C++ NL processor + augment with cross-backend stats
             let coreReply = bridge.processNaturalLanguage(text).response
@@ -311,6 +317,17 @@ class MatterHomeSDK: ObservableObject {
     /// Clear the chat history
     func clearChat() {
         chatHistory.removeAll()
+    }
+
+    private static let simKeywords = [
+        "mesh", "node", "fleet", "van", "topology", "link",
+        "network", "simulation", "sim", "healthy", "health",
+        "alert", "metric", "traffic", "broker", "router",
+        "leader", "thread mesh", "packet", "latency"
+    ]
+
+    private func isSimulationQuery(_ lower: String) -> Bool {
+        Self.simKeywords.contains { lower.contains($0) }
     }
 
     // MARK: - Cross-backend intent helpers

@@ -811,11 +811,23 @@ bool isToeplitz(const std::vector<std::vector<int>>& matrix) {
 }
 
 
+#ifdef LEETCODE_STANDALONE
+// Scratch pad / notes — not compiled into the app
+
+const std::vector<std::vector<int>>& matrix =  {{1, 2, 3, 4}, {8, 12, 16, 15}, {14, 13, 9, 5}, {6, 7, 11, 10}};
+
+
+unordered_set<int> ust;
 // min heap
 std::priority_queue<int> maxHeap;
 std::priority_queue<int, std::vector<int>, std::greater<int>> minHeap;
+std::mutex m;
 //std::make_heap
-
+std::lock_guard<std::mutex> lk(m);
+std::vector<bool> visited(adj_.size(), false);
+std::queue<int> q;
+std::string name;
+//std::jthread tThread;
 
 
 #include <vector>
@@ -847,3 +859,108 @@ bool isMatrixMonotonic(const std::vector<std::vector<int>>& matrix) {
     // If we didn't find any problems, then return true.
     return true;
 }
+
+
+//Drill these tonight if you have more coding rounds coming:
+
+Kadane's (max subarray)
+Two pointers (container with most water, 3sum)
+Sliding window (longest substring without repeating chars)
+Prefix sum (subarray sum equals k)
+Stack monotonic (largest rectangle in histogra
+Binary search variations
+Hash map patterns (two sum, subarray sum)
+
+// max sub array
+ int maxSubArray(vector<int>& nums) {
+     int maxSoFar = nums[0];
+     int maxEndingHere = nums[0];
+     
+     for (int i = 1; i < nums.size(); i++) {
+         maxEndingHere = max(nums[i], maxEndingHere + nums[i]);
+         maxSoFar = max(maxSoFar, maxEndingHere);
+     }
+     
+     return maxSoFar;
+ }
+
+
+// need to start in top left or bottom right
+ bool findInMonotonic(const vector<vector<int>>& matrix, int k) {
+     int nrows = matrix.size();
+     if (nrows == 0) return false;
+     
+     // Start at bottom-left corner
+     int row = nrows - 1;
+     int col = 0;
+     int ncols = matrix[row].size();
+     
+     while (row >= 0 && col < ncols) {
+         int value = matrix[row][col];
+         if (value == k) {
+             return true;
+         } else if (value < k) {
+             // k must be to the right
+             col++;
+         } else {
+             // k must be above
+             row--;
+         }
+     }
+     
+     return false;
+ }
+
+ int maxProfit(vector<int>& prices) {
+     int minPrice = prices[0];
+     int maxProfit = 0;
+     
+     for (int i = 1; i < prices.size(); i++) {
+         minPrice = min(minPrice, prices[i]);
+         maxProfit = max(maxProfit, prices[i] - minPrice);
+     }
+     return maxProfit;
+ }
+                 
+                 //Same pattern as Kadane's:
+
+                 Track running optimum (minPrice)
+                 Update global optimum (maxProfit)
+                 Single pass, O(n)
+                 The Family
+                 These are all variations of the same greedy pattern:
+
+                 Max subarray (Kadane's)
+                 Max product subarray
+                 Buy/sell stock
+                 House robber
+                 Once you internalize Kadane's, these all click.
+
+                 Good catch - you're seeing the pattern connections.
+
+
+
+
+                 
+
+                 Kadane's variants (1-2 hours)
+
+                 Max subarray sum
+                 Max product subarray
+                 Best time to buy/sell stock
+
+
+                 Sliding window (1-2 hours)
+
+                 Longest substring without repeating
+                 Minimum window substring
+                 Max consecutive ones
+
+
+                 Hash map patterns (1-2 hours)
+
+                 Two sum
+                 Subarray sum equals k
+                 Longest consecutive sequence
+
+#endif // LEETCODE_STANDALONE

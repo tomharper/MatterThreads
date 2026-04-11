@@ -4,6 +4,7 @@ import SwiftUI
 /// commissioned devices, and backend enable/disable.
 struct SettingsView: View {
     @EnvironmentObject var sdk: MatterHomeSDK
+    @EnvironmentObject var homeManager: HomeManager
     @StateObject private var simConfig = SimulationConfig.shared
 
     @State private var showGoogleConfig = false
@@ -159,6 +160,8 @@ struct SettingsView: View {
             .sheet(isPresented: $showGoogleConfig) {
                 GoogleOAuthConfigView()
             }
+            .onChange(of: simConfig.dashboardURL) { homeManager.reloadSimConfig() }
+            .onChange(of: simConfig.gatewayURL) { homeManager.reloadSimConfig() }
             .confirmationDialog("Clear all SDK data?", isPresented: $showClearConfirm, titleVisibility: .visible) {
                 Button("Clear Everything", role: .destructive) { clearAllSDKData() }
                 Button("Cancel", role: .cancel) {}

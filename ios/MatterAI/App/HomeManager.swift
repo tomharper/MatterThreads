@@ -20,10 +20,16 @@ class HomeManager: ObservableObject {
     }
 
     private let bridge = MatterBridge()
-    private let simService = SimulationService()
+    private var simService = SimulationService()
     private var pollTask: Task<Void, Never>?
 
     // MARK: - Simulation
+
+    /// Reload simulation service URLs from persisted config
+    /// (call after user edits dashboard/gateway URLs in Settings)
+    func reloadSimConfig() {
+        Task { await simService.reloadConfig() }
+    }
 
     func refreshSimulation() {
         Task {
