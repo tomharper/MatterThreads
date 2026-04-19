@@ -277,15 +277,181 @@ class MessageQueue {
         return buffer;
     }
 };
+
 //Combine is MORE than GCD, but uses GCD underneath via Schedulers.
 
 
 func maxSubArray(_ nums: [Int]) -> Int {
     var maxSoFar = nums[0]
     var maxEndingHere = nums[0]
-    for i in 1..<nums.count {
+    for i in 1..< nums.count {
+    //for num in nums.dropFirst() {
+    //for num in nums where num > 10 {
+    //for index in nums.indices
         maxEndingHere = max(nums[i], maxEndingHere + nums[i])
         maxSoFar = max(maxSoFar, maxEndingHere)
     }
     return maxSoFar
 }
+
+
+func findDuplicate(_ nums: [Int]) -> Boolean {
+    var dups = Set<Int>()
+    
+    for num in nums {
+        if (dups.contains(num)) {
+            return true
+        }
+        dups.insert(num)
+    }
+    return false
+}
+
+func isPalindromeAnagram(_ str: String) -> Bool {
+    var letters: [Character: Int] = [:]
+    var countOdd: Int = 0
+    for letter in str {
+        let count = letters[letter, default: 0]
+        letters[letter] = count + 1
+        if (count.isMultiple(of: 2)) {
+            countOdd += 1
+        } else {
+            countOdd -= 1
+        }
+    }
+}
+
+/*
+bool twoSum(vector<int> arr, int compare) {
+    std::unordered_set<int> seen;
+    for (auto val: arr) {
+        int key = compare -  val;
+        if (seen.contains(key)) {
+            return true;
+        }
+        seen.insert(val);
+    }
+    return false;
+}
+ */
+
+func twoSum(_ arr: [Int], _ compare: Int) -> Bool {
+    
+    var seen: Set<Int> = []
+    
+    for val in arr {
+        val key = compare -  val
+        if (seen.contains(key)) {
+            return true
+        }
+        seen.insert(val);
+    }
+    return false;
+}
+
+func groupAnagrams(_ strs: [String]) [[String]]{
+    var anagram_map: Dictionary[String, [String]]
+    
+    for (word) in strs {
+        sort(anagram_map.keys)
+        anagram_map[word].push_back(word)
+    }
+    
+    var result: [[String]] = []
+    for (pair) in anagram_map {
+        result
+    }
+}
+
+/// group anagrams
+vector<vector<string>> groupAnagrams(vector<string>& strs) {
+    unordered_map<string, vector<string>> anagram_map;
+    
+    for (auto& word : strs) {
+        string key = word;
+        sort(key.begin(), key.end());
+        anagram_map[key].push_back(word);
+    }
+    
+    vector<vector<string>> result;
+    for (auto& pair : anagram_map) {
+        result.push_back(pair.second);
+    }
+    return result;
+}
+
+class NodeT {
+public:
+    int value;
+    NodeT left;
+    NodeT right;
+    NodeT(int val, NodeT left, NodeT right) {
+        value = val;
+        this->left = left;
+        this->right = right;
+    }
+};
+
+
+
+
+func tree2list(_ root: NodeT?) {
+    var stack = [NodeT]()
+    var prev: NodeT? = nil
+    var curr: NodeT? = root
+
+    while curr != nil || !stack.isEmpty {
+        while let node = curr {
+            stack.append(node)
+            curr = node.left
+        }
+        curr = stack.removeLast()
+        
+        // link
+        if let p = prev {
+            p.right = curr
+            curr?.left = p
+        }
+        prev = curr
+        curr = curr?.right
+    }
+}
+
+
+func BinarySearch(_ data: [Int], _ k: Int) {
+    var start: Int = 0
+    var end: Int = data.count - 1
+    
+    while start < end {
+        let mid: Int = (start + end) / 2
+        let value: Int = data[mid]
+        if (value == k) {
+            return mid;
+        } else if (value < k) {
+            start = mid + 1
+        } else {
+            end = mid
+        }
+    }
+    return -1
+}
+
+func sortedSquares(_ input: [Int]) -> [Int] {
+    var l = input.count - 1
+    var r = 0
+    let n: Int = input.count
+    var output: [Int] = []
+    
+    while (l<=r) {
+        let left: Int = abs(input[l])
+        let right: Int = abs(input[r])
+        if (left > right) {
+            output.append(left*left)
+            l+=1
+        } else {
+            output.append(right*right)
+        }
+    }
+    return output
+}
+

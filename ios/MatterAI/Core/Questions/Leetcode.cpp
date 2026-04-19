@@ -61,7 +61,7 @@ public:
 
 
 
-class Solution2 {
+class TrapWater {
 public:
     int trap(vector<int>& height) {
 
@@ -139,7 +139,7 @@ public:
 
 
 //1268 leetcode
-class Solution3 {
+class SearchSuggestions {
 public:
     vector<vector<string>> suggestionProducts(vector<string>& products, string searchWord) {
         Trie trie;
@@ -220,7 +220,7 @@ public:
 };
 
 
-class Solution6 {
+class ContainsDuplicate {
 public:
     bool containsDuplicate(vector<int>& nums) {
         set<int> st;
@@ -811,12 +811,10 @@ bool isToeplitz(const std::vector<std::vector<int>>& matrix) {
 }
 
 
-#ifdef LEETCODE_STANDALONE
+/*
 // Scratch pad / notes — not compiled into the app
 
 const std::vector<std::vector<int>>& matrix =  {{1, 2, 3, 4}, {8, 12, 16, 15}, {14, 13, 9, 5}, {6, 7, 11, 10}};
-
-
 unordered_set<int> ust;
 // min heap
 std::priority_queue<int> maxHeap;
@@ -828,6 +826,7 @@ std::vector<bool> visited(adj_.size(), false);
 std::queue<int> q;
 std::string name;
 //std::jthread tThread;
+ */
 
 
 #include <vector>
@@ -860,16 +859,6 @@ bool isMatrixMonotonic(const std::vector<std::vector<int>>& matrix) {
     return true;
 }
 
-
-//Drill these tonight if you have more coding rounds coming:
-
-Kadane's (max subarray)
-Two pointers (container with most water, 3sum)
-Sliding window (longest substring without repeating chars)
-Prefix sum (subarray sum equals k)
-Stack monotonic (largest rectangle in histogra
-Binary search variations
-Hash map patterns (two sum, subarray sum)
 
 // max sub array
  int maxSubArray(vector<int>& nums) {
@@ -911,56 +900,504 @@ Hash map patterns (two sum, subarray sum)
      return false;
  }
 
- int maxProfit(vector<int>& prices) {
-     int minPrice = prices[0];
-     int maxProfit = 0;
+
+
+int kadanes(vector<int>& array) {
+    int maxVal = array[0];
+    int curVal = array[0];
+    
+    for (int i = 1; i < array.size(); i++) {
+        curVal = max(array[i], array[i] + curVal);
+        maxVal = max(maxVal, curVal);
+    }
+    return maxVal;
+}
+
+
+bool findDuplicate(vector<int>& arr) {
+    std::unordered_set<int> dups;
+    
+    for (int i = 0; i < arr.size(); i++) {
+        if (dups.contains(arr[i])) {
+            return true;
+        }
+        dups.insert(arr[i]);
+    }
+    return false;
+}
+
+bool isPalindromeAnagram(string str) {
+    std::unordered_map<char, int> letters;
+    int countOdd = 0;
+    for (auto letter: str) {
+        int val = letters[letter];
+        if (val%2 == 0) {
+            countOdd++;
+        } else {
+            countOdd--;
+        }
+        letters[letter]++;
+    }
+    if (countOdd<=1) { // allowed 1
+        return true;
+    }
+    return false;
+}
+
+bool twoSum(vector<int> arr, int compare) {
+    std::unordered_set<int> seen;
+    for (auto val: arr) {
+        int key = compare -  val;
+        if (seen.contains(key)) {
+            return true;
+        }
+        seen.insert(val);
+    }
+    return false;
+}
+
+
+// sort anagrams
+
+vector<vector<string>> groupAnagrams(vector<string>& strs) {
+    unordered_map<string, vector<string>> anagram_map;
+    
+    for (auto& word : strs) {
+        string key = word;
+        sort(key.begin(), key.end());
+        anagram_map[key].push_back(word);
+    }
+    
+    vector<vector<string>> result;
+    for (auto& pair : anagram_map) {
+        result.push_back(pair.second);
+    }
+    return result;
+}
+
+
+class NodeT {
+public:
+    int value;
+    NodeT* left;
+    NodeT* right;
+    NodeT(int val, NodeT* left, NodeT* right) {
+        value = val;
+        this->left = left;
+        this->right = right;
+    }
+};
+
+// TREE TO LIST
+
+void tree2list(NodeT* root) {
+    std::stack<NodeT*> myStack;
+    NodeT* prev = nullptr;
+    NodeT* curr = root;
+
+    while (curr || !myStack.empty()) {
+        while (curr) {
+            myStack.push(curr);
+            curr = curr->left;
+        }
+        curr = myStack.top();
+        myStack.pop();
+        
+        // link
+        if (prev) {
+            prev->right = curr;
+            curr->left = prev;
+        }
+        prev = curr;
+        curr = curr->right;
+    }
+};
+
+// HOW MANY NUMBERS SMALLER THAN
+
+vector<int> topKFrequent(vector<int> nums, int k) {
+    if (k == (int)nums.size()) {
+        return nums;
+    }
+
+    unordered_map<int, int> map;
+    priority_queue<pair<int,int>> que;
+    vector<int> result;
+    
+    // minheap
+    //priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> minQue;
+    //priority_queue<int, vector<int>, greater<int>>
+
+    for (auto num : nums) {
+        map[num]++;
+    }
+
+    for (auto key : map) {
+        que.push({key.second, key.first}); // {frequency, number}
+    }
+
+    int i = 0;
+    while (i++ < k) {
+        auto res = que.top();
+        que.pop();                  // remove after peeking
+        result.push_back(res.second); // res.second is the number
+    }
+
+    return result;
+}
+               
+
+class LongestNonDecreasingSubsequence {
+public:
+   int lengthOfLIS(vector<int>& nums) {
+       if (nums.empty()) return 0;
+       
+       int n = nums.size();
+       vector<int> maxLength(n, 1);
+       int maximumSoFar = 1;
+       
+       for (int i = 1; i < n; i++) {
+           for (int j = 0; j < i; j++) {
+               if (nums[i] > nums[j]) {
+                   maxLength[i] = max(maxLength[i], maxLength[j] + 1);
+               }
+           }
+           maximumSoFar = max(maximumSoFar, maxLength[i]);
+       }
+       
+       return maximumSoFar;
+   }
+};
+
+
+int BinarySearch(vector<int> data, int k) {
+    int start = 0;
+    int end = data.size();
+
+    while (start < end) {
+        // Look in the middle between the start and end.
+        int mid = (start + end) / 2;
+        int value = data[mid];
+        if (value == k) {
+            return mid;
+        } else if (value < k) {
+            start = mid + 1;
+        } else {
+            end  = mid;
+        }
+    }
+    return -1;
+};
+            
+               
+ int maxProfit(vector<int> prices) {
+     int maxP = 0;
+     int curP = 0;
+     int r = 0;
+     int l = 0;
      
-     for (int i = 1; i < prices.size(); i++) {
-         minPrice = min(minPrice, prices[i]);
-         maxProfit = max(maxProfit, prices[i] - minPrice);
+     while (r!=prices.size()) {
+         if (prices[l] < prices[r]) {
+             curP = prices[r] - prices[l];
+             maxP = max(maxP, curP);
+         }
+         else  {
+             l = r;
+         }
      }
-     return maxProfit;
+     return maxP;
  }
+
+// kadanes style alt
+int maxProfit(vector<int>& prices) {
+    int minPrice = prices[0];
+    int maxProfit = 0;
+    
+    for (int i = 1; i < prices.size(); i++) {
+        minPrice = min(minPrice, prices[i]);
+        maxProfit = max(maxProfit, prices[i] - minPrice);
+    }
+    return maxProfit;
+}
+
+
+
+
+vector<int> sortedSquares(vector<int> input) {
+    int l = input.size() -1;
+    int r = 0;
+    vector<int> output;
+    
+    while (l<=r) {
+        int left = abs(input[l]);
+        int right = abs(input[r]);
+        if (left > r) {
+            output.push_back(left*left);
+            l+=1;
+        } else {
+            output.push_back(right*right);
+            r+=1;
+        }
+    }
+    return output;
+}
+
+
+
+std::vector<int> mergeSortHelper(std::vector<int> leftArr, std::vector<int> rightArr) {
+    // Initialize vector to hold our merged elements
+    std::vector<int> merged;
+    merged.reserve(leftArr.size() + rightArr.size());
+
+    // Indices to track position in each partition (avoids O(n) erase-from-front)
+    size_t i = 0, j = 0;
+
+    // Compare each array's values (pairwise, [x] vs. [y])
+    while (i < leftArr.size() && j < rightArr.size()) {
+        if (leftArr[i] > rightArr[j]) {
+            merged.push_back(rightArr[j++]);
+        } else {
+            merged.push_back(leftArr[i++]);
+        }
+    }
+
+    // Add straggling elements from left partition
+    while (i < leftArr.size()) {
+        merged.push_back(leftArr[i++]);
+    }
+
+    // Add straggling elements from right partition
+    while (j < rightArr.size()) {
+        merged.push_back(rightArr[j++]);
+    }
+
+    return merged;
+}
+
+std::vector<int> mergeSort(std::vector<int> data) {
+    // Return if we have a single element (or empty) input
+    if (data.size() <= 1) {
+        return data;
+    }
+
+    // Establish middle index for partitioning
+    size_t middleIdx = data.size() / 2;
+
+    // Create left/right partitioned vectors
+    std::vector<int> leftArr(data.begin(), data.begin() + middleIdx);
+    std::vector<int> rightArr(data.begin() + middleIdx, data.end());
+
+    // Sort left/right partitions recursively
+    std::vector<int> leftSorted = mergeSort(leftArr);
+    std::vector<int> rightSorted = mergeSort(rightArr);
+
+    // Return merged array
+    return mergeSortHelper(leftSorted, rightSorted);
+}
+
+void mergeSort(std::vector<int>& data) {
+    // Merge two already-sorted sub-sections of data:
+    //   [start, mid) and [mid, end)
+    auto merge = [&](size_t start, size_t mid, size_t end) {
+        // Accumulate sorted values here before copying back into place
+        std::vector<int> temp;
+        temp.reserve(end - start);
+
+        size_t left = start;
+        size_t right = mid;
+
+        // While either side still has data to merge
+        while (left < mid || right < end) {
+            // Choose the smallest available
+            if (right == end || (left < mid && data[left] <= data[right])) {
+                temp.push_back(data[left++]);
+            } else {
+                temp.push_back(data[right++]);
+            }
+        }
+
+        // Copy the sorted values back into place
+        for (size_t i = 0; i < temp.size(); i++) {
+            data[start + i] = temp[i];
+        }
+    };
+
+    // Core recursive helper. std::function lets the lambda reference itself.
+    std::function<void(size_t, size_t)> mergeSortRecursive = [&](size_t start, size_t end) {
+        // Fewer than two values — nothing to do
+        if (start + 2 > end) return;
+
+        // Find midpoint and recursively sort each half
+        size_t mid = (start + end) / 2;
+        mergeSortRecursive(start, mid);
+        mergeSortRecursive(mid, end);
+
+        // Merge the sorted sub-sections
+        merge(start, mid, end);
+    };
+
+    mergeSortRecursive(0, data.size());
+}
+
+
+struct TreeNode {
+     int value;
+     TreeNode* left;
+     TreeNode* right;
+     TreeNode(int v, TreeNode* l = nullptr, TreeNode* r = nullptr)
+         : value(v), left(l), right(r) {}
+};
+
+int treeHeight(TreeNode* root) {
+    // Empty tree has height 0 (or -1 depending on convention —
+    // this matches "number of nodes on longest root-to-leaf path")
+    if (!root) return 0;
+
+    return 1 + std::max(treeHeight(root->left), treeHeight(root->right));
+}
+
+struct LLNode {
+    int value;
+    LLNode* next;
+    LLNode* sublist;
+
+    LLNode(int v, LLNode* n = nullptr, LLNode* s = nullptr)
+        : value(v), next(n), sublist(s) {}
+};
+
+std::vector<int> flattenSublist(LLNode* inputList) {
+    std::vector<int> output;
+    if (!inputList) return output;
+
+    std::stack<LLNode*> stk;
+    stk.push(inputList);
+
+    while (!stk.empty()) {
+        LLNode* node = stk.top();
+        stk.pop();
+        if (!node) continue;
+
+        output.push_back(node->value);
+
+        // Push next first so sublist is processed first (LIFO)
+        if (node->next)    stk.push(node->next);
+        if (node->sublist) stk.push(node->sublist);
+    }
+
+    return output;
+}
+
+
+
+std::vector<std::pair<int, int>> mazeSolver(const std::vector<std::vector<char>>& maze) {
+    std::vector<std::pair<int, int>> path;
+    std::unordered_set<long long> visited;
+
+    // Directions: right, left, up, down (matching original)
+    const std::vector<std::pair<int, int>> directions = {
+        {1, 0}, {-1, 0}, {0, -1}, {0, 1}
+    };
+
+    if (maze.empty() || maze[0].empty()) return path;
+
+    const int rows = maze.size();
+    const int cols = maze[0].size();
+
+    // Pack (x, y) into a single key for the visited set
+    auto key = [cols](int x, int y) -> long long {
+        return static_cast<long long>(x) * 100000LL + y;
+    };
+
+    auto outOfBounds = [&](int x, int y) {
+        return x < 0 || x >= cols || y < 0 || y >= rows;
+    };
+
+    // Recursive lambda via generic self-reference trick
+    auto makeNextMoveFrom = [&](auto& self, int x, int y) -> bool {
+        if (outOfBounds(x, y) || visited.count(key(x, y))) {
+            return false;
+        }
+
+        // NOTE: original indexes maze[x][y] — preserving that convention.
+        // If maze is row-major (maze[row][col]), this is actually maze[x=col?][y=row?].
+        // The original JS has the same ambiguity; keeping behavior identical.
+        char cell = maze[x][y];
+
+        if (cell == 'G') return true;
+        if (cell == '_') return false;
+
+        path.push_back({x, y});
+        visited.insert(key(x, y));
+
+        for (const auto& [dx, dy] : directions) {
+            if (self(self, x + dx, y + dy)) {
+                return true;
+            }
+        }
+
+        path.pop_back();
+        return false;
+    };
+
+    makeNextMoveFrom(makeNextMoveFrom, 0, 0);
+    return path;
+}
+
+
+
+
+#ifdef LEETCODE_STANDALONE
+//Drill these tonight if you have more coding rounds coming:
+
+Kadane's (max subarray)
+Two pointers (container with most water, 3sum)
+Sliding window (longest substring without repeating chars)
+Prefix sum (subarray sum equals k)
+Stack monotonic (largest rectangle in histogra
+Binary search variations
+Hash map patterns (two sum, subarray sum)
                  
                  //Same pattern as Kadane's:
 
-                 Track running optimum (minPrice)
-                 Update global optimum (maxProfit)
-                 Single pass, O(n)
-                 The Family
-                 These are all variations of the same greedy pattern:
+ Track running optimum (minPrice)
+ Update global optimum (maxProfit)
+ Single pass, O(n)
+ The Family
+ These are all variations of the same greedy pattern:
 
-                 Max subarray (Kadane's)
-                 Max product subarray
-                 Buy/sell stock
-                 House robber
-                 Once you internalize Kadane's, these all click.
+ Max subarray (Kadane's)
+ Max product subarray
+ Buy/sell stock
+ House robber
+ Once you internalize Kadane's, these all click.
 
-                 Good catch - you're seeing the pattern connections.
+ Good catch - you're seeing the pattern connections.
 
 
 
 
                  
 
-                 Kadane's variants (1-2 hours)
+ Kadane's variants (1-2 hours)
 
-                 Max subarray sum
-                 Max product subarray
-                 Best time to buy/sell stock
-
-
-                 Sliding window (1-2 hours)
-
-                 Longest substring without repeating
-                 Minimum window substring
-                 Max consecutive ones
+ Max subarray sum
+ Max product subarray
+ Best time to buy/sell stock
 
 
-                 Hash map patterns (1-2 hours)
+ Sliding window (1-2 hours)
 
-                 Two sum
-                 Subarray sum equals k
-                 Longest consecutive sequence
+ Longest substring without repeating
+ Minimum window substring
+ Max consecutive ones
+
+
+ Hash map patterns (1-2 hours)
+
+ Two sum
+ Subarray sum equals k
+ Longest consecutive sequence
 
 #endif // LEETCODE_STANDALONE
+
+               
