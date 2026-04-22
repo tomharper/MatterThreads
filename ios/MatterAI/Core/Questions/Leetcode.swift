@@ -455,3 +455,22 @@ func sortedSquares(_ input: [Int]) -> [Int] {
     return output
 }
 
+
+actor EventBus {
+    private var handlers: [ObjectIdentifier: [(Any) async -> Void]] = [:]
+
+    func subscribe<E>(_ eventType: E.Type, handler: @escaping (E) async -> Void) {
+        let key = ObjectIdentifier(eventType)
+        handlers[key, default: []].append { event in
+            if let e = event as? E { await handler(e) }
+        }
+    }
+
+    func publish<E>(_ event: E) async {
+        let key = ObjectIdentifier(E.self)
+        guard let list = handlers[key] else { return }
+        for h in list {
+            await h(event)
+        }
+    }
+}

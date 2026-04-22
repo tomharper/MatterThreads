@@ -926,6 +926,7 @@ bool findDuplicate(vector<int>& arr) {
     return false;
 }
 
+
 bool isPalindromeAnagram(string str) {
     std::unordered_map<char, int> letters;
     int countOdd = 0;
@@ -1288,6 +1289,21 @@ std::vector<int> flattenSublist(LLNode* inputList) {
 }
 
 
+vector<int> productExceptSelf(vector<int> nums) {
+    vector<int> result;
+    int pre=1;
+    int post=1;
+    for (int i=0; i<nums.size(); i++) {
+        result[i] = pre;
+        pre = nums[i] * pre;
+    }
+    for (int i=(nums.size()-1); i>=0; i--) {
+        result[i] = result[i] * post;
+        post = nums[i] * post;
+    }
+    return result;
+};
+
 
 std::vector<std::pair<int, int>> mazeSolver(const std::vector<std::vector<char>>& maze) {
     std::vector<std::pair<int, int>> path;
@@ -1343,6 +1359,285 @@ std::vector<std::pair<int, int>> mazeSolver(const std::vector<std::vector<char>>
     return path;
 }
 
+
+    
+    
+#include <algorithm>
+#include <vector>
+using namespace std;
+
+vector<vector<char>> generatePassword(vector<char> letters, int minLen, int maxLen) {
+    vector<vector<char>> ret;
+    sort(letters.begin(), letters.end());
+
+    for (int len = minLen; len <= maxLen; len++) {
+        if (len > (int)letters.size()) break;
+
+        // Generate all permutations of size `len`:
+        // pick each combination of `len` letters, then permute it
+        vector<bool> mask(letters.size(), false);
+        fill(mask.end() - len, mask.end(), true);
+
+        do {
+            vector<char> combo;
+            for (int i = 0; i < (int)letters.size(); i++) {
+                if (mask[i]) combo.push_back(letters[i]);
+            }
+            // Now permute this combination
+            sort(combo.begin(), combo.end());
+            do {
+                ret.push_back(combo);
+            } while (next_permutation(combo.begin(), combo.end()));
+        } while (next_permutation(mask.begin(), mask.end()));
+    }
+
+    return ret;
+}
+    
+
+
+#include <vector>
+#include <string>
+#include <unordered_set>
+using namespace std;
+
+class NQueens {
+    vector<vector<string>> result;
+    vector<int> queenRow;  // queenRow[col] = row where queen is placed
+    unordered_set<int> rows, diag1, diag2;
+    int n;
+
+    void backtrack(int col) {
+        if (col == n) {
+            // All columns placed — build the board representation
+            vector<string> board(n, string(n, '.'));
+            for (int c = 0; c < n; c++) {
+                board[queenRow[c]][c] = 'Q';
+            }
+            result.push_back(board);
+            return;
+        }
+
+        for (int row = 0; row < n; row++) {
+            // Pruning: skip if this row or either diagonal is taken
+            if (rows.count(row)) continue;
+            if (diag1.count(row - col)) continue;
+            if (diag2.count(row + col)) continue;
+
+            // Place queen
+            queenRow[col] = row;
+            rows.insert(row);
+            diag1.insert(row - col);
+            diag2.insert(row + col);
+
+            backtrack(col + 1);
+
+            // Undo — the backtracking step
+            rows.erase(row);
+            diag1.erase(row - col);
+            diag2.erase(row + col);
+        }
+    }
+
+public:
+    vector<vector<string>> solveNQueens(int N) {
+        n = N;
+        queenRow.resize(n);
+        backtrack(0);
+        return result;
+    }
+};
+
+
+
+#include <vector>
+#include <string>
+#include <unordered_map>
+using namespace std;
+
+class AddOneCharacter {
+    vector<string> passwords;
+    vector<char> stack;
+    unordered_map<char, int> counts;
+    int minLength, maxLength;
+
+    void addOneCharacter(const vector<char>& characters) {
+        // Record if current length is in valid range
+        if ((int)stack.size() >= minLength && (int)stack.size() <= maxLength) {
+            passwords.emplace_back(stack.begin(), stack.end());
+        }
+
+        // Base case: hit max length, stop descending
+        if ((int)stack.size() == maxLength) return;
+
+        for (char c : characters) {
+            int count = counts[c];  // default-constructs to 0 if absent
+
+            // Two constraints:
+            //   1. Not the same as the last character placed
+            //   2. Used fewer than 2 times so far
+            bool notConsecutive = stack.empty() || stack.back() != c;
+            bool underLimit = count < 2;
+
+            if (notConsecutive && underLimit) {
+                stack.push_back(c);
+                counts[c]++;
+
+                addOneCharacter(characters);
+
+                // Undo
+                counts[c]--;
+                stack.pop_back();
+            }
+        }
+    }
+
+public:
+    vector<string> generatePassword(vector<char> characters, int minLen, int maxLen) {
+        minLength = minLen;
+        maxLength = maxLen;
+        addOneCharacter(characters);
+        return passwords;
+    }
+};
+
+
+/*
+ If you can reframe the problem as "at each step I pick one thing from a set of options, and my future choices depend on what I picked," you're looking at backtracking.
+ Concrete keyword/shape triggers:
+
+ "Generate all..." — all permutations, all combinations, all subsets, all valid strings, all paths, all arrangements. The plural output is a dead giveaway.
+ "Find a valid..." — a valid sudoku, a valid word break, a valid placement of N queens, a valid coloring. Single output but requires trying assignments and undoing them.
+ Constraints that can be checked incrementally — "no two queens on the same diagonal," "parentheses must balance," "sum must equal target." You can reject a partial solution before completing it, which is what makes backtracking efficient vs. brute force enumeration.
+ Problem involves a small-ish decision tree — at each step you have a handful of choices (place a queen, pick a letter, include/exclude an element), and the tree depth is bounded.
+ "With/without replacement," "in any order," "subject to constraint..." — phrasing that implies exploring an arrangement space.
+
+ Canonical backtracking problem families:
+
+ Permutations — LC 46, 47 (order matters, use each once)
+ Combinations — LC 77, 39, 40 (order doesn't matter, subset of input)
+ Subsets / Power set — LC 78, 90 (include or exclude each element)
+ Partitioning — LC 131 (palindrome partition), 93 (restore IP addresses)
+ Grid search — LC 79 (word search), 212 (word search II), 51 (N-Queens), 37 (Sudoku)
+ Combinatorial search — LC 22 (generate parentheses), 17 (letter combinations of phone)
+ Path enumeration — all paths from A to B with constraints
+ */
+
+    
+#include <vector>
+#include <unordered_set>
+using namespace std;
+
+class BacktrackingPermutations {
+    vector<vector<char>> ret;
+    vector<char> current;
+    unordered_set<char> used;
+
+    void backtrack(const vector<char>& letters, int minLen, int maxLen) {
+        if ((int)current.size() >= minLen) {
+            ret.push_back(current);
+        }
+        if ((int)current.size() == maxLen) return;
+
+        for (char c : letters) {
+            if (used.count(c)) continue;
+
+            current.push_back(c);
+            used.insert(c);
+
+            backtrack(letters, minLen, maxLen);
+
+            current.pop_back();
+            used.erase(c);
+        }
+    }
+
+public:
+    vector<vector<char>> generatePassword(vector<char> letters, int minLen, int maxLen) {
+        if ((int)letters.size() < minLen) return ret;
+        backtrack(letters, minLen, maxLen);
+        return ret;
+    }
+};
+    
+#include <vector>
+#include <string>
+#include <unordered_set>
+using namespace std;
+
+class Solution {
+    vector<vector<string>> finalBoard;
+    unordered_set<int> cols, diagonals, antiDiagonals;
+    vector<string> board;
+    int n;
+
+    void backtrack(int row) {
+        if (row == n) {
+            finalBoard.push_back(board);
+            return;
+        }
+
+        for (int col = 0; col < n; col++) {
+            int diag = row - col;
+            int antiDiag = row + col;
+
+            if (cols.count(col) || diagonals.count(diag) || antiDiagonals.count(antiDiag))
+                continue;
+
+            // Place
+            cols.insert(col);
+            diagonals.insert(diag);
+            antiDiagonals.insert(antiDiag);
+            board[row][col] = 'Q';
+
+            backtrack(row + 1);
+
+            // Remove
+            cols.erase(col);
+            diagonals.erase(diag);
+            antiDiagonals.erase(antiDiag);
+            board[row][col] = '.';
+        }
+    }
+
+public:
+    vector<vector<string>> solveNQueens(int N) {
+        n = N;
+        board = vector<string>(n, string(n, '.'));
+        backtrack(0);
+        return finalBoard;
+    }
+};
+/*
+ 
+ recursive_func(state) {
+     if (terminal condition) { record or return }
+     for (each choice) {
+         if (invalid) continue          // pruning
+         save(choice)                   // modify state
+         recursive_func(state)          // descend
+         unsave(choice)                 // undo
+     }
+ }
+ 
+ For N ≤ 32 (or 64), replace the three unordered_set<int> with three int (or long) bitmasks. Set operations become bitwise OR/AND, conflict check is one bitwise AND. This is ~10-20x faster in practice:*/
+*/
+void backtrack(int col, int rowMask, int d1Mask, int d2Mask) {
+     if (col == n) { return; }
+
+     int available = ((1 << n) - 1) & ~(rowMask | d1Mask | d2Mask);
+     while (available) {
+         int pick = available & -available;  // lowest set bit
+         available ^= pick;                   // remove it
+         int row = __builtin_ctz(pick);       // bit index → row number
+
+         queenRow[col] = row;
+         backtrack(col + 1,
+                   rowMask | pick,
+                   (d1Mask | pick) << 1,    // shift diagonals for next col
+                   (d2Mask | pick) >> 1);
+     }
+ }
 
 
 
@@ -1401,3 +1696,235 @@ Hash map patterns (two sum, subarray sum)
 #endif // LEETCODE_STANDALONE
 
                
+               
+               
+               
+               
+bool isSudokuValid(vector<vector<int>> sudoku) {
+     
+ };
+
+//monotonic stack problem
+//               Sequence of choices? No — each output is determined by the input
+//               Choices affect future options? No
+//               Need to explore multiple branches? No
+               
+
+#include <vector>
+#include <stack>
+using namespace std;
+
+vector<int> daysToHigherTemp(vector<int>& dailyHighs) {
+    int n = dailyHighs.size();
+    vector<int> result(n, 0);
+    stack<int> waiting;  // indices of days still waiting for a hotter day
+
+    for (int i = 0; i < n; i++) {
+        // Today resolves any waiting day cooler than today
+        while (!waiting.empty() && dailyHighs[waiting.top()] < dailyHighs[i]) {
+            int prevIdx = waiting.top();
+            waiting.pop();
+            result[prevIdx] = i - prevIdx;  // distance forward
+        }
+        waiting.push(i);
+    }
+
+    // Anything left on the stack never found a hotter day — result stays 0
+    return result;
+ };
+
+               
+               
+               
+vector<int> daysToHigherTemp(vector<int>& dailyHighs) {
+   int n = dailyHighs.size();
+   vector<int> output(n, 0);
+
+   for (int day = 0; day < n; day++) {
+       int highTemp = dailyHighs[day];
+
+       // Look forward for a hotter day
+       for (int i = day + 1; i < n; i++) {
+           if (dailyHighs[i] > highTemp) {
+               output[day] = i - day;
+               break;
+           }
+       }
+       // If no hotter day found, output[day] stays 0 (from initialization)
+   }
+
+   return output;
+ };
+
+               
+               
+               
+               class ParseCodes {
+     vector<string, int> codes;
+     vector<char> queue;
+     int maxlen = 0;
+     ParseCodes(unordered_map<string, int> input) {
+         codes=input;
+         for (auto pair: input) {
+             if (pair.first.size()>maxlen) {
+                 maxlen =pair.first.size();
+             }
+         }
+     }
+     virtual ~ParseCodes() {
+         
+     }
+     int encode(string str) {
+         if (codes.contains(str)) {
+             return codes[str];
+         }
+     }
+     int encode(char s) {
+         queue.push_back(s);
+         string str(queue.data(), queue.size());
+         if (codes.contains(str)) {
+             queue.clear();
+             return codes[str];
+         } else {
+             if (queue.size()>maxlen) {
+                 queue.top();
+                 return -1;
+             }
+         }
+         
+     }
+     
+     
+     int encode2(char s) {
+         queue.push_back(s);
+         string str(queue.begin(), queue.end());
+         
+         if (codes.count(str)) {
+             int val = codes[str];
+             queue.clear();
+             return val;
+         }
+         
+         // Check if `str` is a prefix of any code
+         bool isPrefix = false;
+         for (const auto& [code, _] : codes) {
+             if (code.size() > str.size() &&
+                 code.compare(0, str.size(), str) == 0) {
+                 isPrefix = true;
+                 break;
+             }
+         }
+         
+         if (!isPrefix) {
+             queue.clear();
+             return -2;  // invalid stream
+         }
+         
+         return -1;  // still buffering
+     }
+ };
+               
+
+vector<vector<int>> kClosest(vector<vector<int>>& points, int k) {
+   // Max-heap ordered by squared distance
+   // pair: {squared_distance, index_into_points}
+   priority_queue<pair<int, int>> maxHeap;
+
+   for (int i = 0; i < (int)points.size(); i++) {
+       int x = points[i][0], y = points[i][1];
+       int distSq = x * x + y * y;
+
+       if ((int)maxHeap.size() < k) {
+           maxHeap.push({distSq, i});
+       } else if (distSq < maxHeap.top().first) {
+           maxHeap.pop();
+           maxHeap.push({distSq, i});
+       }
+   }
+
+   vector<vector<int>> result;
+   result.reserve(k);
+   while (!maxHeap.empty()) {
+       result.push_back(points[maxHeap.top().second]);
+       maxHeap.pop();
+   }
+   return result;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+#include <queue>
+#include <vector>
+#include <string>
+#include <unordered_map>
+#include <memory>
+using namespace std;
+
+struct Node {
+    int freq;
+    char ch;              // only meaningful for leaves
+    Node* left;
+    Node* right;
+
+    Node(int f, char c) : freq(f), ch(c), left(nullptr), right(nullptr) {}
+    Node(int f, Node* l, Node* r) : freq(f), ch('\0'), left(l), right(r) {}
+
+    bool isLeaf() const { return !left && !right; }
+};
+
+struct Compare {
+    bool operator()(Node* a, Node* b) {
+        return a->freq > b->freq;  // min-heap: smallest freq on top
+    }
+};
+
+Node* buildHuffman(const unordered_map<char, int>& freqs) {
+    priority_queue<Node*, vector<Node*>, Compare> pq;
+
+    // Seed the heap with one leaf per character
+    for (auto& [ch, f] : freqs) {
+        pq.push(new Node(f, ch));
+    }
+
+    // Edge case: single unique character
+    if (pq.size() == 1) {
+        Node* only = pq.top(); pq.pop();
+        return new Node(only->freq, only, nullptr);
+    }
+
+    // Merge two smallest until one tree remains
+    while (pq.size() > 1) {
+        Node* a = pq.top(); pq.pop();
+        Node* b = pq.top(); pq.pop();
+        pq.push(new Node(a->freq + b->freq, a, b));
+    }
+
+    return pq.top();
+}
+
+// Walk the tree to extract codes
+void generateCodes(Node* node, const string& path, unordered_map<char, string>& codes) {
+    if (!node) return;
+    if (node->isLeaf()) {
+        codes[node->ch] = path.empty() ? "0" : path;  // single-char edge case
+        return;
+    }
+    generateCodes(node->left, path + "0", codes);
+    generateCodes(node->right, path + "1", codes);
+}
+
+unordered_map<char, string> huffmanCodes(const unordered_map<char, int>& freqs) {
+    Node* root = buildHuffman(freqs);
+    unordered_map<char, string> codes;
+    generateCodes(root, "", codes);
+    return codes;
+}
