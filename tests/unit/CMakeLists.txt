@@ -1,6 +1,7 @@
 add_executable(mt_tests
     TestTLV.cpp
     TestRouting.cpp
+    TestPathTracer.cpp
     TestChannel.cpp
     TestInteractionModel.cpp
     TestFaultInjector.cpp

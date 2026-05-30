@@ -449,22 +449,25 @@
 				CODE_SIGN_ENTITLEMENTS = MatterAI/MatterAI.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 854EG2656Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/MatterAI/Core",
 					"$(SRCROOT)/MatterAI/Bridge",
 				);
 				INFOPLIST_FILE = MatterAI/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Matter AI";
+				INFOPLIST_KEY_NSHomeKitUsageDescription = "MatterAI integrates with HomeKit to discover and control your smart home devices.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "MatterAI needs local network access to discover and control Matter devices.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.matterai.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.matterai.dth.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "MatterAI/MatterAI-Bridging-Header.h";
@@ -481,22 +484,25 @@
 				CODE_SIGN_ENTITLEMENTS = MatterAI/MatterAI.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 854EG2656Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/MatterAI/Core",
 					"$(SRCROOT)/MatterAI/Bridge",
 				);
 				INFOPLIST_FILE = MatterAI/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Matter AI";
+				INFOPLIST_KEY_NSHomeKitUsageDescription = "MatterAI integrates with HomeKit to discover and control your smart home devices.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "MatterAI needs local network access to discover and control Matter devices.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.matterai.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.matterai.dth.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "MatterAI/MatterAI-Bridging-Header.h";

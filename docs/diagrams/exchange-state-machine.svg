@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 720" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+    <marker id="ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#ea580c"/>
+    </marker>
+    <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+    <filter id="sh" x="-10%" y="-10%" width="120%" height="135%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.18"/>
+    </filter>
+    <style>
+      .title { font-size: 25px; font-weight: 700; fill: #0f172a; }
+      .sub   { font-size: 14px; fill: #475569; }
+      .st    { font-size: 15px; font-weight: 700; fill: #0f172a; }
+      .sts   { font-size: 11px; fill: #475569; font-family: SFMono-Regular, Menlo, Consolas, monospace; }
+      .lbl   { font-size: 11px; fill: #334155; }
+      .act   { font-size: 10.5px; fill: #1e40af; font-family: SFMono-Regular, Menlo, Consolas, monospace; }
+      . orng { fill:#ea580c; }
+      .keyT  { font-size: 14px; font-weight: 700; fill: #92400e; }
+      .keyB  { font-size: 12px; fill: #422006; }
+      .mono  { font-family: SFMono-Regular, Menlo, Consolas, monospace; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1240" height="720" fill="#f8fafc"/>
+  <text x="40" y="42" class="title">Exchange lifecycle — one Matter Invoke command</text>
+  <text x="40" y="66" class="sub">States of a single ExchangeEntry. Solid = real MRP. Dashed orange = what the current sim actually does (response IS the ack).</text>
+
+  <!-- ===== shortcut arc (current sim): AWAITING_ACK -> COMPLETED ===== -->
+  <path d="M375,205 C 375,92 1085,92 1085,205" fill="none" stroke="#ea580c" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ao)"/>
+  <text x="730" y="86" text-anchor="middle" class="lbl orng" font-weight="700">CURRENT SIM: InvokeResponse arrives first &#8594; response implicitly acks (no standalone-ack state)</text>
+  <text x="730" y="101" text-anchor="middle" class="act orng">onMessageReceived(): awaiting_response=false; on_response()</text>
+
+  <!-- ===== self-loops ===== -->
+  <!-- retransmit on AWAITING_ACK -->
+  <path d="M425,205 C 425,160 475,160 475,205" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
+  <text x="450" y="146" text-anchor="middle" class="lbl">retransmit</text>
+  <text x="450" y="160" text-anchor="middle" class="act">[timeout &amp; count&lt;MAX] / ++count; resend</text>
+  <!-- dedup on AWAITING_RESPONSE -->
+  <path d="M755,205 C 755,160 805,160 805,205" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
+  <text x="780" y="146" text-anchor="middle" class="lbl">dedup</text>
+  <text x="780" y="160" text-anchor="middle" class="act">[counter &#8804; last_seen] / drop</text>
+
+  <!-- ===== start dot ===== -->
+  <circle cx="58" cy="233" r="9" fill="#0f172a"/>
+  <line x1="67" y1="233" x2="100" y2="233" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- ===== INITIATED ===== -->
+  <g filter="url(#sh)"><rect x="100" y="200" width="150" height="66" rx="10" fill="#eef2ff" stroke="#6366f1" stroke-width="1.6"/></g>
+  <text x="175" y="228" text-anchor="middle" class="st">INITIATED</text>
+  <text x="175" y="248" text-anchor="middle" class="sts">initiateExchange()</text>
+
+  <!-- INITIATED -> AWAITING_ACK -->
+  <line x1="250" y1="233" x2="360" y2="233" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
+  <text x="305" y="210" text-anchor="middle" class="lbl">send</text>
+  <text x="305" y="224" text-anchor="middle" class="act">sent_time=now; flags=true</text>
+
+  <!-- ===== AWAITING_ACK ===== -->
+  <g filter="url(#sh)"><rect x="360" y="200" width="180" height="66" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="1.6"/></g>
+  <text x="450" y="228" text-anchor="middle" class="st">AWAITING_ACK</text>
+  <text x="450" y="248" text-anchor="middle" class="sts">awaiting_ack=true</text>
+
+  <!-- AWAITING_ACK -> AWAITING_RESPONSE -->
+  <line x1="540" y1="233" x2="680" y2="233" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
+  <text x="610" y="208" text-anchor="middle" class="lbl">standalone ACK [counter &#10003;]</text>
+  <text x="610" y="222" text-anchor="middle" class="act">awaiting_ack=false &#183; STOP retransmit</text>
+
+  <!-- ===== AWAITING_RESPONSE ===== -->
+  <g filter="url(#sh)"><rect x="680" y="200" width="200" height="66" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="1.6"/></g>
+  <text x="780" y="228" text-anchor="middle" class="st">AWAITING_RESPONSE</text>
+  <text x="780" y="248" text-anchor="middle" class="sts">awaiting_response=true</text>
+
+  <!-- AWAITING_RESPONSE -> COMPLETED -->
+  <line x1="880" y1="233" x2="1000" y2="233" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
+  <text x="940" y="208" text-anchor="middle" class="lbl">InvokeResponse [counter&gt;last]</text>
+  <text x="940" y="222" text-anchor="middle" class="act">on_response()</text>
+
+  <!-- ===== COMPLETED (terminal) ===== -->
+  <g filter="url(#sh)"><rect x="1000" y="198" width="172" height="70" rx="12" fill="#f0fdf4" stroke="#16a34a" stroke-width="2.2"/></g>
+  <rect x="1006" y="204" width="160" height="58" rx="9" fill="none" stroke="#16a34a" stroke-width="1"/>
+  <text x="1086" y="230" text-anchor="middle" class="st" fill="#166534">COMPLETED</text>
+  <text x="1086" y="250" text-anchor="middle" class="sts">&#10003; acked + answered</text>
+
+  <!-- AWAITING_ACK -> TIMED_OUT -->
+  <line x1="450" y1="266" x2="450" y2="450" stroke="#dc2626" stroke-width="2" marker-end="url(#a)"/>
+  <text x="462" y="338" class="lbl" fill="#b91c1c">[timeout &amp; count==MAX]</text>
+  <text x="462" y="354" class="act" fill="#b91c1c">on_timeout()</text>
+
+  <!-- ===== TIMED_OUT (terminal) ===== -->
+  <g filter="url(#sh)"><rect x="358" y="450" width="184" height="66" rx="12" fill="#fef2f2" stroke="#dc2626" stroke-width="2.2"/></g>
+  <text x="450" y="478" text-anchor="middle" class="st" fill="#b91c1c">TIMED_OUT</text>
+  <text x="450" y="498" text-anchor="middle" class="sts">= MrpTimeout (layer &#9314;)</text>
+
+  <!-- AWAITING_RESPONSE -> TIMED_OUT (optional, dashed) -->
+  <path d="M780,266 C 780,400 640,483 542,483" fill="none" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#ag)"/>
+  <text x="690" y="430" text-anchor="middle" class="lbl" fill="#64748b">app response timeout (optional)</text>
+
+  <!-- ===== KEY BOX ===== -->
+  <rect x="40" y="548" width="1132" height="146" rx="12" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.4"/>
+  <text x="62" y="576" class="keyT">How to read it</text>
+  <text x="62" y="602" class="keyB">&#8226;  <tspan font-weight="700">Today the sim has no AWAITING_ACK state.</tspan>  The orange dashed arc is the only path: <tspan class="mono">onMessageReceived</tspan> clears one flag, so the InvokeResponse <tspan font-style="italic">is</tspan> the ack (Exchange.cpp:38).</text>
+  <text x="62" y="624" class="keyB">&#8226;  <tspan font-weight="700">Real MRP splits the middle.</tspan>  A standalone ack moves ACK&#8594;RESPONSE and stops retransmit in ms; the reply (clears <tspan class="mono">awaiting_response</tspan>) can land seconds later.</text>
+  <text x="62" y="646" class="keyB">&#8226;  <tspan font-weight="700">Retransmit</tspan> is the self-loop on AWAITING_ACK (real) / on AWAITING_RESPONSE (today). 3 tries, then TIMED_OUT &#8594; <tspan class="mono">on_timeout()</tspan> (Exchange.cpp:71).</text>
+  <text x="62" y="668" class="keyB">&#8226;  <tspan font-weight="700">The dedup self-loop needs a msg-counter the sim lacks</tspan> — a duplicate retransmit would re-fire <tspan class="mono">on_response()</tspan> today.  TIMED_OUT here = the MrpTimeout locus in the layer diagram.</text>
+</svg>

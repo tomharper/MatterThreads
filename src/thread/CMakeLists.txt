@@ -3,6 +3,7 @@ add_library(mt_thread STATIC
     MeshTopology.cpp
     MLE.cpp
     Routing.cpp
+    PathTracer.cpp
     AddressManager.cpp
     Leader.cpp
     ChildTable.cpp

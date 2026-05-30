@@ -48,6 +48,13 @@ LinkParams Broker::getLinkParams(NodeId from, NodeId to) const {
     return LinkParams{};
 }
 
+Broker::LinkStat Broker::linkStat(NodeId from, NodeId to) const {
+    if (from < MAX_NODES && to < MAX_NODES) {
+        return link_stats_[from][to];
+    }
+    return LinkStat{};
+}
+
 void Broker::applyTopology(const MeshTopology& topology) {
     for (size_t i = 0; i < MAX_NODES; ++i) {
         for (size_t j = 0; j < MAX_NODES; ++j) {
@@ -205,6 +212,7 @@ void Broker::forwardFrame(NodeId src, MacFrame frame) {
 
         if (!channel_decision.deliver) {
             ++frames_dropped_;
+            ++link_stats_[src][dst].dropped;
             continue;
         }
 
@@ -212,8 +220,14 @@ void Broker::forwardFrame(NodeId src, MacFrame frame) {
         auto fault_decision = fault_injector_.applyFaults(src, dst, frame_copy, now);
         if (!fault_decision.deliver) {
             ++frames_dropped_;
+            ++link_stats_[src][dst].dropped;
             continue;
         }
+
+        // Passed the link model — attribute the forward to this link. (Global
+        // frames_forwarded_ is counted at actual delivery in deliverToNode;
+        // this per-link tally counts link traversal, including delayed frames.)
+        ++link_stats_[src][dst].forwarded;
 
         // Stamp LQI/RSSI
         frame_copy.lqi = fault_decision.delivered_lqi > 0 ?

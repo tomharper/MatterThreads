@@ -54,6 +54,16 @@ public:
     uint64_t framesForwarded() const { return frames_forwarded_; }
     uint64_t framesDropped() const { return frames_dropped_; }
 
+    // Per-link counters: how many frames passed vs were dropped by the link
+    // model on the directed link from->to. This is the broker's ground-truth
+    // basis for loss localization (the diagnostic-counter-differencing the
+    // diagram shows: a link's drops are attributable, not just global).
+    struct LinkStat {
+        uint64_t forwarded = 0;  // frames that passed the channel + fault model
+        uint64_t dropped = 0;    // frames the link dropped
+    };
+    LinkStat linkStat(NodeId from, NodeId to) const;
+
 private:
     void acceptConnections();
     void processIncoming(size_t node_idx);
@@ -79,6 +89,9 @@ private:
     bool running_ = false;
     uint64_t frames_forwarded_ = 0;
     uint64_t frames_dropped_ = 0;
+
+    // Per-link [src][dst] forward/drop counters (see linkStat()).
+    std::array<std::array<LinkStat, MAX_NODES>, MAX_NODES> link_stats_{};
 };
 
 } // namespace mt

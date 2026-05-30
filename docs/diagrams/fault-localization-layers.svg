@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 1000" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.18"/>
+    </filter>
+    <style>
+      .title  { font-size: 26px; font-weight: 700; fill: #0f172a; }
+      .sub    { font-size: 14px; fill: #475569; }
+      .colhdr { font-size: 12px; font-weight: 700; fill: #64748b; letter-spacing: 1px; }
+      .nodeT  { font-size: 14px; font-weight: 700; fill: #0f172a; }
+      .nodeS  { font-size: 12px; fill: #334155; }
+      .mono   { font-size: 11.5px; fill: #334155; font-family: SFMono-Regular, Menlo, Consolas, monospace; }
+      .faultN { font-size: 13px; font-weight: 700; fill: #b91c1c; font-family: SFMono-Regular, Menlo, Consolas, monospace; }
+      .faultS { font-size: 11.5px; fill: #7f1d1d; }
+      .pass   { font-size: 12px; font-style: italic; font-weight: 600; fill: #15803d; }
+      .keyT   { font-size: 15px; font-weight: 700; fill: #92400e; }
+      .keyB   { font-size: 12.5px; fill: #422006; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1240" height="1000" fill="#f8fafc"/>
+
+  <!-- Title -->
+  <text x="40" y="44" class="title">Where did the command die?</text>
+  <text x="40" y="68" class="sub">Layer bisection for a Matter-over-Thread fleet command — no end-to-end trace ID, so localize by which layer's native signal fired.</text>
+
+  <!-- Column headers -->
+  <text x="80"  y="104" class="colhdr">DECISION</text>
+  <text x="470" y="104" class="colhdr">FAULT LOCUS (if the check fails)</text>
+  <text x="820" y="104" class="colhdr">FINGERPRINT / CODE SITE</text>
+
+  <!-- ============ Spine connectors ============ -->
+  <line x1="235" y1="188" x2="235" y2="204" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="246" y="200" class="pass">&#10003; session on this fabric</text>
+
+  <line x1="235" y1="276" x2="235" y2="296" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="246" y="291" class="pass">&#10003; same Thread network</text>
+
+  <line x1="235" y1="396" x2="235" y2="420" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="246" y="412" class="pass">&#10003; Connected — on the wire</text>
+
+  <line x1="235" y1="486" x2="235" y2="510" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="246" y="502" class="pass">&#10003; dispatched</text>
+
+  <line x1="235" y1="576" x2="235" y2="600" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="246" y="592" class="pass">&#10003; ack + response</text>
+
+  <line x1="235" y1="666" x2="235" y2="700" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="246" y="688" class="pass">&#10003; frame delivered</text>
+
+  <!-- ============ Branch connectors (decision -> fault) ============ -->
+  <line x1="400" y1="152" x2="470" y2="152" stroke="#dc2626" stroke-width="1.6" marker-end="url(#arrowRed)"/>
+  <line x1="400" y1="240" x2="470" y2="240" stroke="#dc2626" stroke-width="1.6" marker-end="url(#arrowRed)"/>
+  <line x1="400" y1="363" x2="470" y2="363" stroke="#dc2626" stroke-width="1.6" marker-end="url(#arrowRed)"/>
+  <line x1="400" y1="453" x2="470" y2="453" stroke="#dc2626" stroke-width="1.6" marker-end="url(#arrowRed)"/>
+  <line x1="400" y1="543" x2="470" y2="543" stroke="#dc2626" stroke-width="1.6" marker-end="url(#arrowRed)"/>
+  <line x1="400" y1="633" x2="470" y2="633" stroke="#dc2626" stroke-width="1.6" marker-end="url(#arrowRed)"/>
+  <text x="404" y="146" class="pass" fill="#dc2626" font-style="italic">fail</text>
+  <text x="404" y="234" class="pass" fill="#dc2626" font-style="italic">fail</text>
+  <text x="404" y="357" class="pass" fill="#dc2626" font-style="italic">fail</text>
+  <text x="404" y="447" class="pass" fill="#dc2626" font-style="italic">fail</text>
+  <text x="404" y="537" class="pass" fill="#dc2626" font-style="italic">fail</text>
+  <text x="404" y="627" class="pass" fill="#dc2626" font-style="italic">fail</text>
+
+  <!-- ============ LAYER 0a — FABRIC ============ -->
+  <g filter="url(#shadow)">
+    <rect x="70" y="116" width="330" height="72" rx="9" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5"/>
+    <rect x="70" y="116" width="7" height="72" rx="3" fill="#6366f1"/>
+  </g>
+  <text x="90" y="138" class="nodeT">LAYER 0a &#183; FABRIC (multi-admin)</text>
+  <text x="90" y="157" class="nodeS">Which fabric issued it? Does the device hold a</text>
+  <text x="90" y="173" class="nodeS">live CASE session on THIS fabric?</text>
+
+  <rect x="470" y="122" width="320" height="60" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1.3"/>
+  <text x="484" y="146" class="faultN">NotCommissionedOnFabric</text>
+  <text x="484" y="166" class="faultS">Fabric-local fault — the mesh is fine.</text>
+
+  <rect x="820" y="122" width="390" height="60" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="832" y="141" class="mono">Reachable on another fabric (Apple &#10003; / Google &#10007;)</text>
+  <text x="832" y="156" class="mono">Separate root CA &#183; ACL &#183; per-fabric node-id</text>
+  <text x="832" y="174" class="mono">fabrics.hasDevice(fabric, van) == false</text>
+
+  <!-- ============ LAYER 0b — BORDER ROUTER ============ -->
+  <g filter="url(#shadow)">
+    <rect x="70" y="204" width="330" height="72" rx="9" fill="#f0fdfa" stroke="#0d9488" stroke-width="1.5"/>
+    <rect x="70" y="204" width="7" height="72" rx="3" fill="#0d9488"/>
+  </g>
+  <text x="90" y="226" class="nodeT">LAYER 0b &#183; BORDER ROUTER</text>
+  <text x="90" y="245" class="nodeS">Which BR do we egress through? Is the device on</text>
+  <text x="90" y="261" class="nodeS">the SAME Thread network as our BR?</text>
+
+  <rect x="470" y="210" width="320" height="60" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1.3"/>
+  <text x="484" y="234" class="faultN">BorderRouterPartition</text>
+  <text x="484" y="254" class="faultS">Try another BR before blaming the mesh.</text>
+
+  <rect x="820" y="210" width="390" height="60" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="832" y="229" class="mono">Another BR reaches it &#8594; not a dead device</text>
+  <text x="832" y="244" class="mono">No Thread credential sharing &#8594; islanded nets</text>
+  <text x="832" y="262" class="mono">thread.egressBorderRouter(node)</text>
+
+  <!-- ============ Divider ============ -->
+  <line x1="40" y1="308" x2="1200" y2="308" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 4"/>
+  <text x="40" y="324" class="sub" font-weight="700" fill="#1e293b">Now: did it leave the gateway? — the four surfaces (gateway-side faults short-circuit here)</text>
+
+  <!-- ============ SURFACE 1 — GATEWAY SESSION ============ -->
+  <g filter="url(#shadow)">
+    <rect x="70" y="333" width="330" height="63" rx="9" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+    <rect x="70" y="333" width="7" height="63" rx="3" fill="#2563eb"/>
+  </g>
+  <text x="90" y="357" class="nodeT">&#9312; GATEWAY SESSION</text>
+  <text x="90" y="378" class="mono">sessions.sessionState(fabric, van)</text>
+
+  <rect x="470" y="333" width="320" height="60" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1.3"/>
+  <text x="484" y="357" class="faultN">GatewaySession &#8212; never sent</text>
+  <text x="484" y="377" class="faultS">Command did not reach the wire.</text>
+
+  <rect x="820" y="333" width="390" height="60" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="832" y="356" class="mono">CommandRelay::checkConnected</text>
+  <text x="832" y="374" class="mono">success=false, msg "van not connected ("</text>
+
+  <!-- ============ SURFACE 2 — DRIVER ============ -->
+  <g filter="url(#shadow)">
+    <rect x="70" y="423" width="330" height="63" rx="9" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+    <rect x="70" y="423" width="7" height="63" rx="3" fill="#2563eb"/>
+  </g>
+  <text x="90" y="447" class="nodeT">&#9313; GATEWAY &#8594; DEVICE DRIVER</text>
+  <text x="90" y="468" class="mono">driver_-&gt;invokeCommand</text>
+
+  <rect x="470" y="423" width="320" height="60" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1.3"/>
+  <text x="484" y="447" class="faultN">GatewayDriver</text>
+  <text x="484" y="467" class="faultS">Session up; dispatch to device failed.</text>
+
+  <rect x="820" y="423" width="390" height="60" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="832" y="446" class="mono">success=false + chip-tool error string</text>
+  <text x="832" y="464" class="mono">CommandRelay.cpp:26</text>
+
+  <!-- ============ SURFACE 3 — MRP / EXCHANGE ============ -->
+  <g filter="url(#shadow)">
+    <rect x="70" y="513" width="330" height="63" rx="9" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+    <rect x="70" y="513" width="7" height="63" rx="3" fill="#2563eb"/>
+  </g>
+  <text x="90" y="537" class="nodeT">&#9314; MRP / EXCHANGE</text>
+  <text x="90" y="558" class="mono">awaiting_ack vs awaiting_response</text>
+
+  <rect x="470" y="513" width="320" height="60" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1.3"/>
+  <text x="484" y="537" class="faultN">MrpTimeout</text>
+  <text x="484" y="557" class="faultS">Route healthy, no reply &#8594; device/transit.</text>
+
+  <rect x="820" y="513" width="390" height="60" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="832" y="536" class="mono">Exchange.cpp:71  "Exchange N timed out"</text>
+  <text x="832" y="554" class="mono">after MAX_RETRANSMITS=3</text>
+
+  <!-- ============ SURFACE 4 — THREAD RADIO / ROUTING ============ -->
+  <g filter="url(#shadow)">
+    <rect x="70" y="603" width="330" height="63" rx="9" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+    <rect x="70" y="603" width="7" height="63" rx="3" fill="#2563eb"/>
+  </g>
+  <text x="90" y="627" class="nodeT">&#9315; THREAD RADIO / ROUTING</text>
+  <text x="90" y="648" class="mono">RoutingTable + SelfHealingEngine</text>
+
+  <rect x="470" y="603" width="320" height="60" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1.3"/>
+  <text x="484" y="627" class="faultN">ThreadRouting / ThreadRadio</text>
+  <text x="484" y="647" class="faultS">Mesh structure / link is the fault.</text>
+
+  <rect x="820" y="603" width="390" height="60" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="832" y="626" class="mono">frames_dropped_++  &#183;  reachable=false</text>
+  <text x="832" y="644" class="mono">NeighborLost / PartitionDetected</text>
+
+  <!-- ============ SUCCESS ============ -->
+  <g filter="url(#shadow)">
+    <rect x="70" y="700" width="330" height="50" rx="9" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.8"/>
+  </g>
+  <text x="235" y="731" text-anchor="middle" class="nodeT" fill="#166534">&#10003; COMMAND ACKED AND ANSWERED</text>
+
+  <!-- ============ KEY / RULE BOX ============ -->
+  <rect x="40" y="785" width="1170" height="180" rx="12" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.4"/>
+  <text x="62" y="814" class="keyT">Bisection rule (say this out loud)</text>
+  <text x="62" y="844" class="keyB">&#8226;  Layer 0 can show a device <tspan font-weight="700">healthy on one path and dead on another</tspan> — rule out fabric-local and BR-partition faults BEFORE touching MRP/radio,</text>
+  <text x="80" y="864" class="keyB">otherwise you debug a mesh that isn't even broken.</text>
+  <text x="62" y="892" class="keyB">&#8226;  The line between <tspan font-style="italic">"gateway"</tspan> and <tspan font-style="italic">"the wire"</tspan> is one question: <tspan font-weight="700" font-family="SFMono-Regular, Menlo, Consolas, monospace">CASE session == Connected</tspan> (per fabric). Surfaces 1 short-circuits at the gateway; 2–4 are downstream.</text>
+  <text x="62" y="920" class="keyB">&#8226;  <tspan font-weight="700">ack &#8800; response.</tspan>  A standalone ack (clears <tspan font-family="SFMono-Regular, Menlo, Consolas, monospace">awaiting_ack</tspan>) stops retransmit fast; the reply (clears <tspan font-family="SFMono-Regular, Menlo, Consolas, monospace">awaiting_response</tspan>) can come seconds later. msg-counter gives dedup.</text>
+  <text x="62" y="948" class="keyB">&#8226;  <tspan font-weight="700">Trace ID flows only to the gateway boundary, then pivots to ExchangeId.</tspan>  No trace ID rides 802.15.4 frames (6LoWPAN byte budget) — below the radio you correlate by node + timestamp.</text>
+</svg>

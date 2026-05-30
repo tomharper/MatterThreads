@@ -2,45 +2,23 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleName</key>
-	<string>MatterAI</string>
-	<key>CFBundleDisplayName</key>
-	<string>Matter AI</string>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleVersion</key>
-	<string>1</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>UILaunchScreen</key>
-	<dict/>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-	</array>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>MatterAI needs local network access to discover and control Matter devices.</string>
+	<key>MatterSupport</key>
+	<dict>
+		<key>MatterDeviceSetup</key>
+		<true/>
+	</dict>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
-	<key>NSHomeKitUsageDescription</key>
-	<string>MatterAI integrates with HomeKit to discover and control your smart home devices.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_matter._tcp</string>
 		<string>_matterc._udp</string>
 		<string>_hap._tcp</string>
 	</array>
-	<key>MatterSupport</key>
-	<dict>
-		<key>MatterDeviceSetup</key>
-		<true/>
-	</dict>
+	<key>UILaunchScreen</key>
+	<dict/>
 </dict>
 </plist>

@@ -4,6 +4,28 @@
 #include <algorithm>
 #include <cmath>
 
+/*
+ ┌────────────────┬──────────────────────────────────────────────────────────────────────┐
+ │     Layer      │                               Protocol                               │
+ ├────────────────┼──────────────────────────────────────────────────────────────────────┤
+ │ Physical + MAC │ IEEE 802.15.4 (2.4 GHz radio)                                        │
+ ├────────────────┼──────────────────────────────────────────────────────────────────────┤
+ │ Adaptation     │ 6LoWPAN (compresses IPv6 headers for low-power radio)                │
+ ├────────────────┼──────────────────────────────────────────────────────────────────────┤
+ │ Network        │ IPv6                                                                 │
+ ├────────────────┼──────────────────────────────────────────────────────────────────────┤
+ │ Transport      │ UDP                                                                  │
+ ├────────────────┼──────────────────────────────────────────────────────────────────────┤
+ │ Application    │ CoAP (REST-like, runs on UDP)                                        │
+ ├────────────────┼──────────────────────────────────────────────────────────────────────┤
+ │ Matter layer   │ MRP (Message Reliability Protocol — adds acks/retries on top of UDP) │
+ └────────────────┴──────────────────────────────────────────────────────────────────────┘
+  
+ TCP is too heavy for Thread's constrained devices (battery-powered sensors with 256KB RAM).
+ Matter's MRP handles reliability at the application layer instead — sequence numbers, acks,
+ retransmits — so you get TCP-like guarantees without the overhead.    
+ */
+
 // Minimal JSON parsing helpers (avoid adding nlohmann/json to iOS target)
 // These parse the specific JSON shapes returned by the Dashboard/Gateway APIs
 

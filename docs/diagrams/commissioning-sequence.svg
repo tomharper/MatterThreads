@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 1040" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+    <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#16a34a"/>
+    </marker>
+    <style>
+      .title { font-size: 24px; font-weight: 700; fill: #0f172a; }
+      .sub   { font-size: 13px; fill: #475569; }
+      .actT  { font-size: 13.5px; font-weight: 700; fill: #0f172a; }
+      .msg   { font-size: 12px; fill: #334155; }
+      .msgb  { font-size: 12px; font-weight: 700; }
+      .note  { font-size: 10.5px; font-style: italic; fill: #64748b; font-family: SFMono-Regular, Menlo, Consolas, monospace; }
+      .band  { font-size: 13px; font-weight: 700; letter-spacing: 1px; }
+      .chip  { font-size: 11px; fill: #1e293b; }
+      .cP { fill:#7c3aed; }  .cA { fill:#b45309; }  .cT { fill:#0d9488; }
+      .cB { fill:#1d4ed8; }  .cN { fill:#475569; }  .cG { fill:#15803d; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1240" height="1040" fill="#f8fafc"/>
+  <text x="40" y="40" class="title">Commissioning: BLE bootstrap &#8594; Thread operational session</text>
+  <text x="40" y="62" class="sub">A device on no network yet. Color = which crypto mechanism each step uses.</text>
+
+  <!-- crypto legend chips -->
+  <g transform="translate(40,74)">
+    <rect x="0" y="0" width="13" height="13" rx="2" fill="#7c3aed"/><text x="18" y="11" class="chip">PASE &#183; passcode/SPAKE2+ (shared secret)</text>
+    <rect x="300" y="0" width="13" height="13" rx="2" fill="#b45309"/><text x="318" y="11" class="chip">DCL &#183; attestation (PAA roots)</text>
+    <rect x="560" y="0" width="13" height="13" rx="2" fill="#0d9488"/><text x="578" y="11" class="chip">MeshCoP &#183; DTLS join</text>
+    <rect x="760" y="0" width="13" height="13" rx="2" fill="#1d4ed8"/><text x="778" y="11" class="chip">CASE / NOC &#183; operational PKI</text>
+  </g>
+
+  <!-- phase band (left) -->
+  <rect x="22" y="120" width="32" height="538" fill="#dbeafe"/>
+  <rect x="22" y="658" width="32" height="162" fill="#ccfbf1"/>
+  <text x="42" y="120" class="band" fill="#1e40af" transform="rotate(90 42,120)">COMMISSIONING  (over BLE)</text>
+  <text x="42" y="658" class="band" fill="#0f766e" transform="rotate(90 42,658)">OPERATIONAL (Thread)</text>
+
+  <!-- actor headers + lifelines -->
+  <g>
+    <rect x="108" y="108" width="148" height="42" rx="8" fill="#fff" stroke="#94a3b8" stroke-width="1.4"/>
+    <text x="182" y="134" text-anchor="middle" class="actT">DCL (CSA ledger)</text>
+    <line x1="182" y1="150" x2="182" y2="820" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3 4"/>
+
+    <rect x="392" y="108" width="160" height="42" rx="8" fill="#fff" stroke="#6366f1" stroke-width="1.6"/>
+    <text x="472" y="134" text-anchor="middle" class="actT">Commissioner (App / OS)</text>
+    <line x1="472" y1="150" x2="472" y2="820" stroke="#6366f1" stroke-width="1.2" stroke-dasharray="3 4"/>
+
+    <rect x="706" y="108" width="150" height="42" rx="8" fill="#fff" stroke="#2563eb" stroke-width="1.6"/>
+    <text x="781" y="134" text-anchor="middle" class="actT">Commissionee (Device)</text>
+    <line x1="781" y1="150" x2="781" y2="820" stroke="#2563eb" stroke-width="1.2" stroke-dasharray="3 4"/>
+
+    <rect x="1004" y="108" width="152" height="42" rx="8" fill="#fff" stroke="#0d9488" stroke-width="1.6"/>
+    <text x="1080" y="134" text-anchor="middle" class="actT">Thread Mesh / BR</text>
+    <line x1="1080" y1="150" x2="1080" y2="820" stroke="#0d9488" stroke-width="1.2" stroke-dasharray="3 4"/>
+  </g>
+
+  <!-- 1 BLE discover -->
+  <text x="627" y="185" text-anchor="middle" class="msg cN">1 &#183; BLE advertise / discover</text>
+  <line x1="472" y1="192" x2="781" y2="192" stroke="#475569" stroke-width="1.8" marker-end="url(#a)"/>
+
+  <!-- 2 PASE handshake -->
+  <text x="627" y="224" text-anchor="middle" class="msgb cP">2 &#183; PASE: passcode &#8594; SPAKE2+</text>
+  <line x1="472" y1="234" x2="781" y2="234" stroke="#7c3aed" stroke-width="2" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text x="627" y="250" text-anchor="middle" class="note cP">shared secret &#8658; encrypted commissioning channel</text>
+
+  <!-- 3 read DAC -->
+  <text x="627" y="288" text-anchor="middle" class="msg cA">3 &#183; read DAC (attestation)</text>
+  <line x1="472" y1="295" x2="781" y2="295" stroke="#b45309" stroke-width="1.8" marker-end="url(#a)"/>
+  <!-- 4 DAC return -->
+  <text x="627" y="318" text-anchor="middle" class="msg cA">DAC + PAI chain</text>
+  <line x1="781" y1="325" x2="472" y2="325" stroke="#b45309" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#a)"/>
+
+  <!-- 5 PAA lookup -->
+  <text x="327" y="356" text-anchor="middle" class="msg cA">4 &#183; look up PAA root</text>
+  <line x1="472" y1="363" x2="182" y2="363" stroke="#b45309" stroke-width="1.8" marker-end="url(#a)"/>
+  <text x="327" y="386" text-anchor="middle" class="msg cA">PAA root &#8658; verify DAC&#8592;PAI&#8592;PAA</text>
+  <line x1="182" y1="393" x2="472" y2="393" stroke="#b45309" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#a)"/>
+
+  <!-- 5 CSR -->
+  <text x="627" y="424" text-anchor="middle" class="msg cB">5 &#183; CSR request</text>
+  <line x1="472" y1="431" x2="781" y2="431" stroke="#1d4ed8" stroke-width="1.8" marker-end="url(#a)"/>
+  <text x="627" y="454" text-anchor="middle" class="msg cB">NOCSR (operational pubkey)</text>
+  <line x1="781" y1="461" x2="472" y2="461" stroke="#1d4ed8" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#a)"/>
+
+  <!-- 6 AddNOC -->
+  <text x="627" y="492" text-anchor="middle" class="msgb cB">6 &#183; AddTrustedRoot + AddNOC</text>
+  <line x1="472" y1="500" x2="781" y2="500" stroke="#1d4ed8" stroke-width="2" marker-end="url(#a)"/>
+  <text x="627" y="516" text-anchor="middle" class="note cB">operational PKI: NOC &#8592; ICAC &#8592; Fabric Root CA</text>
+
+  <!-- 7 push thread dataset -->
+  <text x="627" y="552" text-anchor="middle" class="msg cT">7 &#183; push Thread Operational Dataset (network key)</text>
+  <line x1="472" y1="559" x2="781" y2="559" stroke="#0d9488" stroke-width="1.8" marker-end="url(#a)"/>
+
+  <!-- 8 join mesh (radio) -->
+  <text x="930" y="592" text-anchor="middle" class="msgb cT">8 &#183; join via MeshCoP</text>
+  <line x1="781" y1="600" x2="1080" y2="600" stroke="#0d9488" stroke-width="2" marker-end="url(#a)"/>
+  <text x="930" y="616" text-anchor="middle" class="note cT">DTLS + PSKc / network key</text>
+  <text x="930" y="640" text-anchor="middle" class="msg cT">joined &#8658; device has IPv6</text>
+  <line x1="1080" y1="647" x2="781" y2="647" stroke="#0d9488" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#a)"/>
+
+  <!-- transport switch divider -->
+  <line x1="70" y1="664" x2="1180" y2="664" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <text x="625" y="660" text-anchor="middle" class="sub" font-weight="700" fill="#0f766e">device now on Thread &#8212; commissioner switches BLE &#8594; operational IPv6</text>
+
+  <!-- 9 operational discovery -->
+  <text x="627" y="692" text-anchor="middle" class="msg cN">9 &#183; operational discovery (mDNS over Thread)</text>
+  <line x1="472" y1="699" x2="781" y2="699" stroke="#475569" stroke-width="1.8" marker-end="url(#a)"/>
+
+  <!-- 10 CASE -->
+  <text x="627" y="730" text-anchor="middle" class="msgb cB">10 &#183; CASE: NOC &#8596; NOC (SIGMA)</text>
+  <line x1="472" y1="740" x2="781" y2="740" stroke="#1d4ed8" stroke-width="2.4" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text x="627" y="756" text-anchor="middle" class="note cB">operational session (AES-CCM) &#8212; the session the fault diagram checks first</text>
+
+  <!-- 11 commissioning complete -->
+  <text x="627" y="790" text-anchor="middle" class="msg cN">11 &#183; CommissioningComplete &#183; BLE dropped</text>
+  <line x1="472" y1="797" x2="781" y2="797" stroke="#475569" stroke-width="1.8" marker-end="url(#a)"/>
+
+  <!-- steady state -->
+  <rect x="430" y="808" width="394" height="0" />
+  <text x="627" y="826" text-anchor="middle" class="msgb cG">steady state &#8658; Invoke over CASE &#8594; enters the Exchange state machine</text>
+
+  <!-- ===== glossary ===== -->
+  <rect x="40" y="852" width="1160" height="172" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.4"/>
+  <text x="60" y="878" class="actT" font-size="14">Acronyms</text>
+
+  <!-- left column: session establishment -->
+  <text x="60"  y="902" class="msg"><tspan class="msgb cP">PASE</tspan>  — Passcode-Authenticated Session Establishment  (runs SPAKE2+)</text>
+  <text x="60"  y="924" class="msg"><tspan class="msgb cP">SPAKE2+</tspan>  — Simple Password-Authenticated Key Exchange, v2 augmented (RFC 9383)</text>
+  <text x="76"  y="944" class="note">derives a session key from the passcode without ever sending it</text>
+  <text x="60"  y="970" class="msg"><tspan class="msgb cB">CASE</tspan>  — Certificate-Authenticated Session Establishment  (runs SIGMA)</text>
+  <text x="60"  y="992" class="msg"><tspan class="msgb cB">SIGMA</tspan>  — SIGn-and-MAc key exchange  (Diffie-Hellman + mutual cert auth)</text>
+
+  <!-- right column: certs / attestation -->
+  <text x="640" y="902" class="msg"><tspan class="msgb cA">DAC</tspan> — Device Attestation Cert &#183; <tspan class="msgb cA">PAI</tspan> — Product Attestation Intermediate</text>
+  <text x="640" y="924" class="msg"><tspan class="msgb cA">PAA</tspan> — Product Attestation Authority  (roots published in the DCL)</text>
+  <text x="640" y="946" class="msg"><tspan class="msgb cA">DCL</tspan> — Distributed Compliance Ledger (CSA)</text>
+  <text x="640" y="968" class="msg"><tspan class="msgb cB">NOC</tspan> — Node Operational Cert  (&#8592; ICAC &#8592; Fabric Root CA)</text>
+  <text x="640" y="990" class="msg"><tspan class="msgb cT">MeshCoP</tspan> — Mesh Commissioning Protocol &#183; <tspan class="msgb cT">PSKc</tspan> — Pre-Shared Key (Commissioner)</text>
+
+  <!-- mapping line -->
+  <text x="60" y="1014" class="msg msgb"><tspan class="cP">PASE : SPAKE2+ : passcode</tspan> <tspan class="cN">(commissioning)</tspan>   &#8596;   <tspan class="cB">CASE : SIGMA : certificate</tspan> <tspan class="cN">(operational)</tspan>  &#8212; both end in an AES-CCM session</text>
+</svg>

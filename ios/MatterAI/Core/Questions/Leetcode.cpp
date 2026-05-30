@@ -465,22 +465,26 @@ int runTaskMgr() {
 
 
 
-
-struct Node {
+struct LLNode {
+    int value;
     int data;
-    Node* next;
+    LLNode* next;
+    LLNode* sublist;
+
+    LLNode(int v, LLNode* n = nullptr, LLNode* s = nullptr)
+        : value(v), next(n), sublist(s) {}
 };
 
-Node* deleteMiddle(Node* head) {
+LLNode* deleteMiddle(LLNode* head) {
     // Edge case: Empty list or single node
     if (head == nullptr || head->next == nullptr) {
         delete head;
         return nullptr;
     }
 
-    Node* slow = head;
-    Node* fast = head;
-    Node* prev = nullptr;
+    LLNode* slow = head;
+    LLNode* fast = head;
+    LLNode* prev = nullptr;
 
     // Fast moves 2 steps, slow moves 1 step
     while (fast != nullptr && fast->next != nullptr) {
@@ -1257,14 +1261,7 @@ int treeHeight(TreeNode* root) {
     return 1 + std::max(treeHeight(root->left), treeHeight(root->right));
 }
 
-struct LLNode {
-    int value;
-    LLNode* next;
-    LLNode* sublist;
 
-    LLNode(int v, LLNode* n = nullptr, LLNode* s = nullptr)
-        : value(v), next(n), sublist(s) {}
-};
 
 std::vector<int> flattenSublist(LLNode* inputList) {
     std::vector<int> output;
@@ -1620,8 +1617,9 @@ public:
      }
  }
  
- For N ≤ 32 (or 64), replace the three unordered_set<int> with three int (or long) bitmasks. Set operations become bitwise OR/AND, conflict check is one bitwise AND. This is ~10-20x faster in practice:*/
+ For N ≤ 32 (or 64), replace the three unordered_set<int> with three int (or long) bitmasks. Set operations become bitwise OR/AND, conflict check is one bitwise AND. This is ~10-20x faster in practice:
 */
+#ifdef LEETCODE_STANDALONE
 void backtrack(int col, int rowMask, int d1Mask, int d2Mask) {
      if (col == n) { return; }
 
@@ -1718,6 +1716,7 @@ vector<int> daysToHigherTemp(vector<int>& dailyHighs) {
     int n = dailyHighs.size();
     vector<int> result(n, 0);
     stack<int> waiting;  // indices of days still waiting for a hotter day
+    vector<int> output(n, 0);
 
     for (int i = 0; i < n; i++) {
         // Today resolves any waiting day cooler than today
@@ -1728,38 +1727,30 @@ vector<int> daysToHigherTemp(vector<int>& dailyHighs) {
         }
         waiting.push(i);
     }
+     
+     /*
+      
+      for (int day = 0; day < n; day++) {
+          int highTemp = dailyHighs[day];
+
+          // Look forward for a hotter day
+          for (int i = day + 1; i < n; i++) {
+              if (dailyHighs[i] > highTemp) {
+                  output[day] = i - day;
+                  break;
+              }
+          }
+          // If no hotter day found, output[day] stays 0 (from initialization)
+      }
+      */
 
     // Anything left on the stack never found a hotter day — result stays 0
     return result;
  };
-
+   
                
                
-               
-vector<int> daysToHigherTemp(vector<int>& dailyHighs) {
-   int n = dailyHighs.size();
-   vector<int> output(n, 0);
-
-   for (int day = 0; day < n; day++) {
-       int highTemp = dailyHighs[day];
-
-       // Look forward for a hotter day
-       for (int i = day + 1; i < n; i++) {
-           if (dailyHighs[i] > highTemp) {
-               output[day] = i - day;
-               break;
-           }
-       }
-       // If no hotter day found, output[day] stays 0 (from initialization)
-   }
-
-   return output;
- };
-
-               
-               
-               
-               class ParseCodes {
+class ParseCodes {
      vector<string, int> codes;
      vector<char> queue;
      int maxlen = 0;
@@ -1854,6 +1845,7 @@ vector<vector<int>> kClosest(vector<vector<int>>& points, int k) {
 
 
 
+// Number of Islands Problem
 
 
 
@@ -1928,3 +1920,4 @@ unordered_map<char, string> huffmanCodes(const unordered_map<char, int>& freqs) 
     generateCodes(root, "", codes);
     return codes;
 }
+#endif // LEETCODE_STANDALONE

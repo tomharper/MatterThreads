@@ -1,6 +1,7 @@
 #include "core/Types.h"
 #include "core/Log.h"
 #include "thread/MeshTopology.h"
+#include "thread/PathTracer.h"
 #include "fault/FaultPlan.h"
 #include "metrics/Collector.h"
 #include "metrics/Reporter.h"
@@ -19,6 +20,7 @@
 #include <csignal>
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 #include <string>
 #include <vector>
 #include <array>
@@ -113,6 +115,15 @@ static CLIOptions parseCLI(int argc, char* argv[]) {
         }
     }
     return opts;
+}
+
+// Reconstruct the same link graph the broker was launched with, so `trace`
+// reflects the topology actually in effect (broker gets the same --topology).
+static mt::MeshTopology topologyFromName(const std::string& name) {
+    if (name == "linear") return mt::MeshTopology::linearChain();
+    if (name == "star")   return mt::MeshTopology::starFromLeader();
+    if (name == "van")    return mt::MeshTopology::vanWithPhone();
+    return mt::MeshTopology::fullyConnected();
 }
 
 static std::string getBinaryDir() {
@@ -384,6 +395,7 @@ int main(int argc, char* argv[]) {
                           << "  link A B loss%       Set loss on link A->B\n"
                           << "  link A B down        Bring link down\n"
                           << "  link A B up          Bring link up\n"
+                          << "  trace A B            Show path A->B + per-hop loss\n"
                           << "  crash N              Kill node N\n"
                           << "  restart N            Restart node N\n"
                           << "  metrics              Show metrics\n"
@@ -518,6 +530,42 @@ int main(int argc, char* argv[]) {
                 }
             } else if (cmd == "timeline") {
                 std::cout << collector.timeline().exportCsv();
+            } else if (cmd == "trace") {
+                int src = -1, dst = -1;
+                if (iss >> src >> dst && src >= 0 && src < NUM_NODES &&
+                    dst >= 0 && dst < NUM_NODES && src != dst) {
+                    auto topo = topologyFromName(opts.topology);
+                    auto tr = mt::tracePath(topo, static_cast<mt::NodeId>(src),
+                                            static_cast<mt::NodeId>(dst));
+                    if (!tr.reachable) {
+                        std::cout << "No route from node " << src << " to node " << dst
+                                  << " in '" << opts.topology << "' topology.\n";
+                    } else {
+                        std::ostringstream out;
+                        out << std::fixed << std::setprecision(1);
+                        out << "Path " << src << " -> " << dst << "  (" << tr.hopCount()
+                            << (tr.hopCount() == 1 ? " hop" : " hops")
+                            << ", topology=" << opts.topology << "):\n";
+                        int worst = tr.worstHop();
+                        for (size_t i = 0; i < tr.hops.size(); ++i) {
+                            const auto& h = tr.hops[i];
+                            out << "  " << (i + 1) << ". node " << h.from << " -> node " << h.to
+                                << "   loss " << (h.expected_loss * 100.0f) << "%"
+                                << "   lat " << h.params.latency_mean_ms << "ms"
+                                << "   lqi " << static_cast<int>(h.params.lqi);
+                            if (static_cast<int>(i) == worst && h.expected_loss > 0.0f) {
+                                out << "   <== weakest link";
+                            }
+                            out << "\n";
+                        }
+                        out << "  modeled end-to-end delivery: "
+                            << (tr.cumulativeDelivery() * 100.0f) << "%\n";
+                        std::cout << out.str();
+                    }
+                } else {
+                    std::cout << "Usage: trace <src> <dst>   (node ids 0-" << (NUM_NODES - 1)
+                              << ", src != dst)\n";
+                }
             } else {
                 std::cout << "Unknown command: " << cmd << ". Type 'help' for commands.\n";
             }
