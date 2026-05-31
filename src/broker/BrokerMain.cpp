@@ -2,6 +2,7 @@
 #include "thread/MeshTopology.h"
 #include "core/Log.h"
 #include <cstdlib>
+#include <cstdio>
 #include <csignal>
 #include <string>
 
@@ -17,6 +18,7 @@ int main(int argc, char* argv[]) {
     uint32_t seed = 42;
     uint16_t port = mt::BROKER_PORT;
     std::string topology_name = "full";
+    bool tracer = false;
 
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
@@ -26,6 +28,8 @@ int main(int argc, char* argv[]) {
             port = static_cast<uint16_t>(std::stoi(argv[++i]));
         } else if (arg == "--topology" && i + 1 < argc) {
             topology_name = argv[++i];
+        } else if (arg == "--trace") {
+            tracer = true;
         } else if (arg == "--verbose") {
             mt::Logger::instance().setLevel(mt::LogLevel::Trace);
         }
@@ -33,6 +37,11 @@ int main(int argc, char* argv[]) {
 
     mt::Broker broker(seed);
     g_broker = &broker;
+
+    if (tracer) {
+        broker.enableTracer();
+        MT_INFO("broker", "Tracer mode ON — recording ground-truth per-link counts");
+    }
 
     // Apply topology preset
     if (topology_name == "linear") {
@@ -62,6 +71,28 @@ int main(int argc, char* argv[]) {
 
     MT_INFO("broker", "Frames forwarded: " + std::to_string(broker.framesForwarded()) +
             ", dropped: " + std::to_string(broker.framesDropped()));
+
+    // Tracer mode: dump the ground-truth per-link tally (the sim's privileged
+    // observer view — what real hardware can't see passively).
+    if (tracer) {
+        MT_INFO("broker", "Tracer per-link ground truth (forwarded / dropped):");
+        for (mt::NodeId a = 0; a < mt::MAX_NODES; ++a) {
+            for (mt::NodeId b = 0; b < mt::MAX_NODES; ++b) {
+                if (a == b) continue;
+                auto s = broker.linkStat(a, b);
+                uint64_t total = s.forwarded + s.dropped;
+                if (total == 0) continue;
+                double loss_pct = 100.0 * static_cast<double>(s.dropped) /
+                                  static_cast<double>(total);
+                char line[96];
+                std::snprintf(line, sizeof(line), "  %u->%u: fwd=%llu drop=%llu loss=%.1f%%",
+                              static_cast<unsigned>(a), static_cast<unsigned>(b),
+                              static_cast<unsigned long long>(s.forwarded),
+                              static_cast<unsigned long long>(s.dropped), loss_pct);
+                MT_INFO("broker", line);
+            }
+        }
+    }
 
     return 0;
 }

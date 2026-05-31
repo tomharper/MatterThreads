@@ -49,6 +49,7 @@ struct CLIOptions {
     int duration_sec = 120;
     bool hw_mode = false;
     bool verbose = false;
+    bool tracer = false;            // --trace: enable broker ground-truth per-link tracing
     std::string output_path;
     std::string scenario;
     uint16_t dashboard_port = 0;   // 0 = disabled, >0 = serve on this port
@@ -67,6 +68,7 @@ static CLIOptions parseCLI(int argc, char* argv[]) {
         else if (arg == "--duration" && i + 1 < argc) opts.duration_sec = std::stoi(argv[++i]);
         else if (arg == "--hw") opts.hw_mode = true;
         else if (arg == "--verbose") opts.verbose = true;
+        else if (arg == "--trace") opts.tracer = true;
         else if (arg == "--output" && i + 1 < argc) opts.output_path = argv[++i];
         else if (arg == "--scenario" && i + 1 < argc) opts.scenario = argv[++i];
         else if (arg == "--dashboard" && i + 1 < argc) opts.dashboard_port = static_cast<uint16_t>(std::stoul(argv[++i]));
@@ -83,6 +85,7 @@ static CLIOptions parseCLI(int argc, char* argv[]) {
                       << "  --duration <seconds>           Max duration (default: 120)\n"
                       << "  --hw                           Enable hardware bridge mode\n"
                       << "  --verbose                      Verbose logging\n"
+                      << "  --trace                        Tracer mode: broker records ground-truth per-link counts\n"
                       << "  --output <path>                Write JSON report to file\n"
                       << "  --scenario <name>              Run named scenario and exit\n"
                       << "  --dashboard <port>             Start web dashboard on port (e.g. 8080)\n"
@@ -249,15 +252,12 @@ int main(int argc, char* argv[]) {
     if (broker_pid == 0) {
         std::string broker_path = bin_dir + "/mt_broker";
         std::string seed_str = std::to_string(opts.seed);
-        if (opts.verbose) {
-            const char* args[] = {broker_path.c_str(), "--seed", seed_str.c_str(),
-                                   "--topology", opts.topology.c_str(), "--verbose", nullptr};
-            execv(broker_path.c_str(), const_cast<char* const*>(args));
-        } else {
-            const char* args[] = {broker_path.c_str(), "--seed", seed_str.c_str(),
-                                   "--topology", opts.topology.c_str(), nullptr};
-            execv(broker_path.c_str(), const_cast<char* const*>(args));
-        }
+        std::vector<const char*> args = {broker_path.c_str(), "--seed", seed_str.c_str(),
+                                         "--topology", opts.topology.c_str()};
+        if (opts.tracer) args.push_back("--trace");
+        if (opts.verbose) args.push_back("--verbose");
+        args.push_back(nullptr);
+        execv(broker_path.c_str(), const_cast<char* const*>(args.data()));
         perror("execv broker");
         _exit(1);
     }
@@ -543,9 +543,11 @@ int main(int argc, char* argv[]) {
                     } else {
                         std::ostringstream out;
                         out << std::fixed << std::setprecision(1);
-                        out << "Path " << src << " -> " << dst << "  (" << tr.hopCount()
+                        out << "Inferred path " << src << " -> " << dst << "  (" << tr.hopCount()
                             << (tr.hopCount() == 1 ? " hop" : " hops")
-                            << ", topology=" << opts.topology << "):\n";
+                            << ", topology=" << opts.topology << ")\n";
+                        out << "  [inferred from topology + per-link model "
+                               "- not packet-level ground truth]\n";
                         int worst = tr.worstHop();
                         for (size_t i = 0; i < tr.hops.size(); ++i) {
                             const auto& h = tr.hops[i];
@@ -560,6 +562,9 @@ int main(int argc, char* argv[]) {
                         }
                         out << "  modeled end-to-end delivery: "
                             << (tr.cumulativeDelivery() * 100.0f) << "%\n";
+                        out << (opts.tracer
+                                ? "  [tracer ON: broker logs ground-truth per-link counts at shutdown]\n"
+                                : "  [tracer OFF: run with --trace for broker ground truth]\n");
                         std::cout << out.str();
                     }
                 } else {

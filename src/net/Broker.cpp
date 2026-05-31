@@ -212,7 +212,7 @@ void Broker::forwardFrame(NodeId src, MacFrame frame) {
 
         if (!channel_decision.deliver) {
             ++frames_dropped_;
-            ++link_stats_[src][dst].dropped;
+            if (tracer_enabled_) ++link_stats_[src][dst].dropped;
             continue;
         }
 
@@ -220,14 +220,14 @@ void Broker::forwardFrame(NodeId src, MacFrame frame) {
         auto fault_decision = fault_injector_.applyFaults(src, dst, frame_copy, now);
         if (!fault_decision.deliver) {
             ++frames_dropped_;
-            ++link_stats_[src][dst].dropped;
+            if (tracer_enabled_) ++link_stats_[src][dst].dropped;
             continue;
         }
 
-        // Passed the link model — attribute the forward to this link. (Global
-        // frames_forwarded_ is counted at actual delivery in deliverToNode;
-        // this per-link tally counts link traversal, including delayed frames.)
-        ++link_stats_[src][dst].forwarded;
+        // Passed the link model — attribute the forward to this link (tracer only).
+        // Global frames_forwarded_ is counted at actual delivery in deliverToNode;
+        // this per-link tally counts link traversal, including delayed frames.
+        if (tracer_enabled_) ++link_stats_[src][dst].forwarded;
 
         // Stamp LQI/RSSI
         frame_copy.lqi = fault_decision.delivered_lqi > 0 ?

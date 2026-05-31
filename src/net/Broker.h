@@ -64,6 +64,13 @@ public:
     };
     LinkStat linkStat(NodeId from, NodeId to) const;
 
+    // Tracer mode: opt-in. When off (the default), the broker keeps NO per-link
+    // ground-truth counters — mirroring the field, where no single observer sees
+    // every hop. When on, it records them (a sim luxury: the broker is the radio
+    // medium). Gated so "default conditions" in the sim match real observability.
+    void enableTracer(bool on = true) { tracer_enabled_ = on; }
+    bool tracerEnabled() const { return tracer_enabled_; }
+
 private:
     void acceptConnections();
     void processIncoming(size_t node_idx);
@@ -87,10 +94,12 @@ private:
     std::priority_queue<DelayedFrame, std::vector<DelayedFrame>, std::greater<>> delay_queue_;
 
     bool running_ = false;
+    bool tracer_enabled_ = false;
     uint64_t frames_forwarded_ = 0;
     uint64_t frames_dropped_ = 0;
 
-    // Per-link [src][dst] forward/drop counters (see linkStat()).
+    // Per-link [src][dst] forward/drop counters (see linkStat()); only populated
+    // when tracer_enabled_ is set.
     std::array<std::array<LinkStat, MAX_NODES>, MAX_NODES> link_stats_{};
 };
 
