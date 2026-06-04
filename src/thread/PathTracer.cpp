@@ -2,9 +2,15 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <queue>
 
 namespace mt {
+
+size_t fragmentCount(size_t payload_bytes, size_t frag_payload) {
+    if (frag_payload == 0 || payload_bytes == 0) return 1;
+    return (payload_bytes + frag_payload - 1) / frag_payload;  // ceil division
+}
 
 float TraceResult::cumulativeDelivery() const {
     float p = 1.0f;
@@ -12,6 +18,11 @@ float TraceResult::cumulativeDelivery() const {
         p *= (1.0f - h.expected_loss);
     }
     return p;
+}
+
+float TraceResult::deliveryForSize(size_t payload_bytes, size_t frag_payload) const {
+    size_t n = fragmentCount(payload_bytes, frag_payload);
+    return std::pow(cumulativeDelivery(), static_cast<float>(n));
 }
 
 int TraceResult::worstHop() const {

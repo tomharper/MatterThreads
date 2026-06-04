@@ -67,6 +67,29 @@ just the missing segment. So effective loss scales with fragment count, which is
 why Matter keeps messages small. Per-*link* reliability still exists (802.15.4 MAC
 acks + retries); it's the end-to-end *datagram* that's fragile.
 
+The sim models this directly. A datagram of N fragments arrives only if **every
+fragment survives every hop**, so:
+
+```
+datagramDelivery(bytes) = cumulativeDelivery() ^ ceil(bytes / 80)
+```
+
+`TraceResult::deliveryForSize()` computes it; the `probe <src> <dst>` command shows
+the falloff. Example — a van phone→sensor path that is 98% good for a single frame:
+
+```
+> probe 3 2
+Size probe 3 -> 2  (topology=van, single-frame delivery 98.0%):
+    32 B  ->  1 fragment    delivery 98.0%
+   256 B  ->  4 fragments   delivery 92.2%   <== fragmentation amplification
+  1024 B  -> 13 fragments   delivery 76.9%   <== fragmentation amplification
+```
+
+A 2% per-frame loss becomes ~23% datagram loss for a 1 KB transfer. This is also
+why a periodic **size probe** (small vs. large) is a better link-health signal than
+PMTUD inside a Thread mesh — the IPv6 MTU is a fixed 1280 there (6LoWPAN fragments
+it), so PMTUD reveals nothing, but fragment-survival reveals marginality early.
+
 ---
 
 ## 3. MRP: ack ≠ response
@@ -283,12 +306,13 @@ breakage with no payload inspection (counter differencing, live).
 | Component | Files |
 |---|---|
 | Path inference (Tier 1) | `src/thread/PathTracer.{h,cpp}` — `tracePath(topo, src, dst)` → `TraceResult` |
+| Fragmentation model | `PathTracer` — `fragmentCount(bytes)`, `TraceResult::deliveryForSize(bytes)` = `cumulativeDelivery()^N` |
 | Ground-truth counters (Tier 2) | `src/net/Broker.{h,cpp}` — `LinkStat`, `enableTracer()`, `linkStat(from,to)` |
 | Tracer flag | `--trace` on `matterthreads` (forwarded to `mt_broker`) → `BrokerMain.cpp` shutdown dump |
-| CLI command | `trace <src> <dst>` in `app/Main.cpp` REPL |
-| Tests | `tests/unit/TestPathTracer.cpp` (7 tests: direct, two-hop, star-via-hub, weakest-link, cumulative delivery, unreachable, same-node) |
+| CLI commands | `trace <src> <dst>` (path + per-hop loss), `probe <src> <dst>` (size/fragmentation falloff) in `app/Main.cpp` REPL |
+| Tests | `tests/unit/TestPathTracer.cpp` (10 tests: path cases + fragmentCount, fragmentation amplification, perfect-path) |
 
-Total tests: **119** (112 base + 7 PathTracer), all passing.
+Total tests: **122** (112 base + 10 PathTracer), all passing.
 
 ### One-liner mental model
 

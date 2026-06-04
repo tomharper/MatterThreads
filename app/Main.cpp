@@ -396,6 +396,7 @@ int main(int argc, char* argv[]) {
                           << "  link A B down        Bring link down\n"
                           << "  link A B up          Bring link up\n"
                           << "  trace A B            Show path A->B + per-hop loss\n"
+                          << "  probe A B            Size probe A->B (fragmentation loss)\n"
                           << "  crash N              Kill node N\n"
                           << "  restart N            Restart node N\n"
                           << "  metrics              Show metrics\n"
@@ -569,6 +570,44 @@ int main(int argc, char* argv[]) {
                     }
                 } else {
                     std::cout << "Usage: trace <src> <dst>   (node ids 0-" << (NUM_NODES - 1)
+                              << ", src != dst)\n";
+                }
+            } else if (cmd == "probe") {
+                // Size probe: shows how 6LoWPAN fragmentation amplifies loss for
+                // larger datagrams over the same path (delivery = single^N_frags).
+                int src = -1, dst = -1;
+                if (iss >> src >> dst && src >= 0 && src < NUM_NODES &&
+                    dst >= 0 && dst < NUM_NODES && src != dst) {
+                    auto topo = topologyFromName(opts.topology);
+                    auto tr = mt::tracePath(topo, static_cast<mt::NodeId>(src),
+                                            static_cast<mt::NodeId>(dst));
+                    if (!tr.reachable) {
+                        std::cout << "No route from node " << src << " to node " << dst
+                                  << " in '" << opts.topology << "' topology.\n";
+                    } else {
+                        std::ostringstream out;
+                        out << std::fixed << std::setprecision(1);
+                        float single = tr.cumulativeDelivery() * 100.0f;
+                        out << "Size probe " << src << " -> " << dst << "  (topology="
+                            << opts.topology << ", single-frame delivery " << single << "%):\n";
+                        const size_t sizes[] = {32, 256, 1024};
+                        for (size_t s : sizes) {
+                            size_t nfrags = mt::fragmentCount(s);
+                            float d = tr.deliveryForSize(s) * 100.0f;
+                            out << "  " << std::setw(4) << s << " B  -> " << std::setw(2) << nfrags
+                                << (nfrags == 1 ? " fragment " : " fragments")
+                                << "   delivery " << d << "%";
+                            if (nfrags > 1 && d < single - 0.05f) {
+                                out << "   <== fragmentation amplification";
+                            }
+                            out << "\n";
+                        }
+                        out << "  [modeled: a datagram arrives only if all N fragments "
+                               "survive all hops]\n";
+                        std::cout << out.str();
+                    }
+                } else {
+                    std::cout << "Usage: probe <src> <dst>   (node ids 0-" << (NUM_NODES - 1)
                               << ", src != dst)\n";
                 }
             } else {
