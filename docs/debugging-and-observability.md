@@ -292,12 +292,26 @@ $ matterthreads --topology van --trace
 The 100% links are exactly the topology's down links — observed drops localize the
 breakage with no payload inspection (counter differencing, live).
 
-> **Sim caveat:** the broker is a single-hop star with a per-link quality matrix; it
-> does **not** relay multi-hop (`Broker.cpp` forwards directly, with a "refine with
-> RLOC16 mapping later" TODO). So the `trace` *path* is computed by inference over the
-> link graph (what distance-vector converges to); the broker's ground-truth counters
-> are per-*link*, not per-*route*. A faithful hop-recording tracer would require the
-> broker to relay along the path and stamp each hop — a larger change.
+**Multi-hop relay (tracer mode).** In default mode the broker is a single-hop star, so
+the `trace` *path* is inference over the link graph. Under `--trace`, the broker now
+**relays unicast along the real route** (`Broker::route()` reuses `tracePath` over the
+link matrix; `Broker::relayMultiHop()` applies the per-link model at each hop and
+records per-hop counters). The shutdown dump above is therefore **route-accurate** — a
+drop is attributed to the exact failing hop, all-or-nothing across the path. This is the
+**out-of-band** measurement (poll/aggregate per-node counters), which is what works on
+real Thread — it never touches the packet, so the compressed-header constraint is moot.
+
+**Why not in-band (the observer effect).** A true per-packet path needs a hop-recording
+header, which fights 6LoWPAN: each appended byte is uncompressed payload, growing the
+datagram toward fragmentation — so the instrument *causes* the loss it measures.
+`TraceResult::deliveryForSizeWithTrace(bytes, per_hop)` models it, and `probe` shows it:
+
+```
+  in-band trace (+8 B/hop x 3 hops) on 1024 B: 75.4%  vs 76.9% without  <== the trace option's own cost
+```
+
+That ~1.5-point drop is the trace option paying for itself in lost delivery — which is
+why Thread uses out-of-band diagnostics (counter differencing) instead of in-band IOAM.
 
 ---
 
@@ -307,12 +321,14 @@ breakage with no payload inspection (counter differencing, live).
 |---|---|
 | Path inference (Tier 1) | `src/thread/PathTracer.{h,cpp}` — `tracePath(topo, src, dst)` → `TraceResult` |
 | Fragmentation model | `PathTracer` — `fragmentCount(bytes)`, `TraceResult::deliveryForSize(bytes)` = `cumulativeDelivery()^N` |
+| Observer effect | `TraceResult::deliveryForSizeWithTrace(bytes, per_hop)` — in-band trace bytes grow the datagram, lowering delivery |
 | Ground-truth counters (Tier 2) | `src/net/Broker.{h,cpp}` — `LinkStat`, `enableTracer()`, `linkStat(from,to)` |
-| Tracer flag | `--trace` on `matterthreads` (forwarded to `mt_broker`) → `BrokerMain.cpp` shutdown dump |
-| CLI commands | `trace <src> <dst>` (path + per-hop loss), `probe <src> <dst>` (size/fragmentation falloff) in `app/Main.cpp` REPL |
-| Tests | `tests/unit/TestPathTracer.cpp` (10 tests: path cases + fragmentCount, fragmentation amplification, perfect-path) |
+| Multi-hop relay (Tier 2) | `Broker::route(src,dst)`, `Broker::relayMultiHop(...)` — tracer-mode unicast routes the real path; default unchanged |
+| Tracer flag | `--trace` on `matterthreads` (forwarded to `mt_broker`) → `BrokerMain.cpp` route-accurate shutdown dump |
+| CLI commands | `trace <src> <dst>` (path + per-hop loss), `probe <src> <dst>` (fragmentation falloff + observer effect) |
+| Tests | `tests/unit/TestPathTracer.cpp` (13: path cases, fragmentation, observer effect, `Broker::route` multi-hop/unreachable) |
 
-Total tests: **122** (112 base + 10 PathTracer), all passing.
+Total tests: **125** (112 base + 13 PathTracer/Broker), all passing.
 
 ### One-liner mental model
 
