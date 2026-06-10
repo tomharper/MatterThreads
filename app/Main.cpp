@@ -602,6 +602,15 @@ int main(int argc, char* argv[]) {
                             }
                             out << "\n";
                         }
+                        // Observer effect: an in-band hop-recording trace option grows
+                        // the datagram per hop and can lower its own delivery.
+                        if (tr.hopCount() > 0) {
+                            float without = tr.deliveryForSize(1024) * 100.0f;
+                            float with = tr.deliveryForSizeWithTrace(1024, 8) * 100.0f;
+                            out << "  in-band trace (+8 B/hop x " << tr.hopCount() << " hops) on "
+                                   "1024 B: " << with << "%  vs " << without
+                                << "% without  <== the trace option's own cost\n";
+                        }
                         out << "  [modeled: a datagram arrives only if all N fragments "
                                "survive all hops]\n";
                         std::cout << out.str();

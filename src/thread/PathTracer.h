@@ -50,6 +50,14 @@ struct TraceResult {
     float deliveryForSize(size_t payload_bytes,
                           size_t frag_payload = LOWPAN_FRAGMENT_PAYLOAD) const;
 
+    // Delivery for a datagram carrying an in-band hop-recording trace option that
+    // appends trace_bytes_per_hop at each hop. The option pre-reserves
+    // hopCount()*trace_bytes_per_hop bytes, growing the datagram and (often) its
+    // fragment count. Models the "observer effect": instrumenting the packet can
+    // lower its own delivery — exactly why in-band tracing fights 6LoWPAN.
+    float deliveryForSizeWithTrace(size_t payload_bytes, size_t trace_bytes_per_hop,
+                                   size_t frag_payload = LOWPAN_FRAGMENT_PAYLOAD) const;
+
     // Index into hops of the weakest link (highest expected loss); -1 if none.
     int worstHop() const;
     // Number of links traversed (0 when src == dst).

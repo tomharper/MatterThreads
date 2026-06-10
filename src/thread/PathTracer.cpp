@@ -25,6 +25,13 @@ float TraceResult::deliveryForSize(size_t payload_bytes, size_t frag_payload) co
     return std::pow(cumulativeDelivery(), static_cast<float>(n));
 }
 
+float TraceResult::deliveryForSizeWithTrace(size_t payload_bytes,
+                                            size_t trace_bytes_per_hop,
+                                            size_t frag_payload) const {
+    size_t inband = hops.size() * trace_bytes_per_hop;
+    return deliveryForSize(payload_bytes + inband, frag_payload);
+}
+
 int TraceResult::worstHop() const {
     int worst = -1;
     float worst_loss = -1.0f;

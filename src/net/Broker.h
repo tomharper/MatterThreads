@@ -71,11 +71,19 @@ public:
     void enableTracer(bool on = true) { tracer_enabled_ = on; }
     bool tracerEnabled() const { return tracer_enabled_; }
 
+    // The hop sequence [src, ..., dst] the broker would relay a unicast over,
+    // computed from the link-quality graph (least-hop, same as distance-vector).
+    // Empty if unreachable. Pure — no sockets — so it's directly testable.
+    std::vector<NodeId> route(NodeId src, NodeId dst) const;
+
 private:
     void acceptConnections();
     void processIncoming(size_t node_idx);
     void deliverDelayed();
     void forwardFrame(NodeId src, MacFrame frame);
+    // Tracer-mode multi-hop relay: walk the route, apply the per-link model at
+    // each hop, record per-hop counters, deliver only if every hop survives.
+    void relayMultiHop(NodeId src, NodeId final_dst, MacFrame frame, TimePoint now);
     void deliverToNode(NodeId dst, const MacFrame& frame);
 
     Socket listen_socket_;

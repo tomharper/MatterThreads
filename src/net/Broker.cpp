@@ -1,5 +1,6 @@
 #include "net/Broker.h"
 #include "thread/MeshTopology.h"
+#include "thread/PathTracer.h"
 #include "core/Log.h"
 
 #include <poll.h>
@@ -183,9 +184,23 @@ void Broker::processIncoming(size_t node_idx) {
 void Broker::forwardFrame(NodeId src, MacFrame frame) {
     auto now = SteadyClock::now();
 
+    bool is_broadcast = (frame.dst_addr == INVALID_RLOC16 || frame.dst_addr == 0xFFFF);
+
+    // Tracer-mode multi-hop relay (out-of-band measurement): for a resolvable
+    // unicast, route along the real path and apply the per-link model at EACH
+    // hop, so per-hop counters are route-accurate. Default mode keeps the
+    // original single-hop behavior below (and is what every existing test sees).
+    if (tracer_enabled_ && !is_broadcast) {
+        NodeId final_dst = getRouterId(frame.dst_addr);
+        if (final_dst < MAX_NODES && final_dst != src && node_connected_[final_dst]) {
+            relayMultiHop(src, final_dst, std::move(frame), now);
+            return;
+        }
+    }
+
     // Determine destinations
     std::vector<NodeId> destinations;
-    if (frame.dst_addr == INVALID_RLOC16 || frame.dst_addr == 0xFFFF) {
+    if (is_broadcast) {
         // Broadcast
         for (NodeId i = 0; i < MAX_NODES; ++i) {
             if (i != src && node_connected_[i]) destinations.push_back(i);
@@ -242,6 +257,69 @@ void Broker::forwardFrame(NodeId src, MacFrame frame) {
         } else {
             deliverToNode(dst, frame_copy);
         }
+    }
+}
+
+std::vector<NodeId> Broker::route(NodeId src, NodeId dst) const {
+    // Snapshot the link matrix into a MeshTopology and reuse the tested
+    // least-hop path finder (what distance-vector converges to).
+    MeshTopology topo;
+    for (NodeId i = 0; i < MAX_NODES; ++i) {
+        for (NodeId j = 0; j < MAX_NODES; ++j) {
+            topo.setLinkParams(i, j, link_matrix_[i][j]);
+        }
+    }
+    auto tr = tracePath(topo, src, dst);
+    std::vector<NodeId> path;
+    if (!tr.reachable) return path;
+    path.push_back(src);
+    for (const auto& h : tr.hops) path.push_back(h.to);
+    return path;
+}
+
+void Broker::relayMultiHop(NodeId src, NodeId final_dst, MacFrame frame, TimePoint now) {
+    auto path = route(src, final_dst);
+    if (path.size() < 2) {
+        // No route in the current topology — datagram is undeliverable.
+        ++frames_dropped_;
+        return;
+    }
+
+    Duration accumulated{0};
+    for (size_t i = 0; i + 1 < path.size(); ++i) {
+        NodeId a = path[i];
+        NodeId b = path[i + 1];
+
+        const auto& params = link_matrix_[a][b];
+        auto channel_decision = channel_.evaluate(params);
+        if (!channel_decision.deliver) {
+            ++frames_dropped_;
+            ++link_stats_[a][b].dropped;  // tracer is enabled on this path
+            return;                        // all-or-nothing: dies at this hop
+        }
+
+        auto fault_decision = fault_injector_.applyFaults(a, b, frame, now);
+        if (!fault_decision.deliver) {
+            ++frames_dropped_;
+            ++link_stats_[a][b].dropped;
+            return;
+        }
+
+        ++link_stats_[a][b].forwarded;
+        accumulated += channel_decision.delay + fault_decision.delay;
+
+        // Delivered frame reflects the last hop's measured link quality.
+        frame.lqi = fault_decision.delivered_lqi > 0 ?
+            fault_decision.delivered_lqi : channel_decision.delivered_lqi;
+        frame.rssi = fault_decision.delivered_rssi != -100 ?
+            fault_decision.delivered_rssi : channel_decision.delivered_rssi;
+    }
+
+    // Every hop survived — deliver to the final destination.
+    if (accumulated.count() > 0) {
+        delay_queue_.push({now + accumulated, final_dst, std::move(frame)});
+    } else {
+        deliverToNode(final_dst, frame);
     }
 }
 
