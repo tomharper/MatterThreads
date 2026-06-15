@@ -126,13 +126,24 @@ actor SimulationService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = body.data(using: .utf8)
         if let token = authToken {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         do {
-            let (_, response) = try await session.data(for: request)
-            guard let http = response as? HTTPURLResponse else { return false }
-            return http.statusCode >= 200 && http.statusCode < 300
+            let (data, response) = try await session.data(for: request)
+            guard let http = response as? HTTPURLResponse,
+                  http.statusCode >= 200 && http.statusCode < 300 else { return false }
+            // The gateway returns HTTP 200 even when the command itself didn't
+            // execute (e.g. van registered but offline), signalling the real
+            // outcome in a "success" body field. Honor it when present so the UI
+            // doesn't report a no-op command as successful; absent the field,
+            // fall back to the 2xx status.
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let success = json["success"] as? Bool {
+                return success
+            }
+            return true
         } catch {
             return false
         }

@@ -2,6 +2,7 @@
 #include "core/Log.h"
 #include "thread/MeshTopology.h"
 #include "thread/PathTracer.h"
+#include "net/Socket.h"
 #include "fault/FaultPlan.h"
 #include "metrics/Collector.h"
 #include "metrics/Reporter.h"
@@ -129,6 +130,29 @@ static mt::MeshTopology topologyFromName(const std::string& name) {
     return mt::MeshTopology::fullyConnected();
 }
 
+// Send one newline-terminated command to the running broker's control port and
+// return its reply line. The broker listens on data port + 1 (see BrokerMain).
+static std::string sendBrokerControl(const std::string& line) {
+    uint16_t control_port = static_cast<uint16_t>(mt::BROKER_PORT + 1);
+    auto conn = mt::Socket::connect("127.0.0.1", control_port);
+    if (!conn) {
+        return "ERR could not reach broker control port " + std::to_string(control_port);
+    }
+    std::string msg = line + "\n";
+    auto sent = conn->sendAll(reinterpret_cast<const uint8_t*>(msg.data()), msg.size());
+    if (!sent) return "ERR send failed: " + sent.error().message;
+
+    std::string reply;
+    uint8_t c = 0;
+    for (int i = 0; i < 256; ++i) {
+        auto r = conn->recvAll(&c, 1);
+        if (!r) break;
+        if (c == '\n') break;
+        reply.push_back(static_cast<char>(c));
+    }
+    return reply;
+}
+
 static std::string getBinaryDir() {
     // Locate mt_broker and mt_node binaries relative to matterthreads
     // They should be in the same directory
@@ -212,7 +236,19 @@ int main(int argc, char* argv[]) {
                     if (iss >> ep >> std::hex >> cluster >> attr) {
                         auto result = hw_node->readAttribute(ep, cluster, attr);
                         if (result.ok()) {
-                            std::visit([](const auto& v) { std::cout << "Value: " << v << "\n"; }, *result);
+                            std::visit([](const auto& v) {
+                                using T = std::decay_t<decltype(v)>;
+                                if constexpr (std::is_same_v<T, std::vector<unsigned char>>) {
+                                    // Octet string: stream operator<< isn't defined for
+                                    // byte vectors, so render as hex.
+                                    std::ostringstream hex;
+                                    hex << std::hex << std::setfill('0');
+                                    for (unsigned char b : v) hex << std::setw(2) << static_cast<int>(b);
+                                    std::cout << "Value: 0x" << hex.str() << "\n";
+                                } else {
+                                    std::cout << "Value: " << v << "\n";
+                                }
+                            }, *result);
                         } else {
                             std::cout << "Read failed: " << result.error().message << "\n";
                         }
@@ -319,6 +355,40 @@ int main(int argc, char* argv[]) {
             return nodes;
         });
 
+        // Populate the link matrix for /api/topology. Query the broker's live
+        // state over the control channel (so it reflects runtime `link` changes),
+        // falling back to the launch-time preset for any link the broker can't
+        // answer. Without a provider, /api/topology returns links:null.
+        dashboard->setTopologyProvider([&]() -> mt::TopologyMatrix {
+            auto preset = topologyFromName(opts.topology);
+            mt::TopologyMatrix matrix{};
+            for (int i = 0; i < NUM_NODES; ++i) {
+                for (int j = 0; j < NUM_NODES; ++j) {
+                    auto lp = preset.getLinkParams(static_cast<mt::NodeId>(i),
+                                                   static_cast<mt::NodeId>(j));
+                    mt::TopologyLink link;
+                    link.loss_rate = lp.base_loss_rate;
+                    link.latency_mean_ms = lp.latency_mean_ms;
+                    link.link_up = lp.link_up;
+                    link.lqi = lp.lqi;
+                    link.rssi = lp.rssi;
+                    if (i != j) {
+                        // Overlay live broker state when reachable.
+                        std::istringstream ris(sendBrokerControl(
+                            "get " + std::to_string(i) + " " + std::to_string(j)));
+                        std::string ok, updown; float loss = 0, lat = 0;
+                        if (ris >> ok >> updown >> loss >> lat && ok == "OK") {
+                            link.link_up = (updown == "up");
+                            link.loss_rate = loss;
+                            link.latency_mean_ms = lat;
+                        }
+                    }
+                    matrix[static_cast<size_t>(i)][static_cast<size_t>(j)] = link;
+                }
+            }
+            return matrix;
+        });
+
         auto start_result = dashboard->start();
         if (!start_result) {
             MT_WARN("ctrl", "Dashboard failed to start: " + start_result.error().message);
@@ -423,6 +493,76 @@ int main(int argc, char* argv[]) {
                     std::string state = (result == 0) ? "running" : "stopped";
                     std::cout << "  Node " << i << ": PID=" << node_pids[static_cast<size_t>(i)]
                               << " (" << roles[static_cast<size_t>(i)] << ") " << state << "\n";
+                }
+            } else if (cmd == "topology") {
+                // Live view: query the running broker's link matrix over the control
+                // channel so it reflects any 'link' mutations. Falls back to the
+                // launch-time preset if the broker can't be reached.
+                auto preset = topologyFromName(opts.topology);
+                bool live = true;
+                std::ostringstream out;
+                out << std::fixed << std::setprecision(1);
+                out << "        ";
+                for (int j = 0; j < NUM_NODES; ++j) out << "    ->" << j << "      ";
+                out << "\n";
+                for (int i = 0; i < NUM_NODES; ++i) {
+                    out << "  " << i << " (" << roles[static_cast<size_t>(i)].substr(0, 4) << ") ";
+                    for (int j = 0; j < NUM_NODES; ++j) {
+                        if (i == j) {
+                            out << std::setw(13) << "--";
+                            continue;
+                        }
+                        bool up; float loss; float lat;
+                        std::string reply = sendBrokerControl(
+                            "get " + std::to_string(i) + " " + std::to_string(j));
+                        std::istringstream ris(reply);
+                        std::string ok, updown;
+                        if (ris >> ok >> updown >> loss >> lat && ok == "OK") {
+                            up = (updown == "up");
+                        } else {
+                            // Broker unreachable: fall back to the preset for this cell.
+                            live = false;
+                            auto lp = preset.getLinkParams(static_cast<mt::NodeId>(i),
+                                                           static_cast<mt::NodeId>(j));
+                            up = lp.link_up; loss = lp.base_loss_rate; lat = lp.latency_mean_ms;
+                        }
+                        std::ostringstream cell;
+                        if (!up) cell << "DOWN";
+                        else cell << (loss * 100.0f) << "%/" << lat << "ms";
+                        out << std::setw(13) << cell.str();
+                    }
+                    out << "\n";
+                }
+                std::cout << "Link matrix (" << (live ? "live broker state" : "preset fallback")
+                          << ", topology=" << opts.topology
+                          << ")  [row=from, col=to, loss%/latency, DOWN if down]\n"
+                          << out.str();
+                std::cout << "  [for per-link delivery ground truth run with --trace]\n";
+            } else if (cmd == "link") {
+                int a = -1, b = -1;
+                std::string action;
+                if (iss >> a >> b >> action && a >= 0 && a < NUM_NODES &&
+                    b >= 0 && b < NUM_NODES && a != b) {
+                    // Mutate the live link matrix in the running broker process via
+                    // its control channel. Directed A->B, matching the help text.
+                    std::string reply = sendBrokerControl(
+                        "link " + std::to_string(a) + " " + std::to_string(b) + " " + action);
+                    std::cout << reply << "\n";
+                    collector.event(mt::SteadyClock::now(), static_cast<mt::NodeId>(a),
+                                    "link", "mutation_" + action);
+                } else {
+                    std::cout << "Usage: link <A> <B> <loss%|down|up>   (node ids 0-"
+                              << (NUM_NODES - 1) << ", A != B)\n";
+                }
+            } else if (cmd == "chaos") {
+                std::string state;
+                if (iss >> state && (state == "on" || state == "off")) {
+                    // Toggle broker-side global random-drop fault set.
+                    std::string reply = sendBrokerControl("chaos " + state);
+                    std::cout << reply << "\n";
+                    collector.event(mt::SteadyClock::now(), 0, "chaos", state);
+                } else {
+                    std::cout << "Usage: chaos <on|off>\n";
                 }
             } else if (cmd == "discover") {
                 std::cout << "Phone (Node 3) scanning for devices via DNS-SD...\n";

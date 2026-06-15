@@ -67,6 +67,13 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    // Runtime control channel on the data port + 1 (best-effort; the sim still
+    // runs if the control port can't be bound).
+    auto control_result = broker.enableControl(static_cast<uint16_t>(port + 1));
+    if (!control_result) {
+        MT_WARN("broker", "Control channel unavailable: " + control_result.error().message);
+    }
+
     broker.run();
 
     MT_INFO("broker", "Frames forwarded: " + std::to_string(broker.framesForwarded()) +

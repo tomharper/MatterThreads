@@ -137,3 +137,33 @@ TEST(BrokerRoute, UnreachableIsEmpty) {
     b.applyTopology(t);
     EXPECT_TRUE(b.route(0, 1).empty());
 }
+
+TEST(BrokerControl, ChaosToggleAddsAndRemovesFault) {
+    Broker b(1);
+    EXPECT_EQ(b.faultInjector().rules().size(), 0u);
+
+    b.setChaos(true);
+    EXPECT_EQ(b.faultInjector().rules().size(), 1u);
+
+    // Idempotent: turning chaos on again must not stack duplicate rules.
+    b.setChaos(true);
+    EXPECT_EQ(b.faultInjector().rules().size(), 1u);
+
+    b.setChaos(false);
+    EXPECT_EQ(b.faultInjector().rules().size(), 0u);
+}
+
+TEST(BrokerControl, ChaosPreservesExistingRules) {
+    Broker b(1);
+    FaultRule scenario;
+    scenario.type = FaultType::LinkDown;
+    scenario.description = "scenario";
+    b.faultInjector().addRule(scenario);
+
+    b.setChaos(true);
+    EXPECT_EQ(b.faultInjector().rules().size(), 2u);
+    b.setChaos(false);
+    // The scenario rule survives the chaos toggle.
+    ASSERT_EQ(b.faultInjector().rules().size(), 1u);
+    EXPECT_EQ(b.faultInjector().rules()[0].description, "scenario");
+}

@@ -149,3 +149,28 @@ TEST(FaultInjector, ClearRules) {
     fi.clearRules();
     EXPECT_EQ(fi.rules().size(), 0);
 }
+
+TEST(FaultInjector, RemoveRulesByDescriptionIsSelective) {
+    Random rng(42);
+    FaultInjector fi(rng);
+
+    FaultRule keep;
+    keep.type = FaultType::LinkDown;
+    keep.description = "scenario";
+    fi.addRule(keep);
+
+    FaultRule tagged;
+    tagged.type = FaultType::PacketDrop;
+    tagged.description = "chaos-mode";
+    fi.addRule(tagged);
+    fi.addRule(tagged);
+
+    EXPECT_EQ(fi.rules().size(), 3);
+    fi.removeRulesByDescription("chaos-mode");
+    ASSERT_EQ(fi.rules().size(), 1);
+    EXPECT_EQ(fi.rules()[0].description, "scenario");  // untouched
+
+    // Removing a description with no matches is a no-op.
+    fi.removeRulesByDescription("nonexistent");
+    EXPECT_EQ(fi.rules().size(), 1);
+}

@@ -47,6 +47,17 @@ public:
     // Apply a MeshTopology preset to the link matrix
     void applyTopology(const MeshTopology& topology);
 
+    // Runtime control channel: open a small TCP command port so a controller can
+    // mutate the live link matrix / fault state while the sim is running (e.g. the
+    // interactive `link` and `chaos` REPL commands). One connection per command,
+    // newline-terminated text, replies "OK ...\n" or "ERR ...\n". Opening it is
+    // opt-in; the broker is unaffected if never enabled.
+    Result<void> enableControl(uint16_t control_port);
+
+    // Toggle a global random packet-drop fault set ("chaos mode") on/off. Tagged
+    // so it can be removed without disturbing scenario-injected faults.
+    void setChaos(bool on);
+
     // Fault injection
     FaultInjector& faultInjector() { return fault_injector_; }
 
@@ -78,6 +89,10 @@ public:
 
 private:
     void acceptConnections();
+    // Accept one control connection, read a single command line, apply it, reply.
+    void acceptControl();
+    // Parse+apply a control command line; returns the reply string (newline-ended).
+    std::string applyControlCommand(const std::string& line);
     void processIncoming(size_t node_idx);
     void deliverDelayed();
     void forwardFrame(NodeId src, MacFrame frame);
@@ -87,6 +102,8 @@ private:
     void deliverToNode(NodeId dst, const MacFrame& frame);
 
     Socket listen_socket_;
+    Socket control_listen_socket_;   // runtime control command port (opt-in)
+    bool control_enabled_ = false;
     std::array<Socket, MAX_NODES> node_sockets_;
     std::array<bool, MAX_NODES> node_connected_{};
     size_t connected_count_ = 0;

@@ -3,4 +3,5 @@ target_link_libraries(matterthreads PRIVATE mt_matter mt_fault mt_metrics nlohma
 
 if(ENABLE_HW_BRIDGE)
     target_link_libraries(matterthreads PRIVATE mt_hw)
+    target_compile_definitions(matterthreads PRIVATE MT_HW_BRIDGE_ENABLED)
 endif()

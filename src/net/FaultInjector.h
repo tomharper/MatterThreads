@@ -6,6 +6,7 @@
 #include "net/Channel.h"
 #include <vector>
 #include <string>
+#include <algorithm>
 
 namespace mt {
 
@@ -68,6 +69,14 @@ public:
     }
 
     void clearRules() { rules_.clear(); }
+
+    // Remove all rules tagged with the given description (used to toggle a named
+    // fault set on/off, e.g. interactive "chaos" mode, without disturbing others).
+    void removeRulesByDescription(const std::string& desc) {
+        rules_.erase(std::remove_if(rules_.begin(), rules_.end(),
+                         [&](const FaultRule& r) { return r.description == desc; }),
+                     rules_.end());
+    }
     const std::vector<FaultRule>& rules() const { return rules_; }
 
     // Apply all active fault rules to a frame. Returns modified delivery decision.

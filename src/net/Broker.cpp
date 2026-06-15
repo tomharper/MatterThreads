@@ -6,6 +6,7 @@
 #include <poll.h>
 #include <algorithm>
 #include <string>
+#include <sstream>
 
 namespace mt {
 
@@ -32,6 +33,7 @@ Result<void> Broker::start(uint16_t port) {
 void Broker::stop() {
     running_ = false;
     listen_socket_.close();
+    control_listen_socket_.close();
     for (auto& s : node_sockets_) s.close();
     MT_INFO("broker", "Stopped");
 }
@@ -65,6 +67,121 @@ void Broker::applyTopology(const MeshTopology& topology) {
     }
 }
 
+Result<void> Broker::enableControl(uint16_t control_port) {
+    auto result = Socket::listen(control_port);
+    if (!result) return result.error();
+    control_listen_socket_ = std::move(*result);
+    control_enabled_ = true;
+    MT_INFO("broker", "Control channel listening on port " + std::to_string(control_port));
+    return Result<void>::success();
+}
+
+void Broker::setChaos(bool on) {
+    static const std::string kChaosTag = "chaos-mode";
+    fault_injector_.removeRulesByDescription(kChaosTag);
+    if (on) {
+        FaultRule r;
+        r.type = FaultType::PacketDrop;
+        r.affected_src = ANY_NODE;
+        r.affected_dst = ANY_NODE;
+        r.probability = 1.0f;
+        r.drop_rate = 0.2f;          // 20% random drop across every link
+        r.duration = INDEFINITE;
+        r.description = kChaosTag;
+        fault_injector_.addRule(std::move(r));
+    }
+}
+
+void Broker::acceptControl() {
+    auto res = control_listen_socket_.accept();
+    if (!res) return;
+    Socket client = std::move(*res);
+
+    // Read one newline-terminated command line. poll() flagged the listener
+    // readable and the controller writes a complete line immediately, so the
+    // per-byte reads here resolve promptly. Bounded to avoid a runaway peer.
+    std::string line;
+    uint8_t c = 0;
+    for (int i = 0; i < 256; ++i) {
+        auto r = client.recvAll(&c, 1);
+        if (!r) return;
+        if (c == '\n') break;
+        line.push_back(static_cast<char>(c));
+    }
+
+    std::string reply = applyControlCommand(line);
+    client.sendAll(reinterpret_cast<const uint8_t*>(reply.data()), reply.size());
+}
+
+std::string Broker::applyControlCommand(const std::string& line) {
+    std::istringstream iss(line);
+    std::string cmd;
+    iss >> cmd;
+
+    if (cmd == "link") {
+        int a = -1, b = -1;
+        std::string action;
+        if (!(iss >> a >> b >> action) || a < 0 || a >= static_cast<int>(MAX_NODES) ||
+            b < 0 || b >= static_cast<int>(MAX_NODES) || a == b) {
+            return "ERR usage: link <a> <b> <loss%|down|up> (ids 0-" +
+                   std::to_string(MAX_NODES - 1) + ", a!=b)\n";
+        }
+        LinkParams lp = link_matrix_[static_cast<size_t>(a)][static_cast<size_t>(b)];
+        if (action == "down") {
+            lp.link_up = false;
+        } else if (action == "up") {
+            lp.link_up = true;
+        } else {
+            // Numeric loss percent (accepts "20" or "20%").
+            size_t pos = 0;
+            float pct = 0.0f;
+            try {
+                pct = std::stof(action, &pos);
+            } catch (...) {
+                return "ERR bad loss value '" + action + "'\n";
+            }
+            lp.base_loss_rate = std::clamp(pct / 100.0f, 0.0f, 1.0f);
+            lp.link_up = true;
+        }
+        link_matrix_[static_cast<size_t>(a)][static_cast<size_t>(b)] = lp;
+        MT_INFO("broker", "Control: link " + std::to_string(a) + "->" + std::to_string(b) +
+                          " " + action);
+        return "OK link " + std::to_string(a) + "->" + std::to_string(b) + " " + action + "\n";
+    }
+
+    if (cmd == "get") {
+        // Query one live directed link: reply "OK <up|down> <loss_fraction> <lat_ms>".
+        int a = -1, b = -1;
+        if (!(iss >> a >> b) || a < 0 || a >= static_cast<int>(MAX_NODES) ||
+            b < 0 || b >= static_cast<int>(MAX_NODES)) {
+            return "ERR usage: get <a> <b>\n";
+        }
+        const LinkParams& lp = link_matrix_[static_cast<size_t>(a)][static_cast<size_t>(b)];
+        std::ostringstream out;
+        out << "OK " << (lp.link_up ? "up" : "down") << " " << lp.base_loss_rate
+            << " " << lp.latency_mean_ms << "\n";
+        return out.str();
+    }
+
+    if (cmd == "chaos") {
+        std::string state;
+        iss >> state;
+        if (state == "on") {
+            setChaos(true);
+            MT_INFO("broker", "Control: chaos ON (20% random drop, all links)");
+            return "OK chaos on (20% random drop across all links)\n";
+        }
+        if (state == "off") {
+            setChaos(false);
+            MT_INFO("broker", "Control: chaos OFF");
+            return "OK chaos off\n";
+        }
+        return "ERR usage: chaos <on|off>\n";
+    }
+
+    return "ERR unknown control command '" + cmd + "'\n";
+}
+
 void Broker::run() {
     MT_INFO("broker", "Waiting for " + std::to_string(MAX_NODES) + " node connections...");
 
@@ -77,13 +194,20 @@ void Broker::run() {
     MT_INFO("broker", "All nodes connected. Forwarding frames.");
 
     // Phase 2: Forward frames between nodes
+    // kinds[k] tags pollfd k: >=0 is a node index, -1 is the control listener.
+    static constexpr int KIND_CONTROL = -1;
     while (running_) {
-        // Build pollfd array for all connected nodes
         std::vector<struct pollfd> fds;
+        std::vector<int> kinds;
         for (size_t i = 0; i < MAX_NODES; ++i) {
             if (node_connected_[i]) {
                 fds.push_back({node_sockets_[i].fd(), POLLIN, 0});
+                kinds.push_back(static_cast<int>(i));
             }
+        }
+        if (control_enabled_ && control_listen_socket_.valid()) {
+            fds.push_back({control_listen_socket_.fd(), POLLIN, 0});
+            kinds.push_back(KIND_CONTROL);
         }
 
         // Compute timeout based on delay queue
@@ -106,19 +230,24 @@ void Broker::run() {
 
         if (ready <= 0) continue;
 
-        // Process incoming frames
-        size_t fd_idx = 0;
-        for (size_t i = 0; i < MAX_NODES; ++i) {
-            if (!node_connected_[i]) continue;
-            if (fds[fd_idx].revents & POLLIN) {
+        // Dispatch ready fds
+        for (size_t k = 0; k < fds.size(); ++k) {
+            short re = fds[k].revents;
+            if (!re) continue;
+            int kind = kinds[k];
+            if (kind == KIND_CONTROL) {
+                if (re & POLLIN) acceptControl();
+                continue;
+            }
+            size_t i = static_cast<size_t>(kind);
+            if (re & POLLIN) {
                 processIncoming(i);
             }
-            if (fds[fd_idx].revents & (POLLHUP | POLLERR)) {
+            if (re & (POLLHUP | POLLERR)) {
                 MT_WARN("broker", "Node " + std::to_string(i) + " disconnected");
                 node_sockets_[i].close();
                 node_connected_[i] = false;
             }
-            ++fd_idx;
         }
     }
 }
