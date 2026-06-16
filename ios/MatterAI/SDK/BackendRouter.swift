@@ -85,6 +85,15 @@ class BackendRouter: ObservableObject {
         return device
     }
 
+    /// Multi-admin: open a commissioning window on a device and return the pairing
+    /// codes to share it with Apple Home / Google Home. Routes to the device's
+    /// owning backend (only Matter supports it; others throw a clear error).
+    func shareDevice(deviceId: String, duration: TimeInterval = 300) async throws -> PairingHandoff {
+        let backend = try resolveBackend(for: deviceId)
+        let nativeId = extractNativeId(from: deviceId)
+        return try await backend.openCommissioningWindow(deviceId: nativeId, duration: duration)
+    }
+
     // MARK: - Subscriptions
 
     func subscribeToDevice(_ deviceId: String, paths: [AttributePath],

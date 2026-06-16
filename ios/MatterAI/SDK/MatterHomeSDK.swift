@@ -263,6 +263,19 @@ class MatterHomeSDK: ObservableObject {
         return device
     }
 
+    /// Multi-admin: share an already-commissioned device with other ecosystems
+    /// (Apple Home, Google Home). Returns the pairing codes to enter in their apps.
+    /// The device stays controllable from this app throughout.
+    func shareDevice(_ device: UnifiedDevice, duration: TimeInterval = 300) async throws -> PairingHandoff {
+        let handoff = try await router.shareDevice(deviceId: device.id, duration: duration)
+        eventStream.emit(DeviceEvent(
+            timestamp: Date(), deviceId: device.id,
+            deviceName: device.name, source: device.source,
+            type: .commissioned, detail: "shared (multi-admin) — code \(handoff.manualCode)"
+        ))
+        return handoff
+    }
+
     // MARK: - AI / NL Query
 
     /// Process a natural language query about the home (synchronous, C++ side only)

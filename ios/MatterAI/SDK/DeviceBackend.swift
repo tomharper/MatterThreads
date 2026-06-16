@@ -94,6 +94,34 @@ protocol DeviceBackend: AnyObject, Sendable {
 
     /// Get all currently known devices from this backend
     func knownDevices() -> [UnifiedDevice]
+
+    /// Open a Matter commissioning window on an already-commissioned device so it
+    /// can be shared with additional fabrics (Apple Home, Google Home, …). Returns
+    /// the pairing codes the user enters in the other ecosystem's app. This is the
+    /// Matter "multi-admin" mechanism — only Matter-based backends support it.
+    func openCommissioningWindow(deviceId: String, duration: TimeInterval) async throws -> PairingHandoff
+}
+
+// Default: backends that aren't Matter fabrics can't hand a device to another
+// ecosystem this way. Surface a clear, specific message rather than a crash.
+extension DeviceBackend {
+    func openCommissioningWindow(deviceId: String, duration: TimeInterval) async throws -> PairingHandoff {
+        throw BackendError.commissioningFailed(
+            "Multi-admin sharing isn't supported for \(source.rawValue) devices — only Matter-commissioned devices can be shared to other ecosystems.")
+    }
+}
+
+// MARK: - Pairing Handoff
+
+/// Codes produced by opening a commissioning window. The user enters the manual
+/// code (or scans the QR) in Apple Home and Google Home to add the device there.
+struct PairingHandoff: Sendable {
+    /// 11-digit Matter manual pairing code, e.g. "3497-011-2332".
+    let manualCode: String
+    /// QR-code payload string ("MT:..."), if available (iOS 17.6+).
+    let qrCode: String?
+    /// Seconds the window stays open.
+    let durationSeconds: Int
 }
 
 // MARK: - Attribute Update

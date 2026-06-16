@@ -283,6 +283,40 @@ final class MatterBackend: DeviceBackend, @unchecked Sendable {
         #endif
     }
 
+    /// Multi-admin: open a commissioning window on a device we already own and
+    /// return the pairing codes to hand to Apple Home / Google Home. The device
+    /// remains controllable from this app the whole time — the other ecosystems
+    /// join the same device as additional fabric administrators.
+    func openCommissioningWindow(deviceId: String, duration: TimeInterval) async throws -> PairingHandoff {
+        #if canImport(Matter)
+        if #available(iOS 17.0, *) {
+            guard isActive, let controller = controller else { throw BackendError.notConnected }
+            guard let nodeID = UInt64(deviceId) else { throw BackendError.deviceNotFound(deviceId) }
+            let device = MTRDevice(nodeID: NSNumber(value: nodeID), controller: controller)
+            let seconds = max(180, Int(duration))   // Matter requires >= 180s
+
+            let payload: MTRSetupPayload = try await withDeviceTimeout(Double(seconds)) { finish in
+                device.openCommissioningWindow(
+                    withDiscriminator: NSNumber(value: Int.random(in: 0...0xFFF)),
+                    duration: NSNumber(value: seconds),
+                    queue: self.workQueue) { payload, error in
+                        if let error = error { finish(.failure(error)) }
+                        else if let payload = payload { finish(.success(payload)) }
+                        else { finish(.failure(BackendError.commissioningFailed("No setup payload returned"))) }
+                    }
+            }
+
+            guard let manual = payload.manualEntryCode() else {
+                throw BackendError.commissioningFailed("Could not generate a pairing code")
+            }
+            var qr: String? = nil
+            if #available(iOS 17.6, *) { qr = payload.qrCodeString() }
+            return PairingHandoff(manualCode: manual, qrCode: qr, durationSeconds: seconds)
+        }
+        #endif
+        throw BackendError.notAvailable(source)
+    }
+
     // MARK: - Helpers
 
     #if canImport(Matter)
