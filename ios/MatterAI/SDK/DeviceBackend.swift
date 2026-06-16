@@ -111,6 +111,7 @@ struct AttributeUpdate: Sendable {
 enum BackendError: Error, LocalizedError {
     case notAvailable(BackendSource)
     case notConnected
+    case deviceUnreachable(String)
     case deviceNotFound(String)
     case attributeNotFound(AttributePath)
     case commissioningFailed(String)
@@ -122,6 +123,7 @@ enum BackendError: Error, LocalizedError {
         switch self {
         case .notAvailable(let src): return "\(src.rawValue) backend not available on this device"
         case .notConnected: return "Backend not connected"
+        case .deviceUnreachable(let msg): return msg
         case .deviceNotFound(let id): return "Device \(id) not found"
         case .attributeNotFound(let path): return "Attribute not found: ep\(path.endpointId)/0x\(String(path.clusterId, radix: 16))/0x\(String(path.attributeId, radix: 16))"
         case .commissioningFailed(let msg): return "Commissioning failed: \(msg)"
