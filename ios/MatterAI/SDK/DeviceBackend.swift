@@ -4,11 +4,12 @@ import Foundation
 
 /// Mirrors matter::BackendSource from C++
 enum BackendSource: String, CaseIterable, Sendable {
-    case local       = "Local"
-    case appleMatter = "Apple Matter"
-    case homeKit     = "HomeKit"
-    case googleHome  = "Google Home"
-    case thread      = "Thread"
+    case local          = "Local"
+    case appleMatter    = "Apple Matter"
+    case homeKit        = "HomeKit"
+    case googleHome     = "Google Home"
+    case googleHomeAPIs = "Google Home (Native)"
+    case thread         = "Thread"
 }
 
 // MARK: - Attribute Path

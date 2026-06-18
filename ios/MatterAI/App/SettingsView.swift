@@ -250,6 +250,7 @@ private struct BackendToggleRow: View {
         case .appleMatter: return "m.square.fill"
         case .homeKit: return "house.fill"
         case .googleHome: return "g.circle.fill"
+        case .googleHomeAPIs: return "g.circle"
         case .thread: return "point.3.connected.trianglepath.dotted"
         }
     }
@@ -260,6 +261,7 @@ private struct BackendToggleRow: View {
         case .appleMatter: return .blue
         case .homeKit: return .orange
         case .googleHome: return .red
+        case .googleHomeAPIs: return .green
         case .thread: return .purple
         }
     }

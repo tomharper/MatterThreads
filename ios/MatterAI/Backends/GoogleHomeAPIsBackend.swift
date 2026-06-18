@@ -83,7 +83,7 @@ import Combine
 ///     `Home.restoreSession()` return type (`Home?`, awaited per sample).
 /// These sit inside `#if canImport(GoogleHomeSDK)`, so they don't affect today's build.
 final class GoogleHomeAPIsBackend: DeviceBackend, @unchecked Sendable {
-    let source: BackendSource = .googleHome
+    let source: BackendSource = .googleHomeAPIs
 
     /// Stricter than `canImport`: App Attest can't run in the Simulator and the
     /// base SDK is iOS 17.0+. Reporting `true` on the Simulator would lie.
