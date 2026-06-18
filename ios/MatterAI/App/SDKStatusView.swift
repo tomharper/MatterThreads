@@ -131,6 +131,7 @@ struct SDKStatusView: View {
         case .appleMatter: return "circle.hexagongrid.fill"
         case .homeKit: return "homekit"
         case .googleHome: return "globe"
+        case .googleHomeAPIs: return "g.circle.fill"
         case .thread: return "antenna.radiowaves.left.and.right"
         }
     }
@@ -142,6 +143,7 @@ struct SDKStatusView: View {
         case .appleMatter: return .orange
         case .homeKit: return .pink
         case .googleHome: return .green
+        case .googleHomeAPIs: return .mint
         case .thread: return .purple
         }
     }
@@ -152,6 +154,7 @@ struct SDKStatusView: View {
         case .appleMatter: return "Requires iOS 16.1+"
         case .homeKit: return "Requires HomeKit entitlement"
         case .googleHome: return "Requires OAuth setup"
+        case .googleHomeAPIs: return "Requires GoogleHomeSDK + hub"
         case .thread: return "Requires Thread network"
         }
     }

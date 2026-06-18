@@ -25,6 +25,7 @@
 		AA000052 /* BackendRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000052 /* BackendRouter.swift */; };
 		AA000053 /* MatterHomeSDK.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000053 /* MatterHomeSDK.swift */; };
 		AA000060 /* LocalBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000060 /* LocalBackend.swift */; };
+		AA0000A2 /* GoogleHomeAPIsBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000A2 /* GoogleHomeAPIsBackend.swift */; };
 		AA000061 /* MatterBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000061 /* MatterBackend.swift */; };
 		AA000062 /* HomeKitBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000062 /* HomeKitBackend.swift */; };
 		AA000063 /* GoogleHomeBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB000063 /* GoogleHomeBackend.swift */; };
@@ -74,6 +75,7 @@
 		BB000052 /* BackendRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendRouter.swift; sourceTree = "<group>"; };
 		BB000053 /* MatterHomeSDK.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatterHomeSDK.swift; sourceTree = "<group>"; };
 		BB000060 /* LocalBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalBackend.swift; sourceTree = "<group>"; };
+		BB0000A2 /* GoogleHomeAPIsBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleHomeAPIsBackend.swift; sourceTree = "<group>"; };
 		BB000061 /* MatterBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatterBackend.swift; sourceTree = "<group>"; };
 		BB000062 /* HomeKitBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeKitBackend.swift; sourceTree = "<group>"; };
 		BB000063 /* GoogleHomeBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleHomeBackend.swift; sourceTree = "<group>"; };
@@ -218,6 +220,7 @@
 			isa = PBXGroup;
 			children = (
 				BB000060 /* LocalBackend.swift */,
+				BB0000A2 /* GoogleHomeAPIsBackend.swift */,
 				BB000061 /* MatterBackend.swift */,
 				BB000062 /* HomeKitBackend.swift */,
 				BB000063 /* GoogleHomeBackend.swift */,
@@ -326,6 +329,7 @@
 				AA000052 /* BackendRouter.swift in Sources */,
 				AA000053 /* MatterHomeSDK.swift in Sources */,
 				AA000060 /* LocalBackend.swift in Sources */,
+				AA0000A2 /* GoogleHomeAPIsBackend.swift in Sources */,
 				AA000061 /* MatterBackend.swift in Sources */,
 				AA000062 /* HomeKitBackend.swift in Sources */,
 				AA000063 /* GoogleHomeBackend.swift in Sources */,

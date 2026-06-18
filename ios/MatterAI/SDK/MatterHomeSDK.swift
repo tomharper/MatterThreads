@@ -164,8 +164,17 @@ class MatterHomeSDK: ObservableObject {
             backend.restoreFromKeychain()
             googleHomeBackend = backend
             router.register(backend)
+        case .googleHomeAPIs: enableGoogleHomeAPIs()
         case .thread: enableThread()
         }
+    }
+
+    /// Register the native Google Home APIs backend (Matter via Google's fabric).
+    /// Compiles today as unavailable; becomes live once the GoogleHomeSDK package
+    /// is added to the project (see GoogleHomeAPIsBackend.swift header for setup).
+    func enableGoogleHomeAPIs() {
+        let backend = GoogleHomeAPIsBackend()
+        router.register(backend)
     }
 
     // MARK: - Lifecycle
