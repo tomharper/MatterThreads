@@ -37,6 +37,7 @@
 		AA00006B /* SDKKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00006B /* SDKKeychain.swift */; };
 		AA00006C /* ThreadDiagnosticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00006C /* ThreadDiagnosticsView.swift */; };
 		AA00006D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB00006D /* SettingsView.swift */; };
+		AA0000A1 /* ShareDeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000A1 /* ShareDeviceView.swift */; };
 		AA000070 /* Matter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB000070 /* Matter.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		AA000071 /* HomeKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB000071 /* HomeKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		B1D571E92F78957D00BF5B69 /* Leetcode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B1D571E82F78957D00BF5B69 /* Leetcode.cpp */; };
@@ -86,6 +87,7 @@
 		BB00006B /* SDKKeychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKKeychain.swift; sourceTree = "<group>"; };
 		BB00006C /* ThreadDiagnosticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadDiagnosticsView.swift; sourceTree = "<group>"; };
 		BB00006D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		BB0000A1 /* ShareDeviceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareDeviceView.swift; sourceTree = "<group>"; };
 		BB000070 /* Matter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Matter.framework; path = System/Library/Frameworks/Matter.framework; sourceTree = SDKROOT; };
 		BB000071 /* HomeKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HomeKit.framework; path = System/Library/Frameworks/HomeKit.framework; sourceTree = SDKROOT; };
 		BB000072 /* ThreadNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ThreadNetwork.framework; path = System/Library/Frameworks/ThreadNetwork.framework; sourceTree = SDKROOT; };
@@ -157,6 +159,7 @@
 				BB000065 /* SDKStatusView.swift */,
 				BB000067 /* CommissioningView.swift */,
 				BB000068 /* DeviceDetailView.swift */,
+				BB0000A1 /* ShareDeviceView.swift */,
 				BB00006A /* EventLogView.swift */,
 				BB00006C /* ThreadDiagnosticsView.swift */,
 				BB00006D /* SettingsView.swift */,
@@ -333,6 +336,7 @@
 				AA000069 /* DeviceEventStream.swift in Sources */,
 				AA00006B /* SDKKeychain.swift in Sources */,
 				AA00006A /* EventLogView.swift in Sources */,
+				AA0000A1 /* ShareDeviceView.swift in Sources */,
 				AA00006C /* ThreadDiagnosticsView.swift in Sources */,
 				AA00006D /* SettingsView.swift in Sources */,
 			);

@@ -7,6 +7,7 @@ struct DeviceDetailView: View {
     let device: UnifiedDevice
 
     @State private var isRefreshing = false
+    @State private var showShareSheet = false
 
     var body: some View {
         List {
@@ -97,12 +98,30 @@ struct DeviceDetailView: View {
                 }
             }
 
+            // Multi-admin sharing — only Matter-commissioned devices can be
+            // shared into other ecosystems (Apple Home, Google Home).
+            if device.source == .appleMatter {
+                Section {
+                    Button {
+                        showShareSheet = true
+                    } label: {
+                        Label("Share to Apple Home / Google Home", systemImage: "square.and.arrow.up")
+                    }
+                } footer: {
+                    Text("Opens a Matter commissioning window so other apps can add this device too.")
+                }
+            }
+
             // Last Updated
             Section {
                 InfoRow(label: "Last Updated", value: device.lastUpdated.formatted(.relative(presentation: .named)))
             }
         }
         .navigationTitle(device.name)
+        .sheet(isPresented: $showShareSheet) {
+            ShareDeviceView(device: device)
+                .environmentObject(sdk)
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: refresh) {

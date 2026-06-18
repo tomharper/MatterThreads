@@ -13,7 +13,51 @@ final class GoogleHomeBackend: DeviceBackend, @unchecked Sendable {
     private var projectId: String?
     private var discoveredDevices: [String: UnifiedDevice] = [:]
     private let lock = NSLock()
-    private let session = URLSession.shared
+    private let session: URLSession = {
+        let cfg = URLSessionConfiguration.default
+        cfg.timeoutIntervalForRequest = 15
+        cfg.timeoutIntervalForResource = 30
+        cfg.waitsForConnectivity = false
+        return URLSession(configuration: cfg)
+    }()
+
+    /// Send a request, mapping transport failures and HTTP status codes to clear,
+    /// user-facing errors instead of leaking raw URLErrors or silent nil-parses.
+    private func send(_ request: URLRequest, context: String) async throws -> Data {
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch let urlError as URLError {
+            switch urlError.code {
+            case .notConnectedToInternet, .networkConnectionLost, .cannotConnectToHost, .dataNotAllowed:
+                throw BackendError.deviceUnreachable("No internet connection — couldn't reach Google Home.")
+            case .timedOut:
+                throw BackendError.deviceUnreachable("Google Home request timed out (\(context)). Check your connection and try again.")
+            case .cannotFindHost, .dnsLookupFailed:
+                throw BackendError.deviceUnreachable("Couldn't reach Google's servers (\(context)).")
+            default:
+                throw BackendError.deviceUnreachable("Network error talking to Google Home: \(urlError.localizedDescription)")
+            }
+        }
+        guard let http = response as? HTTPURLResponse else {
+            throw BackendError.deviceUnreachable("Unexpected response from Google Home (\(context)).")
+        }
+        switch http.statusCode {
+        case 200...299:
+            return data
+        case 401, 403:
+            accessToken = nil
+            throw BackendError.notConfigured("Google authorization expired or is invalid — reconnect Google Home in Settings.")
+        case 404:
+            throw BackendError.deviceNotFound(context)
+        case 429:
+            throw BackendError.deviceUnreachable("Google Home is rate-limiting requests — try again shortly.")
+        default:
+            let body = String(data: data, encoding: .utf8)?.prefix(140) ?? ""
+            throw BackendError.commandFailure("Google Home \(context) failed (HTTP \(http.statusCode)) \(body)")
+        }
+    }
 
     // Google SDM API base URL
     private var baseURL: String {
@@ -66,17 +110,20 @@ final class GoogleHomeBackend: DeviceBackend, @unchecked Sendable {
 
     func startDiscovery() async throws {
         guard let config = config else {
-            throw BackendError.notConnected
+            throw BackendError.notConfigured("Google Home isn't set up — add your Device Access project and OAuth credentials in Settings → Google Home OAuth.")
         }
         projectId = config.projectId
 
         // Refresh token if needed
-        if accessToken == nil, let refreshToken = config.refreshToken {
+        if accessToken == nil {
+            guard let refreshToken = config.refreshToken else {
+                throw BackendError.notConfigured("Google Home is missing a refresh token — reconnect in Settings → Google Home OAuth.")
+            }
             try await refreshAccessToken(refreshToken: refreshToken)
         }
 
         guard accessToken != nil else {
-            throw BackendError.notConnected
+            throw BackendError.notConfigured("Couldn't obtain a Google access token — reconnect in Settings.")
         }
 
         // Fetch device list
@@ -102,11 +149,7 @@ final class GoogleHomeBackend: DeviceBackend, @unchecked Sendable {
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
-        let (data, response) = try await session.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw BackendError.deviceNotFound(deviceId)
-        }
-
+        let data = try await send(request, context: "read \(deviceId)")
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let traits = json["traits"] as? [String: Any] else {
             throw BackendError.attributeNotFound(path)
@@ -133,10 +176,7 @@ final class GoogleHomeBackend: DeviceBackend, @unchecked Sendable {
         ]
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        let (_, response) = try await session.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw BackendError.writeFailure("Google API command failed")
-        }
+        _ = try await send(request, context: "command \(command)")
     }
 
     func invokeCommand(deviceId: String, endpointId: UInt16, clusterId: UInt32,
@@ -191,10 +231,10 @@ final class GoogleHomeBackend: DeviceBackend, @unchecked Sendable {
         let body = "client_id=\(config.clientId)&client_secret=\(config.clientSecret)&refresh_token=\(refreshToken)&grant_type=refresh_token"
         request.httpBody = body.data(using: .utf8)
 
-        let (data, _) = try await session.data(for: request)
+        let data = try await send(request, context: "OAuth token refresh")
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let token = json["access_token"] as? String else {
-            throw BackendError.notConnected
+            throw BackendError.notConfigured("Google rejected the refresh token — reconnect Google Home in Settings.")
         }
         accessToken = token
     }
@@ -206,11 +246,7 @@ final class GoogleHomeBackend: DeviceBackend, @unchecked Sendable {
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
-        let (data, response) = try await session.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw BackendError.notConnected
-        }
-
+        let data = try await send(request, context: "list devices")
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let deviceList = json["devices"] as? [[String: Any]] else {
             return
@@ -239,7 +275,7 @@ final class GoogleHomeBackend: DeviceBackend, @unchecked Sendable {
                 room: room,
                 vendor: "Google",
                 deviceType: deviceType,
-                reachable: true,
+                reachable: isOnline(traits: traits),
                 attributes: attrs,
                 lastUpdated: Date()
             )
@@ -259,24 +295,53 @@ final class GoogleHomeBackend: DeviceBackend, @unchecked Sendable {
     }
 
     private func mapGoogleTraitsToAttributes(traits: [String: Any], into attrs: inout [AttributePath: SDKAttributeValue]) {
-        // Thermostat traits
+        // Thermostat operating state (HVAC) — what it's actively doing now.
         if let hvac = traits["sdm.devices.traits.ThermostatHvac"] as? [String: Any],
            let status = hvac["status"] as? String {
             attrs[.thermostatMode] = .int(status == "HEATING" ? 4 : status == "COOLING" ? 3 : 0)
         }
+        // Configured thermostat mode (HEAT/COOL/HEATCOOL/OFF) — overrides HVAC if set.
+        if let modeTrait = traits["sdm.devices.traits.ThermostatMode"] as? [String: Any],
+           let mode = modeTrait["mode"] as? String {
+            attrs[.thermostatMode] = .int(Self.matterMode(forSDM: mode))
+        }
+        // Temperature setpoints.
+        if let setpoint = traits["sdm.devices.traits.ThermostatTemperatureSetpoint"] as? [String: Any] {
+            if let heat = setpoint["heatCelsius"] as? Double {
+                attrs[.heatingSetpoint] = .int(Int64(heat * 100))
+            }
+            if let cool = setpoint["coolCelsius"] as? Double {
+                attrs[.coolingSetpoint] = .int(Int64(cool * 100))
+            }
+        }
+        // Ambient temperature.
         if let temp = traits["sdm.devices.traits.Temperature"] as? [String: Any],
            let ambient = temp["ambientTemperatureCelsius"] as? Double {
             attrs[.localTemperature] = .int(Int64(ambient * 100))
+            attrs[.measuredTemp] = .int(Int64(ambient * 100))
         }
+        // Ambient humidity.
         if let humidity = traits["sdm.devices.traits.Humidity"] as? [String: Any],
            let pct = humidity["ambientHumidityPercent"] as? Double {
             attrs[.measuredHumidity] = .int(Int64(pct * 100))
         }
-        // Connectivity
-        if let conn = traits["sdm.devices.traits.Connectivity"] as? [String: Any],
-           let status = conn["status"] as? String {
-            // Map to reachable (handled at device level)
-            _ = status == "ONLINE"
+    }
+
+    /// True if the device's Connectivity trait reports ONLINE (defaults to true
+    /// when the trait is absent, e.g. wired devices that don't report it).
+    private func isOnline(traits: [String: Any]) -> Bool {
+        guard let conn = traits["sdm.devices.traits.Connectivity"] as? [String: Any],
+              let status = conn["status"] as? String else { return true }
+        return status == "ONLINE"
+    }
+
+    /// Map an SDM thermostat mode string to the Matter ThermostatMode enum value.
+    private static func matterMode(forSDM mode: String) -> Int64 {
+        switch mode {
+        case "HEAT": return 4
+        case "COOL": return 3
+        case "HEATCOOL": return 1
+        default: return 0   // OFF
         }
     }
 
