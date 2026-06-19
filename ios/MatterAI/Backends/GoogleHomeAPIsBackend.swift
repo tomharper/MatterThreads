@@ -74,14 +74,22 @@ import Combine
 /// Base SDK requires iOS 17.0+; commissioning requires iOS 17.6+ (gated per-method).
 ///
 /// ---------------------------------------------------------------------------
-/// Two signatures NOT verifiable against Xcode quick-help at authoring time
-/// (Google reference pages 404'd). The real-SDK call sites below use the symbols
-/// from the design / official samples; re-verify before shipping live:
-///   - `DoorLockTrait` lock/unlock command labels and `ThermostatTrait.setpointRaiseLower(...)`
-///     argument labels.
-///   - `Structure.completeMatterCommissioning()` (`try` non-async, per sample) and
-///     `Home.restoreSession()` return type (`Home?`, awaited per sample).
-/// These sit inside `#if canImport(GoogleHomeSDK)`, so they don't affect today's build.
+/// VERIFICATION STATUS (the real SDK is download-gated behind Google Home
+/// Developers sign-in, so this cannot be compiler-checked here — all real-SDK use
+/// is inside `#if canImport(GoogleHomeSDK)` and does not affect today's build):
+///   VERIFIED against official docs (developers.home.google.com/apis/ios):
+///     - Device types are top-level symbols, NOT `Matter.`-prefixed, and the on/off
+///       light type is `OnOffLightDeviceType` (NOT `OnOffDeviceType`). Fixed.
+///     - Traits ARE `Matter.`-prefixed (e.g. `Matter.OnOffTrait`). Kept.
+///     - Control pattern: `device.types.get(SomeDeviceType.self)`, trait commands
+///       `.on()/.off()/.toggle()`, `supportsToggleCommand`.
+///   NOT yet compiler-verified (confirm when the SDK is linked):
+///     - Whether `device.types.get(_:)` RETURNS AN OPTIONAL (docs show
+///       `if let t = await device.types.get(...)`) vs. the `try await` used below;
+///       and `type.matterTraits.onOff` vs the documented `type.traits[Matter.OnOffTrait.self]`.
+///     - `DoorLockTrait` lock/unlock labels, thermostat setpoint accessors,
+///       `PowerSourceDeviceType` (not in the supported-types list), and
+///       `Structure.completeMatterCommissioning()` / `Home.restoreSession()` shapes.
 final class GoogleHomeAPIsBackend: DeviceBackend, @unchecked Sendable {
     let source: BackendSource = .googleHomeAPIs
 
@@ -501,7 +509,7 @@ final class GoogleHomeAPIsBackend: DeviceBackend, @unchecked Sendable {
     ) async throws -> SDKAttributeValue {
         switch mapping.kind {
         case .onOff:
-            let type = try await device.types.get(Matter.OnOffDeviceType.self)
+            let type = try await device.types.get(OnOffLightDeviceType.self)
             let trait = try requireTrait(type.matterTraits.onOff, path)
             guard trait.attributes.$onOff.isSupported, let v = trait.onOff else {
                 throw BackendError.attributeNotFound(path)
@@ -509,7 +517,7 @@ final class GoogleHomeAPIsBackend: DeviceBackend, @unchecked Sendable {
             return .bool(v)
 
         case .currentLevel:
-            let type = try await device.types.get(Matter.DimmableLightDeviceType.self)
+            let type = try await device.types.get(DimmableLightDeviceType.self)
             let trait = try requireTrait(type.matterTraits.levelControl, path)
             guard trait.attributes.$currentLevel.isSupported, let v = trait.currentLevel else {
                 throw BackendError.attributeNotFound(path)
@@ -517,85 +525,85 @@ final class GoogleHomeAPIsBackend: DeviceBackend, @unchecked Sendable {
             return .int(Int64(v))
 
         case .measuredTemp:
-            let type = try await device.types.get(Matter.TemperatureSensorDeviceType.self)
+            let type = try await device.types.get(TemperatureSensorDeviceType.self)
             let trait = try requireTrait(type.matterTraits.temperatureMeasurement, path)
             guard let v = trait.measuredValue else { throw BackendError.attributeNotFound(path) }
             return .int(Int64(v))   // centidegrees, matches UnifiedDevice.temperature (/100)
 
         case .measuredHumidity:
-            let type = try await device.types.get(Matter.HumiditySensorDeviceType.self)
+            let type = try await device.types.get(HumiditySensorDeviceType.self)
             let trait = try requireTrait(type.matterTraits.relativeHumidityMeasurement, path)
             guard let v = trait.measuredValue else { throw BackendError.attributeNotFound(path) }
             return .int(Int64(v))
 
         case .lockState:
-            let type = try await device.types.get(Matter.DoorLockDeviceType.self)
+            let type = try await device.types.get(DoorLockDeviceType.self)
             let trait = try requireTrait(type.matterTraits.doorLock, path)
             guard let v = trait.lockState else { throw BackendError.attributeNotFound(path) }
             return .int(Int64(v.rawValue))
 
         case .localTemperature:
-            let type = try await device.types.get(Matter.ThermostatDeviceType.self)
+            let type = try await device.types.get(ThermostatDeviceType.self)
             let trait = try requireTrait(type.matterTraits.thermostat, path)
             guard let v = trait.localTemperature else { throw BackendError.attributeNotFound(path) }
             return .int(Int64(v))
 
         case .heatingSetpoint:
-            let type = try await device.types.get(Matter.ThermostatDeviceType.self)
+            let type = try await device.types.get(ThermostatDeviceType.self)
             let trait = try requireTrait(type.matterTraits.thermostat, path)
             guard let v = trait.occupiedHeatingSetpoint else { throw BackendError.attributeNotFound(path) }
             return .int(Int64(v))
 
         case .coolingSetpoint:
-            let type = try await device.types.get(Matter.ThermostatDeviceType.self)
+            let type = try await device.types.get(ThermostatDeviceType.self)
             let trait = try requireTrait(type.matterTraits.thermostat, path)
             guard let v = trait.occupiedCoolingSetpoint else { throw BackendError.attributeNotFound(path) }
             return .int(Int64(v))
 
         case .thermostatMode:
-            let type = try await device.types.get(Matter.ThermostatDeviceType.self)
+            let type = try await device.types.get(ThermostatDeviceType.self)
             let trait = try requireTrait(type.matterTraits.thermostat, path)
             guard let v = trait.systemMode else { throw BackendError.attributeNotFound(path) }
             return .int(Int64(v.rawValue))
 
         case .fanMode:
-            let type = try await device.types.get(Matter.FanDeviceType.self)
+            let type = try await device.types.get(FanDeviceType.self)
             let trait = try requireTrait(type.matterTraits.fanControl, path)
             guard let v = trait.fanMode else { throw BackendError.attributeNotFound(path) }
             return .int(Int64(v.rawValue))
 
         case .fanPercent:
-            let type = try await device.types.get(Matter.FanDeviceType.self)
+            let type = try await device.types.get(FanDeviceType.self)
             let trait = try requireTrait(type.matterTraits.fanControl, path)
             guard let v = trait.percentSetting else { throw BackendError.attributeNotFound(path) }
             return .int(Int64(v))
 
         case .coverPosition:
-            let type = try await device.types.get(Matter.WindowCoveringDeviceType.self)
+            let type = try await device.types.get(WindowCoveringDeviceType.self)
             let trait = try requireTrait(type.matterTraits.windowCovering, path)
             guard let v = trait.currentPositionLiftPercentage else { throw BackendError.attributeNotFound(path) }
             return .int(Int64(v))
 
         case .occupancy:
-            let type = try await device.types.get(Matter.OccupancySensorDeviceType.self)
+            let type = try await device.types.get(OccupancySensorDeviceType.self)
             let trait = try requireTrait(type.matterTraits.occupancySensing, path)
             guard let v = trait.occupancy else { throw BackendError.attributeNotFound(path) }
             return .int(Int64(v.rawValue))
 
         case .contactState:
-            let type = try await device.types.get(Matter.ContactSensorDeviceType.self)
+            let type = try await device.types.get(ContactSensorDeviceType.self)
             let trait = try requireTrait(type.matterTraits.booleanState, path)
             guard let v = trait.stateValue else { throw BackendError.attributeNotFound(path) }
             return .bool(v)
 
         case .colorTemp:
-            let type = try await device.types.get(Matter.ColorTemperatureLightDeviceType.self)
+            let type = try await device.types.get(ColorTemperatureLightDeviceType.self)
             let trait = try requireTrait(type.matterTraits.colorControl, path)
             guard let v = trait.colorTemperatureMireds else { throw BackendError.attributeNotFound(path) }
             return .int(Int64(v))
 
         case .batteryRemaining:
-            let type = try await device.types.get(Matter.PowerSourceDeviceType.self)
+            let type = try await device.types.get(PowerSourceDeviceType.self)
             let trait = try requireTrait(type.matterTraits.powerSource, path)
             // NOTE: verify exact accessor name (`batRemaining` vs `batPercentRemaining`).
             guard let v = trait.batPercentRemaining else { throw BackendError.attributeNotFound(path) }
@@ -611,12 +619,12 @@ final class GoogleHomeAPIsBackend: DeviceBackend, @unchecked Sendable {
         // Command-modeled "writes": Matter models these as commands, not attribute
         // writes — route to the corresponding command so the protocol contract holds.
         case .onOff:
-            let type = try await device.types.get(Matter.OnOffDeviceType.self)
+            let type = try await device.types.get(OnOffLightDeviceType.self)
             let trait = try requireTrait(type.matterTraits.onOff, .onOff)
             if value.boolValue == true { try await trait.on() } else { try await trait.off() }
 
         case .currentLevel:
-            let type = try await device.types.get(Matter.DimmableLightDeviceType.self)
+            let type = try await device.types.get(DimmableLightDeviceType.self)
             let trait = try requireTrait(type.matterTraits.levelControl, .currentLevel)
             let level = UInt8(clamping: value.intValue ?? 0)
             try await trait.moveToLevel(level: level, transitionTime: nil,
@@ -624,19 +632,19 @@ final class GoogleHomeAPIsBackend: DeviceBackend, @unchecked Sendable {
 
         // Genuinely writable attributes via the trait `update { }` builder.
         case .heatingSetpoint:
-            let type = try await device.types.get(Matter.ThermostatDeviceType.self)
+            let type = try await device.types.get(ThermostatDeviceType.self)
             let trait = try requireTrait(type.matterTraits.thermostat, .heatingSetpoint)
             let setpoint = Int16(clamping: value.intValue ?? 0)
             _ = try await trait.update { $0.setOccupiedHeatingSetpoint(setpoint) }
 
         case .coolingSetpoint:
-            let type = try await device.types.get(Matter.ThermostatDeviceType.self)
+            let type = try await device.types.get(ThermostatDeviceType.self)
             let trait = try requireTrait(type.matterTraits.thermostat, .coolingSetpoint)
             let setpoint = Int16(clamping: value.intValue ?? 0)
             _ = try await trait.update { $0.setOccupiedCoolingSetpoint(setpoint) }
 
         case .fanPercent:
-            let type = try await device.types.get(Matter.FanDeviceType.self)
+            let type = try await device.types.get(FanDeviceType.self)
             let trait = try requireTrait(type.matterTraits.fanControl, .fanPercent)
             let percent = UInt8(clamping: value.intValue ?? 0)
             _ = try await trait.update { $0.setPercentSetting(percent) }
@@ -655,15 +663,15 @@ final class GoogleHomeAPIsBackend: DeviceBackend, @unchecked Sendable {
     ) async throws {
         switch (clusterId, commandId) {
         case (0x0006, 0x00):   // OnOff / Off
-            let type = try await device.types.get(Matter.OnOffDeviceType.self)
+            let type = try await device.types.get(OnOffLightDeviceType.self)
             try await requireTrait(type.matterTraits.onOff, .onOff).off()
 
         case (0x0006, 0x01):   // OnOff / On
-            let type = try await device.types.get(Matter.OnOffDeviceType.self)
+            let type = try await device.types.get(OnOffLightDeviceType.self)
             try await requireTrait(type.matterTraits.onOff, .onOff).on()
 
         case (0x0006, 0x02):   // OnOff / Toggle
-            let type = try await device.types.get(Matter.OnOffDeviceType.self)
+            let type = try await device.types.get(OnOffLightDeviceType.self)
             let trait = try requireTrait(type.matterTraits.onOff, .onOff)
             guard trait.supportsToggleCommand else {
                 throw BackendError.commandFailure("Toggle isn't supported by this device.")
@@ -671,23 +679,23 @@ final class GoogleHomeAPIsBackend: DeviceBackend, @unchecked Sendable {
             try await trait.toggle()
 
         case (0x0008, 0x00):   // LevelControl / MoveToLevel
-            let type = try await device.types.get(Matter.DimmableLightDeviceType.self)
+            let type = try await device.types.get(DimmableLightDeviceType.self)
             let trait = try requireTrait(type.matterTraits.levelControl, .currentLevel)
             let level = UInt8(clamping: (payload["level"] as? Int) ?? 0)
             try await trait.moveToLevel(level: level, transitionTime: nil,
                                         optionsMask: .init(), optionsOverride: .init())
 
         case (0x0101, 0x00):   // DoorLock / Lock
-            let type = try await device.types.get(Matter.DoorLockDeviceType.self)
+            let type = try await device.types.get(DoorLockDeviceType.self)
             // Verify exact label (`lockDoor()` per design).
             try await requireTrait(type.matterTraits.doorLock, .lockState).lockDoor()
 
         case (0x0101, 0x01):   // DoorLock / Unlock
-            let type = try await device.types.get(Matter.DoorLockDeviceType.self)
+            let type = try await device.types.get(DoorLockDeviceType.self)
             try await requireTrait(type.matterTraits.doorLock, .lockState).unlockDoor()
 
         case (0x0201, 0x00):   // Thermostat / SetpointRaiseLower
-            let type = try await device.types.get(Matter.ThermostatDeviceType.self)
+            let type = try await device.types.get(ThermostatDeviceType.self)
             let trait = try requireTrait(type.matterTraits.thermostat, .localTemperature)
             let mode = Matter.ThermostatTrait.SetpointRaiseLowerModeEnum(
                 rawValue: UInt8(clamping: (payload["mode"] as? Int) ?? 0)) ?? .both
@@ -711,49 +719,49 @@ final class GoogleHomeAPIsBackend: DeviceBackend, @unchecked Sendable {
         // (per Google's device-monitoring guidance), rather than completing.
         switch mapping.kind {
         case .onOff:
-            return device.types.subscribe(Matter.OnOffDeviceType.self)
+            return device.types.subscribe(OnOffLightDeviceType.self)
                 .compactMap { $0.matterTraits.onOff?.onOff }
                 .removeDuplicates()
                 .catch { _ in Empty<Bool, Never>() }
                 .sink { onValue(.bool($0)) }
 
         case .currentLevel:
-            return device.types.subscribe(Matter.DimmableLightDeviceType.self)
+            return device.types.subscribe(DimmableLightDeviceType.self)
                 .compactMap { $0.matterTraits.levelControl?.currentLevel }
                 .removeDuplicates()
                 .catch { _ in Empty<UInt8, Never>() }
                 .sink { onValue(.int(Int64($0))) }
 
         case .measuredTemp:
-            return device.types.subscribe(Matter.TemperatureSensorDeviceType.self)
+            return device.types.subscribe(TemperatureSensorDeviceType.self)
                 .compactMap { $0.matterTraits.temperatureMeasurement?.measuredValue }
                 .removeDuplicates()
                 .catch { _ in Empty<Int16, Never>() }
                 .sink { onValue(.int(Int64($0))) }
 
         case .measuredHumidity:
-            return device.types.subscribe(Matter.HumiditySensorDeviceType.self)
+            return device.types.subscribe(HumiditySensorDeviceType.self)
                 .compactMap { $0.matterTraits.relativeHumidityMeasurement?.measuredValue }
                 .removeDuplicates()
                 .catch { _ in Empty<UInt16, Never>() }
                 .sink { onValue(.int(Int64($0))) }
 
         case .lockState:
-            return device.types.subscribe(Matter.DoorLockDeviceType.self)
+            return device.types.subscribe(DoorLockDeviceType.self)
                 .compactMap { $0.matterTraits.doorLock?.lockState }
                 .removeDuplicates()
                 .catch { _ in Empty<Matter.DoorLockTrait.LockStateEnum, Never>() }
                 .sink { onValue(.int(Int64($0.rawValue))) }
 
         case .occupancy:
-            return device.types.subscribe(Matter.OccupancySensorDeviceType.self)
+            return device.types.subscribe(OccupancySensorDeviceType.self)
                 .compactMap { $0.matterTraits.occupancySensing?.occupancy }
                 .removeDuplicates()
                 .catch { _ in Empty<Matter.OccupancySensingTrait.OccupancyBitmap, Never>() }
                 .sink { onValue(.int(Int64($0.rawValue))) }
 
         case .contactState:
-            return device.types.subscribe(Matter.ContactSensorDeviceType.self)
+            return device.types.subscribe(ContactSensorDeviceType.self)
                 .compactMap { $0.matterTraits.booleanState?.stateValue }
                 .removeDuplicates()
                 .catch { _ in Empty<Bool, Never>() }
