@@ -32,7 +32,7 @@ MatterThreads runs a 4-node Thread mesh network as separate OS processes on your
 # Build
 cmake -B build && cmake --build build
 
-# Run tests (112 pass)
+# Run tests (128 pass)
 ctest --test-dir build
 
 # Launch interactive simulation with web dashboard
@@ -106,7 +106,13 @@ backhaul latency 200  Set cellular latency to 200ms
 
 ### Predefined Scenarios
 
-Run automated scenarios with `--scenario <name>`. These run to completion and output results.
+These scenarios are implemented as **automated test cases** (GoogleTest) — each drives a
+specific mesh / power / fleet behavior end-to-end and asserts the outcome. Run them with
+`ctest` (see the commands below the tables).
+
+> **Note:** the CLI's `--scenario <name>` flag runs a **free-running timed simulation** for
+> manual observation; it does **not** select one of the scripted scenarios below. The scripted
+> scenarios live in the test suite and are run via `ctest`.
 
 **Core mesh scenarios:**
 
@@ -150,14 +156,18 @@ Run automated scenarios with `--scenario <name>`. These run to completion and ou
 | `VanStateTransitionsWithEvents` | Walk a van through Registered → Commissioning → Online → Offline → Unreachable, buffering events at each stage. |
 
 ```bash
-# Run a specific scenario
-./build/app/matterthreads --scenario mesh-healing --seed 42
+# List the scenario tests
+ctest --test-dir build -N | grep -Ei 'Scenarios|PowerLifecycle'
 
-# Run with JSON output
-./build/app/matterthreads --scenario unlock-during-crank --output results.json
+# Run a specific scenario test (regex match on the test name)
+ctest --test-dir build -R MeshHealing --output-on-failure
 
-# Run with verbose logging
-./build/app/matterthreads --scenario backhaul-loss-recovery --verbose
+# Run all mesh + power-lifecycle scenarios
+ctest --test-dir build -R 'Scenarios|PowerLifecycle'
+
+# (CLI) free-running timed simulation for manual observation — note the flag
+# runs a generic timed sim, it does not select a specific scenario:
+./build/app/matterthreads --topology van --duration 60
 ```
 
 ### Scripted Healing Demo
@@ -227,9 +237,9 @@ See [docs/FLEET_GATEWAY.md](docs/FLEET_GATEWAY.md) for the full API reference.
 
 | Build | Command | Tests |
 |-------|---------|-------|
-| Default | `cmake -B build && cmake --build build` | 112 |
-| + Hardware Bridge | `cmake -B build -DENABLE_HW_BRIDGE=ON && cmake --build build` | 144 |
-| + Fleet Gateway | `cmake -B build -DENABLE_HW_BRIDGE=ON -DENABLE_GATEWAY=ON && cmake --build build` | 206 |
+| Default | `cmake -B build && cmake --build build` | 128 |
+| + Hardware Bridge | `cmake -B build -DENABLE_HW_BRIDGE=ON && cmake --build build` | 160 |
+| + Fleet Gateway | `cmake -B build -DENABLE_HW_BRIDGE=ON -DENABLE_GATEWAY=ON && cmake --build build` | 222 |
 
 ```bash
 # Run all tests
@@ -254,4 +264,4 @@ Requirements: C++20, CMake 3.20+, Apple Clang 17 (macOS) or GCC 12+ (Linux). Dep
 | [IPV6_AND_DISCOVERY.md](docs/IPV6_AND_DISCOVERY.md) | Thread IPv6 addressing, DNS-SD discovery, SRP |
 | [MOBILE_SDK_GUIDE.md](docs/MOBILE_SDK_GUIDE.md) | Matter SDK comparison (Apple vs Google vs connectedhomeip) |
 | [ROADMAP.md](docs/ROADMAP.md) | Project phases, status, and what's next |
-| [diagrams/](docs/diagrams/) | 14 SVG architecture diagrams |
+| [diagrams/](docs/diagrams/) | 19 SVG architecture diagrams (incl. [hardware-bridge](docs/diagrams/hardware-bridge.svg) — sim → real Thread/Matter) |

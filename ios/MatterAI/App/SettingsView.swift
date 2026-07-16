@@ -102,6 +102,33 @@ struct SettingsView: View {
                         .font(.caption2)
                 }
 
+                // Native Google Home APIs backend (Matter via Google's fabric)
+                Section {
+                    let active = sdk.activeBackends.contains(.googleHomeAPIs)
+                    Button {
+                        sdk.enableGoogleHomeAPIs()
+                    } label: {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Google Home (Native SDK)")
+                                    .foregroundStyle(.primary)
+                                Text(active ? "Enabled" : "Tap to enable — needs GoogleHomeSDK + Nest hub")
+                                    .font(.caption)
+                                    .foregroundStyle(active ? .green : .secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "g.circle.fill")
+                                .foregroundStyle(.green)
+                        }
+                    }
+                    .disabled(active)
+                } header: {
+                    Text("Google Home (Native)")
+                } footer: {
+                    Text("Direct Google Home APIs SDK — controls Matter devices through the user's Google Home fabric. Requires the SDK dropped into ThirdParty/GoogleHomeSDK (see SETUP.md), App Attest, and an online Cast-OS Nest hub. Not available in the Simulator.")
+                        .font(.caption2)
+                }
+
                 // Commissioned devices
                 Section {
                     if sdk.commissionedStore.records.isEmpty {
